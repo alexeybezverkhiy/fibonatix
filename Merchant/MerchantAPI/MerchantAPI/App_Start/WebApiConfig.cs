@@ -32,11 +32,6 @@ namespace MerchantAPI
                 defaults: new {endpointGroupId = RouteParameter.Optional}*/
             );
 
-            config.Routes.MapHttpRoute(
-                name: "AccountVerificationApi",
-                routeTemplate: "paynet/api/v2/account-verification/{endpointId}" /*,
-                defaults: new { endpointId = RouteParameter.Optional }*/
-            );
         }
     }
 }

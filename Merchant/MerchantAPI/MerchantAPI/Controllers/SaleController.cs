@@ -16,48 +16,32 @@ namespace MerchantAPI.Controllers
 {
     public class SaleController : ApiController
     {
-        private SaleService _saleService;
+        private SaleService _service;
 
         public SaleController()
         {
-            _saleService = new SaleService();
-        }
-
-        /*        // GET: api/MerchantApi
-                public IEnumerable<string> Get()
-                {
-                    return new string[] { "value1", "value2" };
-                }
-        */
-
-        // GET: api/MerchantApi/5
-        public string Get(int id)
-        {
-            return "value";
+            _service = new SaleService();
         }
 
         [HttpPost]
-        public string SingleCurrency(
+        public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
             [FromBody] SaleRequestModel model)
         {
-            throw new NotImplementedException();
+            //            SaleResponseModel result = _service.SaleMultiCurrency(endpointGroupId, model);
+            //            return result.ToHttpResponse();
+            ServiceTransitionResult result = _service.SaleSingleCurrency(endpointId, model);
+
+            HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
+            return response;
         }
 
         [HttpPost]
         public HttpResponseMessage MultiCurrency(
             [FromUri] int endpointGroupId,
-            [FromUri] SaleRequestModel model)
+            [FromBody] SaleRequestModel model)
         {
-            //            SaleResponseModel result = _saleService.SaleMultiCurrency(endpointGroupId, model);
-            //            return result.ToHttpResponse();
-            SaleServiceTransitionResult result = _saleService.SaleMultiCurrency(endpointGroupId, model);
-
-            HttpResponseMessage response = new HttpResponseMessage(result.Status);
-            response.Content = new StringContent(result.StringContent);
-            response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
-            return response;
-
+            throw new NotImplementedException();
         }
 
         [HttpGet]

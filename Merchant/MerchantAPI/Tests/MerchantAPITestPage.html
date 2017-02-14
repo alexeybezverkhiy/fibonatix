@@ -1,0 +1,93 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<title>Merchant API Test Page</title>
+</head>
+<body> 
+
+<div>
+<h1>Sale</h1>
+<h2>Single Currency</h2>
+<form id="testMerchantApiSingle" action="http://localhost:52380/paynet/api/v2/sale/250"  method="post">
+	<input id="client_orderid" name="client_orderid" type="text"  value="99999999"/> 
+<br>
+	<input id="order_desc" name="order_desc" type="text"  value="Test Order Description"/>         
+<br>
+	<input type="submit" value="Test">
+</form>
+</div>
+
+<hr size="1" color="green" align="center" width="100%">
+
+<h2>Status</h2>
+<form id="testMerchantApiSingle" action="http://localhost:52380/paynet/api/v2/status/250"  method="post">
+	<input id="client_orderid" name="client_orderid" type="text"  value="99999999"/> 
+<br>
+	<input id="order_desc" name="order_desc" type="text"  value="Test Order Description"/>         
+<br>
+	<input type="submit" value="Test">
+</form>
+</div>
+
+<hr size="2" color="blue" align="center" width="100%">
+
+<div>
+<h1>Account Verification</h1>
+<h2>Single Currency</h2>
+<form id="testMerchantApiMulti" action="http://localhost:52380/paynet/api/v2/account-verification/250" method="post">
+	<input id="client_orderid" name="client_orderid" type="text"  value="99999999"/> 
+<br/>
+	<input type="submit" value="Test">
+</form>
+</div>
+
+<hr size="2" color="blue" align="center" width="100%">
+
+<div>
+<h1>PreAuth</h1>
+<h2>Single Currency</h2>
+<form id="testMerchantApiMulti" action="http://localhost:52380/paynet/api/v2/preauth/250" method="post">
+	<input id="client_orderid" name="client_orderid" type="text"  value="99999999"/> 
+<br/>
+	<input type="submit" value="Test">
+</form>
+</div>
+
+<hr size="2" color="blue" align="center" width="100%">
+
+<div>
+<h1>Capture</h1>
+<h2>Single Currency</h2>
+<form id="testMerchantApiMulti" action="http://localhost:52380/paynet/api/v2/capture/250" method="post">
+	<input id="client_orderid" name="client_orderid" type="text"  value="99999999"/> 
+<br/>
+	<input type="submit" value="Test">
+</form>
+</div>
+
+<hr size="2" color="blue" align="center" width="100%">
+
+<div>
+<h1>Return</h1>
+<h2>Single Currency</h2>
+<form id="testMerchantApiMulti" action="http://localhost:52380/paynet/api/v2/return/250" method="post">
+	<input id="client_orderid" name="client_orderid" type="text"  value="99999999"/> 
+<br/>
+	<input type="submit" value="Test">
+</form>
+</div>
+
+<hr size="2" color="blue" align="center" width="100%">
+
+<div>
+<h1>Void</h1>
+<h2>Single Currency</h2>
+<form id="testMerchantApiMulti" action="http://localhost:52380/paynet/api/v2/void/250" method="post">
+	<input id="client_orderid" name="client_orderid" type="text"  value="99999999"/> 
+<br/>
+	<input type="submit" value="Test">
+</form>
+</div>
+
+</body>
+</html>

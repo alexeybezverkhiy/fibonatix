@@ -8,6 +8,7 @@ using MerchantAPI.Models;
 
 namespace MerchantAPI.Controllers
 {
+//    [RoutePrefix("account-verification")]
     public class AccountVerificationController : ApiController
     {
 

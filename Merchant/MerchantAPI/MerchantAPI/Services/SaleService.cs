@@ -18,14 +18,14 @@ namespace MerchantAPI.Services
         public const string PAYMENT_URL = "https://frontend.payment-transaction.net/payment.aspx";
         public const string ESCAPE = "(escape('";
 
-        public SaleServiceTransitionResult SaleMultiCurrency(int endpointGroupId, SaleRequestModel model)
+        public ServiceTransitionResult SaleSingleCurrency(int endpointId, SaleRequestModel model)
         {
             byte[] partnerResponse = new byte[0];
             WebClient client = CommDooFrontendConnector.CreateWebClient();
 
             try
             {
-                NameValueCollection data = CommDooFrontendFactory.CreateMultyCurrencyPaymentParams(endpointGroupId, model);
+                NameValueCollection data = CommDooFrontendFactory.CreateMultyCurrencyPaymentParams(endpointId, model);
 
                 partnerResponse = client.UploadValues(new Uri(PAYMENT_URL), "POST", data);
             }
@@ -34,7 +34,7 @@ namespace MerchantAPI.Services
                 //                SaleResponseModel err = new SaleResponseModel();
                 //                err.SetError("1", "CONNECTION ERROR: " + e.Message);
                 //                return err;
-                return new SaleServiceTransitionResult(HttpStatusCode.InternalServerError,
+                return new ServiceTransitionResult(HttpStatusCode.InternalServerError,
                     "CONNECTION ERROR: " + e.Message);
 
             }
@@ -51,7 +51,7 @@ namespace MerchantAPI.Services
 //                partnerResponse = client.UploadValues(new Uri(redirectUrl), "GET", new NameValueCollection());
 //                strResponse = u8.GetString(partnerResponse);
 //            }
-            return new SaleServiceTransitionResult(HttpStatusCode.OK,
+            return new ServiceTransitionResult(HttpStatusCode.OK,
                 strResponse);
             //            SaleResponseModel succ = new SaleResponseModel();
             //            succ.SetSucc();
@@ -59,15 +59,4 @@ namespace MerchantAPI.Services
         }
     }
 
-    public class SaleServiceTransitionResult
-    {
-        public SaleServiceTransitionResult(HttpStatusCode status, string stringContent)
-        {
-            Status = status;
-            StringContent = stringContent;
-        }
-
-        public HttpStatusCode Status { get; set; }
-        public string StringContent { get; set; }
-    }
 }
