@@ -4,20 +4,32 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using MerchantAPI.Controllers.Factories;
 using MerchantAPI.Models;
+using MerchantAPI.Services;
 
 namespace MerchantAPI.Controllers
 {
-//    [RoutePrefix("account-verification")]
+
     public class AccountVerificationController : ApiController
     {
+        private AccountVerificationService _service;
+
+        public AccountVerificationController()
+        {
+            _service = new AccountVerificationService();
+        }
 
         [HttpPost]
-        public string SingleCurrency(
+        public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
             [FromBody] SaleRequestModel model)
         {
-            throw new NotImplementedException();
+            ServiceTransitionResult result = _service.AccountVerificationSingleCurrency(endpointId, model);
+
+            HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
+            return response;
+
         }
 
     }
