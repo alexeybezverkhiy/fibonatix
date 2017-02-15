@@ -11,9 +11,9 @@ namespace MerchantAPI
     {
         public static void Register(HttpConfiguration config)
         {
-            // Конфигурация и службы веб-API
+            // Configuration and Services of Web API
 
-            // Маршруты веб-API
+            // Routing of Web API
             config.MapHttpAttributeRoutes();
 
             // Hyphenated urls for controller name in WebApi
@@ -21,23 +21,30 @@ namespace MerchantAPI
                 new ApiControllerSelector(config));
 
             config.Routes.MapHttpRoute(
-                name: "SingleCurrencyApi",
+                name: "A-SingleCurrencyApi",
                 routeTemplate: "paynet/api/v2/{controller}/{endpointId}" /*,
                 defaults: new { endpointId = RouteParameter.Optional }*/
             );
 
+            // Performing 'successurl' & 'failureurl'
             config.Routes.MapHttpRoute(
-                name: "MultiCurrencyApi",
+                name: "A-SingleCurrencyApiCallback",
+                routeTemplate: "paynet/api/v2/{controller}/{endpointId}/{action}" /*,
+                defaults: new { endpointId = RouteParameter.Optional }*/
+            );
+
+            config.Routes.MapHttpRoute(
+                name: "B-MultiCurrencyApi",
                 routeTemplate: "paynet/api/v2/{controller}/group/{endpointGroupId}" /*,
                 defaults: new {endpointGroupId = RouteParameter.Optional}*/
             );
 
+            // Performing 'successurl' & 'failureurl'
             config.Routes.MapHttpRoute(
-                name: "MultiCurrencyApiResult",
+                name: "B-MultiCurrencyApiCallback",
                 routeTemplate: "paynet/api/v2/{controller}/group/{endpointGroupId}/{action}" /*,
                 defaults: new {endpointGroupId = RouteParameter.Optional}*/
             );
-
         }
     }
 
