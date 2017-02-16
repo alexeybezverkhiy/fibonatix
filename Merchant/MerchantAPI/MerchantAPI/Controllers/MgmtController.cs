@@ -33,12 +33,16 @@ namespace MerchantAPI.Controllers
     {
         [DataMember]
         public bool IsTestingMode { get; set; }
-        [DataMember]
-        public string ClientId { get; set; }
+
         [DataMember]
         public string Version { get; set; }
+
+        [DataMember]
+        public string ClientId { get; set; }
+
         [DataMember]
         public string PublicServerName { get; set; }
+
         [DataMember]
         public string PaymentASPXEndpoint { get; set; }
     }

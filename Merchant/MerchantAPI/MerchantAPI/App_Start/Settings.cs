@@ -56,7 +56,7 @@ namespace MerchantAPI.App_Start
             get { return "https://frontend.payment-transaction.net/payment.aspx"; }
         }
 
-    public NameValueCollection MerchantControlKeys => MerchantControlKeyCollection;
+        public NameValueCollection MerchantControlKeys => MerchantControlKeyCollection;
         private static readonly NameValueCollection MerchantControlKeyCollection = new NameValueCollection();
     }
 }
