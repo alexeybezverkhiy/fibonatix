@@ -12,11 +12,6 @@ namespace MerchantAPI.Controllers.Factories
 {
     public class CommDooFrontendFactory
     {
-        private const string DestinationTimeZoneId = "W. Europe Standard Time";
-        private const string CONFIG_SERVER_NAME = "5.149.150.98";
-        private const string CONFIG_CLIENT_ID = "99999999";
-        private const string CONFIG_SHARED_SECRET = "test";
-
         private static readonly string SUCC_EXTRA_PATH = "/success";
         private static readonly string FAIL_EXTRA_PATH = "/failure";
 
@@ -26,17 +21,19 @@ namespace MerchantAPI.Controllers.Factories
         {
             NameValueCollection data = CreatePaymentParams(model);
             data.Add("relatedinformation-endpointgroupid", "" + endpointGroupId);
-            data.Add("hash", CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data, CONFIG_SHARED_SECRET));
+            data.Add("hash", CommDooHashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data, 
+                WebApiConfig.Settings.SharedSecret));
             return data;
         }
 
         public static NameValueCollection CreateSingleCurrencyPaymentParams(
-            int endpointId, 
+            int endpointId,
             SaleRequestModel model)
         {
             NameValueCollection data = CreatePaymentParams(model);
             data.Add("relatedinformation-endpointid", "" + endpointId);
-            data.Add("hash", CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data, CONFIG_SHARED_SECRET));
+            data.Add("hash", CommDooHashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
+                WebApiConfig.Settings.SharedSecret));
             return data;
         }
 
@@ -46,7 +43,7 @@ namespace MerchantAPI.Controllers.Factories
             DateTime now = DateTime.Now;
             NameValueCollection data = new NameValueCollection
             {
-                {"clientid", CONFIG_CLIENT_ID},
+                {"clientid", WebApiConfig.Settings.ClientId},
                 {"payment", "creditcard"},
                 {"referenceid", model.client_orderid + "-" + now.ToString("yyyyMMddHHmmss.fff")},
                 {"orderid", model.client_orderid},
@@ -54,7 +51,7 @@ namespace MerchantAPI.Controllers.Factories
                 {"firstname", model.first_name},
                 {"lastname", model.last_name},
                 {"idcardnumber", "" + model.ssn},
-                {"dateofbirth", ConvertBirthdayToString(model.birthday)},
+                {"dateofbirth", CommDooTargetConverter.ConvertBirthdayToString(model.birthday)},
                 {"street", model.address1},
                 {"city", model.city},
                 {"state", model.state},
@@ -73,26 +70,22 @@ namespace MerchantAPI.Controllers.Factories
                 {"successurl", ResolveInternalUrl(SUCC_EXTRA_PATH)},
                 // {"notificationurl", ""},
                 {"failurl", ResolveInternalUrl(FAIL_EXTRA_PATH)},
-                {"timestamp", ConvertToWesternEurope(now).ToString("ddMMyyyyHHmmss")},
+                {"timestamp", CommDooTargetConverter.ConvertToWesternEurope(now).ToString("ddMMyyyyHHmmss")},
                 {"relatedinformation-orderdescription", model.order_desc}
             };
             return data;
         }
 
-        public static DateTime ConvertToWesternEurope(DateTime utc)
-        {
-            DateTime westernEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(utc, DestinationTimeZoneId);
-            return westernEurope;
-        }
-
         public static string ResolveInternalUrl(string extraPath)
         {
             return String.Format("{0}://{1}:{2}{3}{4}",
-                HttpContext.Current.Request.Url.Scheme, CONFIG_SERVER_NAME, HttpContext.Current.Request.Url.Port, 
+                HttpContext.Current.Request.Url.Scheme,
+                WebApiConfig.Settings.PublicServerName, 
+                HttpContext.Current.Request.Url.Port,
                 HttpContext.Current.Request.Url.AbsolutePath, extraPath);
         }
 
-        private static string[] PAYMENT_HASH_KEY_SEQUENSE = 
+        private static string[] PAYMENT_HASH_KEY_SEQUENSE =
         {
             "clientid",
             "payment",
@@ -204,62 +197,5 @@ namespace MerchantAPI.Controllers.Factories
             "additionaldata",
             "timestamp"
         };
-
-        private static string AssemblyHashContent(string[] calculationMap, NameValueCollection data, string sharedSecret)
-        {
-            StringBuilder content = new StringBuilder(256);
-            foreach (var key in calculationMap)
-            {
-                string value = data[key];
-                if (!String.IsNullOrEmpty(value))
-                {
-                    content.Append(value);
-                }
-            }
-            content.Append(sharedSecret);
-            return content.ToString();
-        }
-
-        private static string CalculateHash(string[] calculationMap, NameValueCollection data, string sharedSecret)
-        {
-            string content = AssemblyHashContent(calculationMap, data, sharedSecret);
-
-//            MD5 md5 = new MD5CryptoServiceProvider();
-//            byte[] digest = md5.ComputeHash(Encoding.UTF8.GetBytes(hash.ToString()));
-//            string base64Digest = Convert.ToBase64String(digest, 0, digest.Length);
-//            return base64Digest.Substring(0, base64Digest.Length - 2);
-            SHA1CryptoServiceProvider crypto = new SHA1CryptoServiceProvider();
-            byte[] digest = crypto.ComputeHash(Encoding.UTF8.GetBytes(content));
-            var sb = new StringBuilder(48);
-            foreach (byte b in digest)
-            {
-                sb.AppendFormat("{0:x2}", b);
-            }
-            return sb.ToString();
-        }
-
-        /*
-         * From YYYYMMDD to DDMMYYYY
-         */
-        public static long ConvertBirthday(long birthday)
-        {
-            long day = birthday % 100;
-            long month = (birthday % 10000) / 100;
-            long year = birthday / 10000;
-
-            return day * 1000000 + month * 10000 + year;
-        }
-
-        /*
-         * From YYYYMMDD to DDMMYYYY
-         */
-        public static string ConvertBirthdayToString(long birthday)
-        {
-            long day = birthday % 100;
-            long month = (birthday % 10000) / 100;
-            long year = birthday / 10000;
-
-            return String.Format("{0:00}.{1:00}.{2:0000}", day, month, year);
-        }
     }
 }

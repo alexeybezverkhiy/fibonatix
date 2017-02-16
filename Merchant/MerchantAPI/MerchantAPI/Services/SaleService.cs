@@ -15,7 +15,6 @@ namespace MerchantAPI.Services
 {
     public class SaleService
     {
-        public const string PAYMENT_URL = "https://frontend.payment-transaction.net/payment.aspx";
         public const string ESCAPE = "(escape('";
 
         public ServiceTransitionResult SaleSingleCurrency(int endpointId, SaleRequestModel model)
@@ -27,7 +26,7 @@ namespace MerchantAPI.Services
             {
                 NameValueCollection data = CommDooFrontendFactory.CreateMultyCurrencyPaymentParams(endpointId, model);
 
-                partnerResponse = client.UploadValues(new Uri(PAYMENT_URL), "POST", data);
+                partnerResponse = client.UploadValues(new Uri(WebApiConfig.Settings.PaymentASPXEndpoint), "POST", data);
             }
             catch (Exception e)
             {

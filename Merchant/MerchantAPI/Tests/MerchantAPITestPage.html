@@ -8,7 +8,7 @@
 <div>
 <h1>Sale</h1>
 <h2>Single Currency</h2>
-<form id="testMerchantApiSingle" action="http://localhost:52380/paynet/api/v2/sale/250z"  method="post">
+<form id="testMerchantApiSingle" action="http://localhost:52380/paynet/api/v2/sale/250"  method="post">
 	<input id="client_orderid" name="client_orderid" type="text"  value="99999999"/> 
 <br>
 	<input id="order_desc" name="order_desc" type="text"  value="Test Order Description"/>         
@@ -85,6 +85,44 @@
 <form id="testMerchantApiMulti" action="http://localhost:52380/paynet/api/v2/void/250" method="post">
 	<input id="client_orderid" name="client_orderid" type="text"  value="99999999"/> 
 <br/>
+	<input type="submit" value="Test">
+</form>
+</div>
+
+<hr size="2" color="blue" align="center" width="100%">
+
+<div>
+<h1>SuccessUlr Postback</h1>
+<h2>Sale Success</h2>
+<form id="testMerchantApiMulti" action="http://localhost:52380/paynet/api/v2/sale/250/success" method="post">
+clientid     <input id="clientid" name="clientid" type="text" value="99999999"/> <br/>
+currency     <input id="currency" name="currency" type="text" value="840"/> <br/>
+customer-country    <input id="customer-country" name="customer-country" type="text" value="840"/> <br/>
+	<input type="submit" value="Test">
+</form>
+</div>
+
+<hr size="2" color="blue" align="center" width="100%">
+
+<div>
+<h1>CommDoo Notification Postback</h1>
+<h2>Success</h2>
+<form id="testMerchantApiMulti" action="http://localhost:52380/paynet/api/v2/notification/success" method="post">
+<label for="clientid">clientid</label>     <input id="clientid" name="clientid" type="text" value="99999999"/> <br/>
+<label for="currency">currency</label>     <input id="currency" name="currency" type="text" value="840"/> <br/>
+<label for="customer-country">customer-country</label>    <input id="customer-country" name="customer-country" type="text" value="840"/> <br/>
+<label for="hash">hash</label>    <input id="hash" name="hash" type="text" value="43fa9469e6c954c382d19382c7432f3ec41e3194"/> <br/>
+
+	<input type="submit" value="Test">
+</form>
+</div>
+
+<hr size="2" color="blue" align="center" width="100%">
+
+<div>
+<h1>Management</h1>
+<h2>Settings</h2>
+<form id="testMerchantApiMulti" action="http://localhost:52380/paynet/api/v2/mgmt/settings">
 	<input type="submit" value="Test">
 </form>
 </div>
