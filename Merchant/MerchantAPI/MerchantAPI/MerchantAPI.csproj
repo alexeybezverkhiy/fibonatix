@@ -177,6 +177,7 @@
     <Compile Include="CommDoo\BackEnd\Requests\Start.cs" />
     <Compile Include="Connectors\CommDooFrontendConnector.cs" />
     <Compile Include="Controllers\AccountVerificationController.cs" />
+    <Compile Include="Controllers\Factories\SerializerFactory.cs" />
     <Compile Include="Controllers\NotificationController.cs" />
     <Compile Include="Controllers\MgmtController.cs" />
     <Compile Include="Models\NotificationRequestModel.cs" />

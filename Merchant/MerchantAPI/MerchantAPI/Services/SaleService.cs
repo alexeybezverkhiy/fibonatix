@@ -35,7 +35,7 @@ namespace MerchantAPI.Services
                 if (requestParameters.Count > 0)
                     parameters.Length -= 1;
 
-                string redirectToCommDoo = PAYMENT_URL + "?" + parameters.ToString();
+                string redirectToCommDoo = WebApiConfig.Settings.PaymentASPXEndpoint + "?" + parameters.ToString();
 
                 // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo
                 Data.Cache.setRedirectUrlForRequest(model.client_orderid, redirectToCommDoo);

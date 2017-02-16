@@ -5,6 +5,8 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Web.Http;
+using System.Web.Http.Results;
+using MerchantAPI.Controllers.Factories;
 
 namespace MerchantAPI.Controllers
 {
@@ -13,17 +15,17 @@ namespace MerchantAPI.Controllers
 
         [HttpGet]
         [ActionName("settings")]
-        public HttpResponseMessage Settings()
+        public JsonResult<SettingsModel> Settings()
         {
             SettingsModel settings = new SettingsModel
             {
                 IsTestingMode = WebApiConfig.Settings.IsTestingMode,
-                ClientId = WebApiConfig.Settings.ClientId,
                 Version = WebApiConfig.Settings.Version,
+                ClientId = WebApiConfig.Settings.ClientId,
                 PublicServerName = WebApiConfig.Settings.PublicServerName,
                 PaymentASPXEndpoint = WebApiConfig.Settings.PaymentASPXEndpoint
             };
-            return Request.CreateResponse(HttpStatusCode.OK, settings);
+            return Json(settings, SerializerFactory.CreateJsonSerializerSettings());
         }
     }
 
