@@ -22,7 +22,7 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
-            [FromBody] SaleRequestModel model)
+            [FromBody] StatusRequestModel model)
         {
             ServiceTransitionResult result = _service.StatusSingleCurrency(endpointId, model);
 
