@@ -18,41 +18,53 @@ namespace MerchantAPI.Services
         public const string PAYMENT_URL = "https://frontend.payment-transaction.net/payment.aspx";
         public const string ESCAPE = "(escape('";
 
+
         public ServiceTransitionResult SaleSingleCurrency(int endpointId, SaleRequestModel model)
         {
             byte[] partnerResponse = new byte[0];
-            WebClient client = CommDooFrontendConnector.CreateWebClient();
-
+            NameValueCollection requestParameters = null;
             try
             {
-                NameValueCollection data = CommDooFrontendFactory.CreateMultyCurrencyPaymentParams(endpointId, model);
+                requestParameters = CommDooFrontendFactory.CreateMultyCurrencyPaymentParams(endpointId, model);
 
-                partnerResponse = client.UploadValues(new Uri(PAYMENT_URL), "POST", data);
-            }
-            catch (Exception e)
+                var parameters = new StringBuilder();
+                foreach (string key in requestParameters.Keys) {
+                    parameters.AppendFormat("{0}={1}&",
+                        HttpUtility.UrlEncode(key),
+                        HttpUtility.UrlEncode(requestParameters[key]));
+                }
+                if (requestParameters.Count > 0)
+                    parameters.Length -= 1;
+
+                string redirectToCommDoo = PAYMENT_URL + "?" + parameters.ToString();
+
+                // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo
+                Data.Cache.setRedirectUrlForRequest(model.client_orderid, redirectToCommDoo);
+
+                string response = "type=async-response&serial-number=00000000-0000-0000-0000-sale-" + model.client_orderid + "&merchant-order-id=" + model.client_orderid;
+
+                partnerResponse = Encoding.UTF8.GetBytes(response);
+
+            } catch (Exception e)
             {
-                //                SaleResponseModel err = new SaleResponseModel();
-                //                err.SetError("1", "CONNECTION ERROR: " + e.Message);
-                //                return err;
                 return new ServiceTransitionResult(HttpStatusCode.InternalServerError,
-                    "CONNECTION ERROR: " + e.Message);
-
+                    "CONNECTION ERROR: " + e.Message + "\n" );
             }
             finally { }
 
-            Encoding u8 = Encoding.UTF8;
-            string strResponse = u8.GetString(partnerResponse);
-//            int begin = strResponse.IndexOf(ESCAPE);
-//            if (begin >= 0)
-//            {
-//                begin += ESCAPE.Length;
-//                int end = strResponse.IndexOf("')");
-//                string redirectUrl = strResponse.Substring(begin, end - begin);
-//                partnerResponse = client.UploadValues(new Uri(redirectUrl), "GET", new NameValueCollection());
-//                strResponse = u8.GetString(partnerResponse);
-//            }
+            string strResponse = Encoding.UTF8.GetString(partnerResponse);
+            //            int begin = strResponse.IndexOf(ESCAPE);
+            //            if (begin >= 0)
+            //            {
+            //                begin += ESCAPE.Length;
+            //                int end = strResponse.IndexOf("')");
+            //                string redirectUrl = strResponse.Substring(begin, end - begin);
+            //                partnerResponse = client.UploadValues(new Uri(redirectUrl), "GET", new NameValueCollection());
+            //                strResponse = u8.GetString(partnerResponse);
+            //            }
+
             return new ServiceTransitionResult(HttpStatusCode.OK,
-                strResponse);
+                strResponse + "\n" );
             //            SaleResponseModel succ = new SaleResponseModel();
             //            succ.SetSucc();
             //            return succ;
