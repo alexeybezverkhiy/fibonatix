@@ -38,7 +38,18 @@ namespace MerchantAPI.Helpers
             long month = (birthday % 10000) / 100;
             long year = birthday / 10000;
 
-            return String.Format("{0:00}.{1:00}.{2:0000}", day, month, year);
+            return string.Format("{0:00}.{1:00}.{2:0000}", day, month, year);
+        }
+
+        public static string ConvertToMinimalMonetaryUnits(string amount)
+        {
+            return string.IsNullOrEmpty(amount) ? string.Empty : amount.Replace(".", string.Empty);
+        }
+
+        public static string ConvertToMinimalMonetaryUnits(string amount, string currency)
+        {
+            return ConvertToMinimalMonetaryUnits(amount) + 
+                (string.IsNullOrEmpty(amount) ? string.Empty : currency);
         }
     }
 }

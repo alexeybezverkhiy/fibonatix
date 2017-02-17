@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Web;
+using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Models
 {
@@ -30,8 +31,7 @@ namespace MerchantAPI.Models
                 .Append(login)
                 .Append(client_orderid)
                 .Append(orderid)
-                .Append(string.IsNullOrEmpty(amount) ? string.Empty : amount.Replace(".", string.Empty))
-                .Append(string.IsNullOrEmpty(amount) ? string.Empty : currency)
+                .Append(CommDooTargetConverter.ConvertToMinimalMonetaryUnits(amount, currency))
                 .Append(merchantControlKey);
         }
     }

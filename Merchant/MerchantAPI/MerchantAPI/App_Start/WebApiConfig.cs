@@ -12,11 +12,13 @@ namespace MerchantAPI
     public static class WebApiConfig
     {
         public static readonly ISettings Settings;
+        public static readonly SettingsFactory SettingsFactory;
 
         static WebApiConfig()
         {
 //            Settings = new ProductionSettings();
             Settings = new TestSettings();
+            SettingsFactory = new SettingsFactory(Settings);
         }
 
         public static void Register(HttpConfiguration config)
@@ -48,18 +50,18 @@ namespace MerchantAPI
                 routeTemplate: "paynet/api/v2/{controller}/{action}"
             );
 
-            config.Routes.MapHttpRoute(
-                name: "B-MultiCurrencyApi",
-                routeTemplate: "paynet/api/v2/{controller}/group/{endpointGroupId}" /*,
-                defaults: new {endpointGroupId = RouteParameter.Optional}*/
-            );
+//            config.Routes.MapHttpRoute(
+//                name: "B-MultiCurrencyApi",
+//                routeTemplate: "paynet/api/v2/{controller}/group/{endpointGroupId}" /*,
+//                defaults: new {endpointGroupId = RouteParameter.Optional}*/
+//            );
 
-            // Performing 'successurl' & 'failureurl' as {action}
-            config.Routes.MapHttpRoute(
-                name: "B-MultiCurrencyApiCallback",
-                routeTemplate: "paynet/api/v2/{controller}/group/{endpointGroupId}/{action}" /*,
-                defaults: new {endpointGroupId = RouteParameter.Optional}*/
-            );
+//            // Performing 'successurl' & 'failureurl' as {action}
+//            config.Routes.MapHttpRoute(
+//                name: "B-MultiCurrencyApiCallback",
+//                routeTemplate: "paynet/api/v2/{controller}/group/{endpointGroupId}/{action}" /*,
+//                defaults: new {endpointGroupId = RouteParameter.Optional}*/
+//            );
         }
     }
 

@@ -106,7 +106,7 @@ namespace MerchantAPI.Models
             return builder
                 .Append(endpoint)
                 .Append(string.IsNullOrEmpty(client_orderid) ? string.Empty : client_orderid)
-                .Append(string.IsNullOrEmpty(amount) ? string.Empty : amount.Replace(".", string.Empty))
+                .Append(CommDooTargetConverter.ConvertToMinimalMonetaryUnits(amount))
                 .Append(string.IsNullOrEmpty(email) ? string.Empty : email)
                 .Append(merchantControlKey);
         }

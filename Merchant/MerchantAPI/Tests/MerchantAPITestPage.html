@@ -9,15 +9,15 @@
 <h1>Sale</h1>
 <h2>Single Currency</h2>
 <form id="testMerchantApiSingle" action="http://localhost:52380/paynet/api/v2/sale/250"  method="post">
-	<input id="client_orderid" name="client_orderid" type="text"  value="99999999"/> 
-<br>
-	<input id="order_desc" name="order_desc" type="text"  value="Test Order Description"/>         
-<br>
+	<input id="client_orderid" name="client_orderid" type="text"  value="99999999"/> <br>
+	<input id="order_desc" name="order_desc" type="text"  value="Test Order Description"/> <br>
+	<input id="amount" name="amount" type="text"  value="9.44"/> <br>
+	<input id="currency" name="currency" type="text"  value="EUR"/> <br>
 	<input type="submit" value="Test">
 </form>
 </div>
 
-<hr size="1" color="green" align="center" width="100%">
+<hr size="1" color="green" align="center" width="75%">
 
 <h2>Status</h2>
 <form id="testMerchantApiSingle" action="http://localhost:52380/paynet/api/v2/status/250"  method="post">
@@ -94,7 +94,7 @@
 <div>
 <h1>SuccessUlr Postback</h1>
 <h2>Sale Success</h2>
-<form id="testMerchantApiMulti" action="http://localhost:52380/paynet/api/v2/sale/250/success" method="post">
+<form id="testMerchantApiMulti" action="http://localhost:52380/paynet/api/v2/sale/250/success" method="get">
 clientid     <input id="clientid" name="clientid" type="text" value="99999999"/> <br/>
 currency     <input id="currency" name="currency" type="text" value="840"/> <br/>
 customer-country    <input id="customer-country" name="customer-country" type="text" value="840"/> <br/>
@@ -122,7 +122,15 @@ customer-country    <input id="customer-country" name="customer-country" type="t
 <div>
 <h1>Management</h1>
 <h2>Settings</h2>
-<form id="testMerchantApiMulti" action="http://localhost:52380/paynet/api/v2/mgmt/settings">
+<form id="testMerchantApiMulti" action="http://localhost:52380/paynet/api/v2/mgmt/settings" method="get">
+	<input type="submit" value="Test">
+</form>
+</div>
+
+<hr size="1" color="green" align="center" width="75%">
+
+<h2>Cache</h2>
+<form id="testMerchantApiMulti" action="http://localhost:52380/paynet/api/v2/mgmt/cache" method="get">
 	<input type="submit" value="Test">
 </form>
 </div>

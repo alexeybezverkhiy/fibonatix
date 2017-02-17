@@ -15,6 +15,7 @@ namespace MerchantAPI.App_Start
         NameValueCollection MerchantControlKeys { get; }
         bool IsTestingMode { get; }
         string PaymentASPXEndpoint { get; }
+        int CacheSlidingExpirationSeconds { get; }
     }
 
     public class TestSettings : ISettings
@@ -25,7 +26,7 @@ namespace MerchantAPI.App_Start
         public string SharedSecret => "test";
         public string PublicServerName => "5.149.150.98";
         public string PaymentASPXEndpoint => "https://frontend.payment-transaction.net/payment.aspx";
-
+        public int CacheSlidingExpirationSeconds => 600;
         public NameValueCollection MerchantControlKeys => MerchantControlKeyCollection;
 
         private static readonly NameValueCollection MerchantControlKeyCollection = new NameValueCollection
@@ -56,7 +57,30 @@ namespace MerchantAPI.App_Start
             get { return "https://frontend.payment-transaction.net/payment.aspx"; }
         }
 
+        public int CacheSlidingExpirationSeconds
+        {
+            get { return 600; }
+        }
+
         public NameValueCollection MerchantControlKeys => MerchantControlKeyCollection;
         private static readonly NameValueCollection MerchantControlKeyCollection = new NameValueCollection();
+    }
+
+    public class SettingsFactory
+    {
+        private ISettings _settings;
+        
+        private SettingsFactory() { }
+
+        public SettingsFactory(ISettings settings)
+        {
+            _settings = settings;
+        }
+
+        public TimeSpan CreateCacheSlidingExpiration()
+        {
+            return new TimeSpan(0, _settings.CacheSlidingExpirationSeconds / 60, 
+                _settings.CacheSlidingExpirationSeconds % 60);
+        }
     }
 }

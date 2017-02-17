@@ -65,7 +65,7 @@ namespace MerchantAPI.Controllers
         [HttpGet]
         [ActionName("success")]
         public string SuccessPostback(
-            [FromUri] int endpointGroupId,
+            [FromUri] int endpointId,
             [FromUri] SuccessPaymentModel model)
         {
             SaleResponseModel result = new SaleResponseModel(model.referenceid);
@@ -75,7 +75,7 @@ namespace MerchantAPI.Controllers
         [HttpGet]
         [ActionName("failure")]
         public string FailurePostback(
-            [FromUri] int endpointGroupId,
+            [FromUri] int endpointId,
             [FromUri] FailurePaymentModel model)
         {
             SaleResponseModel result = new SaleResponseModel(model.referenceid);

@@ -59,7 +59,7 @@ namespace MerchantAPI.Controllers.Factories
                 {"country", CountryConverter.ConvertCountryToCommDooSpace(model.country)},
                 {"phonenumber", String.IsNullOrEmpty(model.phone) ? model.cell_phone : model.phone},
                 {"emailaddress", model.email},
-                {"amount", model.amount.Replace(".", "")},
+                {"amount", CommDooTargetConverter.ConvertToMinimalMonetaryUnits(model.amount)},
                 {"currency", model.currency},
                 {"creditcardnumber", model.credit_card_number},
                 {"expirationmonth", "" + model.expire_month},
