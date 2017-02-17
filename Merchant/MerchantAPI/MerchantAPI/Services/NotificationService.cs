@@ -13,8 +13,16 @@ namespace MerchantAPI.Services
         public ServiceTransitionResult Notified(
             NotificationRequestModel model)
         {
-            return new ServiceTransitionResult(HttpStatusCode.OK,
-                "Method [NotificationService.Notified] is not implemented yet");
+            if (model.referenceid != null) {
+                Data.TransactionsDataStorage.setRealTransactionID(model.fibonatixID, model.transactionid);
+                Data.TransactionsDataStorage.setTransactionState(model.fibonatixID, Data.TransactionData.TransactionState.Finished);
+            }
+
+            if (model.customernotifyurl != null) {
+                // TODO - send Notification to Customer
+            }
+            
+            return new ServiceTransitionResult(HttpStatusCode.OK, "Notification received");
         }
 
     }

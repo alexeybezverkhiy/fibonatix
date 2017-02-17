@@ -24,7 +24,8 @@ namespace MerchantAPI.App_Start
         public string Version => "1.0.0.0";
         public string ClientId => "99999999";
         public string SharedSecret => "test";
-        public string PublicServerName => "5.149.150.98";
+        // public string PublicServerName => "5.149.150.98";
+        public string PublicServerName => "87.117.3.242";
         public string PaymentASPXEndpoint => "https://frontend.payment-transaction.net/payment.aspx";
         public int CacheSlidingExpirationSeconds => 600;
         public NameValueCollection MerchantControlKeys => MerchantControlKeyCollection;

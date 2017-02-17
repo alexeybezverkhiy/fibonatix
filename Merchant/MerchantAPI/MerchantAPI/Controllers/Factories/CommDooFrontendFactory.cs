@@ -7,9 +7,11 @@ using System.Text;
 using System.Web;
 using MerchantAPI.Helpers;
 using MerchantAPI.Models;
+using System.Globalization;
 
 namespace MerchantAPI.Controllers.Factories
 {
+
     public class CommDooFrontendFactory
     {
         private static readonly string SUCC_EXTRA_PATH = "/success";
@@ -17,9 +19,10 @@ namespace MerchantAPI.Controllers.Factories
 
         public static NameValueCollection CreateMultyCurrencyPaymentParams(
             int endpointGroupId,
-            SaleRequestModel model)
+            SaleRequestModel model,
+            string fibonatixID)
         {
-            NameValueCollection data = CreatePaymentParams(model);
+            NameValueCollection data = CreatePaymentParams(model, fibonatixID);
             data.Add("relatedinformation-endpointgroupid", "" + endpointGroupId);
             data.Add("hash", CommDooHashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data, 
                 WebApiConfig.Settings.SharedSecret));
@@ -28,9 +31,10 @@ namespace MerchantAPI.Controllers.Factories
 
         public static NameValueCollection CreateSingleCurrencyPaymentParams(
             int endpointId,
-            SaleRequestModel model)
+            SaleRequestModel model,
+            string fibonatixID)
         {
-            NameValueCollection data = CreatePaymentParams(model);
+            NameValueCollection data = CreatePaymentParams(model, fibonatixID);
             data.Add("relatedinformation-endpointid", "" + endpointId);
             data.Add("hash", CommDooHashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
                 WebApiConfig.Settings.SharedSecret));
@@ -38,7 +42,7 @@ namespace MerchantAPI.Controllers.Factories
         }
 
         private static NameValueCollection CreatePaymentParams(
-            SaleRequestModel model)
+            SaleRequestModel model, string fibonatixID)
         {
             DateTime now = DateTime.Now;
             NameValueCollection data = new NameValueCollection
@@ -59,7 +63,7 @@ namespace MerchantAPI.Controllers.Factories
                 {"country", CountryConverter.ConvertCountryToCommDooSpace(model.country)},
                 {"phonenumber", String.IsNullOrEmpty(model.phone) ? model.cell_phone : model.phone},
                 {"emailaddress", model.email},
-                {"amount", CommDooTargetConverter.ConvertToMinimalMonetaryUnits(model.amount)},
+                {"amount", CurrencyConverter.MajorAmountToMinor(model.amount, model.currency)},
                 {"currency", model.currency},
                 {"creditcardnumber", model.credit_card_number},
                 {"expirationmonth", "" + model.expire_month},
@@ -68,7 +72,7 @@ namespace MerchantAPI.Controllers.Factories
                 {"ipaddress", model.ipaddress},
                 {"website", model.site_url},
                 {"successurl", ResolveInternalUrl(SUCC_EXTRA_PATH)},
-                // {"notificationurl", ""},
+                {"notificationurl", ResolveInternalNotificationUrl(SUCC_EXTRA_PATH + "?customernotifyurl=" + model.server_callback_url + "&fibonatixID=" + fibonatixID)},
                 {"failurl", ResolveInternalUrl(FAIL_EXTRA_PATH)},
                 {"timestamp", CommDooTargetConverter.ConvertToWesternEurope(now).ToString("ddMMyyyyHHmmss")},
                 {"relatedinformation-orderdescription", model.order_desc}
@@ -76,13 +80,20 @@ namespace MerchantAPI.Controllers.Factories
             return data;
         }
 
-        public static string ResolveInternalUrl(string extraPath)
-        {
+        public static string ResolveInternalUrl(string extraPath) {
             return String.Format("{0}://{1}:{2}{3}{4}",
                 HttpContext.Current.Request.Url.Scheme,
-                WebApiConfig.Settings.PublicServerName, 
+                WebApiConfig.Settings.PublicServerName,
                 HttpContext.Current.Request.Url.Port,
                 HttpContext.Current.Request.Url.AbsolutePath, extraPath);
+        }
+
+        public static string ResolveInternalNotificationUrl(string extraPath) {
+            return String.Format("{0}://{1}:{2}{3}{4}",
+                HttpContext.Current.Request.Url.Scheme,
+                WebApiConfig.Settings.PublicServerName,
+                HttpContext.Current.Request.Url.Port,
+                "/paynet/api/v2/notification", extraPath);
         }
 
         private static string[] PAYMENT_HASH_KEY_SEQUENSE =

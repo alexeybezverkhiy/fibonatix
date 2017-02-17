@@ -191,6 +191,7 @@
     <Compile Include="Controllers\Factories\SerializerFactory.cs" />
     <Compile Include="Controllers\NotificationController.cs" />
     <Compile Include="Controllers\MgmtController.cs" />
+    <Compile Include="Helpers\CurrencyConverter.cs" />
     <Compile Include="Models\NotificationRequestModel.cs" />
     <Compile Include="Controllers\VoidController.cs" />
     <Compile Include="Controllers\ReturnController.cs" />

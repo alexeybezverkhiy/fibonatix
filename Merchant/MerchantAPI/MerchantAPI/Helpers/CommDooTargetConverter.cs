@@ -41,6 +41,7 @@ namespace MerchantAPI.Helpers
             return string.Format("{0:00}.{1:00}.{2:0000}", day, month, year);
         }
 
+        /*
         public static string ConvertToMinimalMonetaryUnits(string amount)
         {
             return string.IsNullOrEmpty(amount) ? string.Empty : amount.Replace(".", string.Empty);
@@ -51,5 +52,6 @@ namespace MerchantAPI.Helpers
             return ConvertToMinimalMonetaryUnits(amount) + 
                 (string.IsNullOrEmpty(amount) ? string.Empty : currency);
         }
+        */
     }
 }

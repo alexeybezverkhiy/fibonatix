@@ -14,8 +14,17 @@ namespace MerchantAPI.Controllers.Factories
             ServiceTransitionResult serviceResult)
         {
             HttpResponseMessage response = new HttpResponseMessage(serviceResult.Status);
-            response.Content = new StringContent(serviceResult.StringContent);
-            response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
+
+            if(serviceResult.Status == System.Net.HttpStatusCode.Redirect ||
+                serviceResult.Status == System.Net.HttpStatusCode.TemporaryRedirect ||
+                serviceResult.Status == System.Net.HttpStatusCode.MovedPermanently ||
+                serviceResult.Status == System.Net.HttpStatusCode.Moved) {
+                response.Content.Headers.Add("Location", serviceResult.StringContent);
+            }
+            else {
+                response.Content = new StringContent(serviceResult.StringContent);
+                response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
+            }
             return response;
         }
 

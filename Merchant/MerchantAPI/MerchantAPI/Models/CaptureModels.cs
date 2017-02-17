@@ -31,7 +31,8 @@ namespace MerchantAPI.Models
                 .Append(login)
                 .Append(client_orderid)
                 .Append(orderid)
-                .Append(CommDooTargetConverter.ConvertToMinimalMonetaryUnits(amount, currency))
+                .Append(CurrencyConverter.MajorAmountToMinor(amount, currency))
+                .Append(currency)
                 .Append(merchantControlKey);
         }
     }
