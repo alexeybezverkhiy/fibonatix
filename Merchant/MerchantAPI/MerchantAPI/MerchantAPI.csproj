@@ -201,6 +201,13 @@
     <Compile Include="Controllers\Factories\SerializerFactory.cs" />
     <Compile Include="Controllers\NotificationController.cs" />
     <Compile Include="Controllers\MgmtController.cs" />
+    <Compile Include="Data\PersistenceContext.cs" />
+    <Compile Include="Data\Transaction.cs" />
+    <Compile Include="Migrations\201702171634197_Initial.cs" />
+    <Compile Include="Migrations\201702171634197_Initial.Designer.cs">
+      <DependentUpon>201702171634197_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\NotificationRequestModel.cs" />
     <Compile Include="Controllers\VoidController.cs" />
     <Compile Include="Controllers\ReturnController.cs" />
@@ -260,6 +267,11 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="CommDoo\BackEnd\Responses\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201702171634197_Initial.resx">
+      <DependentUpon>201702171634197_Initial.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
