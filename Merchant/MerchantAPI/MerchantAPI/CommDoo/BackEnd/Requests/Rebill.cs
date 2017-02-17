@@ -10,7 +10,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
 {
     [Serializable()]
     [XmlRoot("Request")]
-    public class Start : Request
+    public class Rebill : Request
     {
         [XmlAttribute("Client")]
         public ClientData Client { get; set; }
@@ -18,8 +18,6 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
         public SecurityData Security { get; set; }
         [XmlAttribute("Payment")]
         public PaymentData Payment { get; set; }
-        [XmlAttribute("Redirection")]
-        public RedirectionData Redirection { get; set; }
         [XmlAttribute("Notification")]
         public NotificationData Notification { get; set; }
         [XmlAttribute("Customer")]
@@ -40,7 +38,6 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
                 strToHashCal += Client.ClientID;
                 strToHashCal += Security.Timestamp;
                 strToHashCal += Payment.PaymentType;
-                strToHashCal += Payment.PaymentMode;
                 strToHashCal += Payment.Amount;
                 strToHashCal += Payment.Currency;
                 strToHashCal += Payment.ReferenceID;
@@ -50,33 +47,14 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
                     strToHashCal += Payment.RelatedInformation.OrderID;
                     strToHashCal += Payment.RelatedInformation.Purpose;
                     strToHashCal += Payment.RelatedInformation.Website;
-                    strToHashCal += Payment.RelatedInformation.SEPADirectDebitMandateReferenceID;
-                    strToHashCal += Payment.RelatedInformation.SEPADirectDebitMandateDate;
                     strToHashCal += Payment.RelatedInformation.Username;
                     strToHashCal += Payment.RelatedInformation.Tariff;
                     strToHashCal += Payment.RelatedInformation.DateOfRegistration;
                 }
-                if (Payment.Subscription != null) {
-                    strToHashCal += Payment.Subscription.Timeunit;
-                    strToHashCal += Payment.Subscription.BillingCycle;
-                    strToHashCal += Payment.Subscription.DurationPeriod;
-                    strToHashCal += Payment.Subscription.RenewalPeriod;
-                    strToHashCal += Payment.Subscription.MinimumDurationPeriod;
-                    strToHashCal += Payment.Subscription.MaximumDurationPeriod;
-                    strToHashCal += Payment.Subscription.CancellationPeriod;
-                    if (Payment.Subscription.Trial != null) {
-                        strToHashCal += Payment.Subscription.Trial.DurationPeriod;
-                        strToHashCal += Payment.Subscription.Trial.Timeunit;
-                        strToHashCal += Payment.Subscription.Trial.Amount;
-                    }
-                }
-                if (Redirection != null) {
-                    strToHashCal += Redirection.SuccessURL;
-                    strToHashCal += Redirection.FailURL;
-                }
                 if (Notification != null)
                     strToHashCal += Notification.NotificationURL;
                 if (Customer != null) {
+                    strToHashCal += Customer.CustomerID;
                     strToHashCal += Customer.ReferenceCustomerID;
                     if (Customer.Person != null) {
                         strToHashCal += Customer.Person.CompanyName;
