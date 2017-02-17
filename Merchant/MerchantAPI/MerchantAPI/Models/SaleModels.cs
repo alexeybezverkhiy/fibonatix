@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
+using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Models
 {
-    public class SaleRequestModel
+    public class SaleRequestModel : BaseFibonatixModel
     {
-        [Required]
-        [StringLength(128)]
-        public string client_orderid { get; set; }
-
         [Required]
         [StringLength(65535)]
         public string order_desc { get; set; }
@@ -97,15 +95,21 @@ namespace MerchantAPI.Models
         public string purpose { get; set; }     // OPTIONAL
 
         [Required]
-        [StringLength(40, MinimumLength = 40)]
-        public string control { get; set; }
-
-        [Required]
         [StringLength(128)]
         public string redirect_url { get; set; }
 
         [StringLength(128)]
         public string server_callback_url { get; set; } // OPTIONAL
+
+        protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint, string merchantControlKey)
+        {
+            return builder
+                .Append(endpoint)
+                .Append(string.IsNullOrEmpty(client_orderid) ? string.Empty : client_orderid)
+                .Append(CommDooTargetConverter.ConvertToMinimalMonetaryUnits(amount))
+                .Append(string.IsNullOrEmpty(email) ? string.Empty : email)
+                .Append(merchantControlKey);
+        }
     }
 
     public class SaleResponseModel
@@ -113,6 +117,11 @@ namespace MerchantAPI.Models
         private static string SUCC_ASYNC_RESPONSE = "async-response";
         private static string FAIL_ERROR = "error";
         private static string FAIL_VALIDATION_ERROR = "validation-error";
+
+        public SaleResponseModel(string clientOrderId)
+        {
+            merchant_order_id = clientOrderId;
+        }
 
         public string type { get; set; }
         public string paynet_order_id { get; set; }

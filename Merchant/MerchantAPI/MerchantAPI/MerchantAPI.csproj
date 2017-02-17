@@ -96,6 +96,7 @@
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -172,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
+    <Compile Include="App_Start\Settings.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
@@ -186,6 +188,10 @@
     <Compile Include="CommDoo\BackEnd\Requests\Start.cs" />
     <Compile Include="Connectors\CommDooFrontendConnector.cs" />
     <Compile Include="Controllers\AccountVerificationController.cs" />
+    <Compile Include="Controllers\Factories\SerializerFactory.cs" />
+    <Compile Include="Controllers\NotificationController.cs" />
+    <Compile Include="Controllers\MgmtController.cs" />
+    <Compile Include="Models\NotificationRequestModel.cs" />
     <Compile Include="Controllers\VoidController.cs" />
     <Compile Include="Controllers\ReturnController.cs" />
     <Compile Include="Controllers\CaptureController.cs" />
@@ -199,11 +205,18 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\CommDooHashHelper.cs" />
+    <Compile Include="Helpers\CommDooTargetConverter.cs" />
     <Compile Include="Helpers\CountryConverter.cs" />
+    <Compile Include="Helpers\FibonatixHashHelper.cs" />
+    <Compile Include="Helpers\HashHelper.cs" />
+    <Compile Include="Models\BaseFibonatixModel.cs" />
+    <Compile Include="Models\CaptureModels.cs" />
     <Compile Include="Models\StatusModels.cs" />
     <Compile Include="Models\SaleModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AccountVerificationService.cs" />
+    <Compile Include="Services\NotificationService.cs" />
     <Compile Include="Services\VoidService.cs" />
     <Compile Include="Services\ReturnService.cs" />
     <Compile Include="Services\CaptureService.cs" />

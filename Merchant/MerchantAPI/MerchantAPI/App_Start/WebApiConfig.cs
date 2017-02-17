@@ -2,17 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Dispatcher;
+using MerchantAPI.App_Start;
 
 namespace MerchantAPI
 {
     public static class WebApiConfig
     {
+        public static readonly ISettings Settings;
+        public static readonly SettingsFactory SettingsFactory;
+
+        static WebApiConfig()
+        {
+//            Settings = new ProductionSettings();
+            Settings = new TestSettings();
+            SettingsFactory = new SettingsFactory(Settings);
+        }
+
         public static void Register(HttpConfiguration config)
         {
             // Configuration and Services of Web API
-
+            
             // Routing of Web API
             config.MapHttpAttributeRoutes();
 
@@ -26,7 +38,7 @@ namespace MerchantAPI
                 defaults: new { endpointId = RouteParameter.Optional }*/
             );
 
-            // Performing 'successurl' & 'failureurl'
+            // Performing 'successurl' & 'failureurl' as {action}
             config.Routes.MapHttpRoute(
                 name: "A-SingleCurrencyApiCallback",
                 routeTemplate: "paynet/api/v2/{controller}/{endpointId}/{action}" /*,
@@ -34,17 +46,22 @@ namespace MerchantAPI
             );
 
             config.Routes.MapHttpRoute(
-                name: "B-MultiCurrencyApi",
-                routeTemplate: "paynet/api/v2/{controller}/group/{endpointGroupId}" /*,
-                defaults: new {endpointGroupId = RouteParameter.Optional}*/
+                name: "A-NotificationPostbackOrManagement",
+                routeTemplate: "paynet/api/v2/{controller}/{action}"
             );
 
-            // Performing 'successurl' & 'failureurl'
-            config.Routes.MapHttpRoute(
-                name: "B-MultiCurrencyApiCallback",
-                routeTemplate: "paynet/api/v2/{controller}/group/{endpointGroupId}/{action}" /*,
-                defaults: new {endpointGroupId = RouteParameter.Optional}*/
-            );
+//            config.Routes.MapHttpRoute(
+//                name: "B-MultiCurrencyApi",
+//                routeTemplate: "paynet/api/v2/{controller}/group/{endpointGroupId}" /*,
+//                defaults: new {endpointGroupId = RouteParameter.Optional}*/
+//            );
+
+//            // Performing 'successurl' & 'failureurl' as {action}
+//            config.Routes.MapHttpRoute(
+//                name: "B-MultiCurrencyApiCallback",
+//                routeTemplate: "paynet/api/v2/{controller}/group/{endpointGroupId}/{action}" /*,
+//                defaults: new {endpointGroupId = RouteParameter.Optional}*/
+//            );
         }
     }
 

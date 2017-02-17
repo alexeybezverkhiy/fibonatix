@@ -28,10 +28,28 @@ namespace MerchantAPI.Controllers
             [FromUri] int endpointId,
             [FromBody] SaleRequestModel model)
         {
-            //            SaleResponseModel result = _service.SaleMultiCurrency(endpointGroupId, model);
-            //            return result.ToHttpResponse();
-            ServiceTransitionResult result = _service.SaleSingleCurrency(endpointId, model);
+            ServiceTransitionResult result = null;
 
+            string controlKey = WebApiConfig.Settings.MerchantControlKeys["" + endpointId];
+            if (string.IsNullOrEmpty(controlKey))
+            {
+                SaleResponseModel err = new SaleResponseModel(model.client_orderid);
+                err.SetValidationError("2", "INVALID_CONTROL_CODE");
+            }
+            else
+            {
+                if (model.IsHashValid(endpointId, controlKey))
+                {
+                    result = _service.SaleSingleCurrency(endpointId, model);
+                }
+                else
+                {
+                    SaleResponseModel err = new SaleResponseModel(model.client_orderid);
+                    err.SetValidationError("2", "INVALID_CONTROL_CODE");
+
+                    result = new ServiceTransitionResult(HttpStatusCode.OK, err.ToHttpResponse());
+                }
+            }
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }
@@ -46,21 +64,21 @@ namespace MerchantAPI.Controllers
 
         [HttpGet]
         [ActionName("success")]
-        public string MultiCurrencySucc(
-            [FromUri] int endpointGroupId,
+        public string SuccessPostback(
+            [FromUri] int endpointId,
             [FromUri] SuccessPaymentModel model)
         {
-            SaleResponseModel result = new SaleResponseModel();
+            SaleResponseModel result = new SaleResponseModel(model.referenceid);
             return result.ToHttpResponse();
         }
 
         [HttpGet]
         [ActionName("failure")]
-        public string MultiCurrencyFail(
-            [FromUri] int endpointGroupId,
+        public string FailurePostback(
+            [FromUri] int endpointId,
             [FromUri] FailurePaymentModel model)
         {
-            SaleResponseModel result = new SaleResponseModel();
+            SaleResponseModel result = new SaleResponseModel(model.referenceid);
             result.SetError(model.errornumber, model.errortext);
             return result.ToHttpResponse();
         }
