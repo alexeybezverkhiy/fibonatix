@@ -13,7 +13,7 @@ namespace MerchantAPI.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201702181422219_Initial"; }
+            get { return "201702181556495_Initial"; }
         }
         
         string IMigrationMetadata.Source

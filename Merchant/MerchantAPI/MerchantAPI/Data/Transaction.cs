@@ -35,17 +35,31 @@ namespace MerchantAPI.Data
 
     public class Transaction
     {
-        public Transaction()
-        {
-        }
+        [Key]
+        public int ID { get; set; }
+        [StringLength(36)]   // 36 = size of Guid type
+        public string TransactionId { get; set; }
+        [StringLength(36)]   // 36 = size of Guid type
+        public string SerialNumber { get; set; }
+        [StringLength(48)]
+        public string ProcessingTransactionId { get; set; }
+        [StringLength(48)]
+        public string MerchantTransactionId { get; set; }
+        public TransactionType Type { get; set; }
+        public TransactionState State { get; set; }
+        public TransactionStatus Status { get; set; }
+        public DateTime LastModified { get; set; }
+        public string ReferenceQuery { get; set; }
+
+        public Transaction() {}
 
         public Transaction(TransactionType type)
         {
             // ID =
-            TransactionId = Guid.NewGuid();
-            SerialNumber = Guid.NewGuid();
+            TransactionId = Guid.NewGuid().ToString();
+            SerialNumber = Guid.NewGuid().ToString();
             // ProcessingTransactionId =
-            // MerchantTransactionID =
+            // MerchantTransactionId =
             Type = type;
             State = TransactionState.Created;
             Status = TransactionStatus.Undefined;
@@ -53,17 +67,10 @@ namespace MerchantAPI.Data
             // ReferenceQuery =
         }
 
-        [Key]
-        public int ID { get; set; }
-        public Guid TransactionId { get; set; }
-        public Guid SerialNumber { get; set; }
-        public Guid? ProcessingTransactionId { get; set; }  //  The '?' after the Guid type declaration indicates that the property is NULLABLE
-        public string MerchantTransactionID { get; set; }
-        public TransactionType Type { get; set; }
-        public TransactionState State { get; set; }
-        public TransactionStatus Status { get; set; }
-        public DateTime LastModified { get; set; }
-        public string ReferenceQuery { get; set; }
+        public Transaction(TransactionType type, string merchantTransactionID) : this(type)
+        {
+            MerchantTransactionId = merchantTransactionID;
+        }
     }
 
     public static class StringExtensions

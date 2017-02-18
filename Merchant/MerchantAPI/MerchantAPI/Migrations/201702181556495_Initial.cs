@@ -12,20 +12,20 @@ namespace MerchantAPI.Migrations
                 c => new
                     {
                         ID = c.Int(nullable: false, identity: true),
-                        TransactionId = c.Guid(nullable: false),
-                        SerialNumber = c.Guid(nullable: false),
-                        ProcessingTransactionId = c.Guid(),
-                        MerchantTransactionID = c.String(),
+                        TransactionId = c.String(maxLength: 36),
+                        SerialNumber = c.String(maxLength: 36),
+                        ProcessingTransactionId = c.String(maxLength: 48),
+                        MerchantTransactionId = c.String(maxLength: 48),
                         Type = c.Int(nullable: false),
                         State = c.Int(nullable: false),
                         Status = c.Int(nullable: false),
                         LastModified = c.DateTime(nullable: false),
                         ReferenceQuery = c.String(),
                     })
-                .PrimaryKey(t => t.ID)
-                .Index(t => t.TransactionId, unique: true);
+                .PrimaryKey(t => t.ID);
+            
         }
-
+        
         public override void Down()
         {
             DropTable("dbo.Transaction");

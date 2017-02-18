@@ -9,6 +9,7 @@ using System.Text;
 using System.Web;
 using MerchantAPI.Connectors;
 using MerchantAPI.Controllers.Factories;
+using MerchantAPI.Data;
 using MerchantAPI.Models;
 
 namespace MerchantAPI.Services
@@ -20,12 +21,12 @@ namespace MerchantAPI.Services
         public ServiceTransitionResult SaleSingleCurrency(int endpointId, SaleRequestModel model)
         {
             byte[] partnerResponse = new byte[0];
-            NameValueCollection requestParameters = null;
+            NameValueCollection requestParameters;
             try
             {
-                Data.TransactionData transactionData = Data.TransactionsDataStorage.setNewFibonatixTransaction(model.client_orderid, "sale");
+                Transaction transactionData = TransactionsDataStorage.CreateNewTransaction(TransactionType.Sale, model.client_orderid);
 
-                requestParameters = CommDooFrontendFactory.CreateMultyCurrencyPaymentParams(endpointId, model, transactionData.fibonatixTransactionID);
+                requestParameters = CommDooFrontendFactory.CreateMultyCurrencyPaymentParams(endpointId, model, transactionData.TransactionId);
 
                 var parameters = new StringBuilder();
                 foreach (string key in requestParameters.Keys) {
@@ -39,11 +40,14 @@ namespace MerchantAPI.Services
                 string redirectToCommDoo = WebApiConfig.Settings.PaymentASPXEndpoint + "?" + parameters.ToString();
 
                 // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo
-                Data.TransactionsDataStorage.setTransactionState(transactionData.fibonatixTransactionID, Data.TransactionData.TransactionState.Started);
-                Data.Cache.setRedirectUrlForRequest(transactionData.fibonatixTransactionID, redirectToCommDoo);
-                Data.Cache.setSaleRequestData(transactionData.fibonatixTransactionID, model);
+                TransactionsDataStorage.UpdateTransactionState(transactionData.TransactionId, TransactionState.Finished);
+                Cache.setRedirectUrlForRequest(transactionData.TransactionId, redirectToCommDoo);
+                Cache.setSaleRequestData(transactionData.TransactionId, model);
 
-                string response = "type=async-response&serial-number=sale-" + Guid.NewGuid().ToString() + "&merchant-order-id=" + model.client_orderid + "&paynet-order-id=" + transactionData.fibonatixTransactionID;
+                string response = "type=async-response" +
+                                  "&serial-number=" + transactionData.SerialNumber +
+                                  "&merchant-order-id=" + model.client_orderid + 
+                                  "&paynet-order-id=" + transactionData.TransactionId;
 
                 partnerResponse = Encoding.UTF8.GetBytes(response);
 

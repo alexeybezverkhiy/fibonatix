@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web;
+using MerchantAPI.Data;
 using MerchantAPI.Models;
 
 namespace MerchantAPI.Services
@@ -14,8 +15,8 @@ namespace MerchantAPI.Services
             NotificationRequestModel model)
         {
             if (model.referenceid != null) {
-                Data.TransactionsDataStorage.setRealTransactionID(model.fibonatixID, model.transactionid);
-                Data.TransactionsDataStorage.setTransactionState(model.fibonatixID, Data.TransactionData.TransactionState.Finished);
+                TransactionsDataStorage.UpdateTransaction(model.fibonatixID, 
+                    model.transactionid, TransactionState.Finished);
             }
 
             if (model.customernotifyurl != null) {
