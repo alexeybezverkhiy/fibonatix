@@ -22,10 +22,10 @@ namespace MerchantAPI.Migrations
                         LastModified = c.DateTime(nullable: false),
                         ReferenceQuery = c.String(),
                     })
-                .PrimaryKey(t => t.ID);
-            
+                .PrimaryKey(t => t.ID)
+                .Index(t => t.TransactionId, unique: true);
         }
-        
+
         public override void Down()
         {
             DropTable("dbo.Transaction");
