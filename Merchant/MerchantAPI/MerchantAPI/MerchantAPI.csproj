@@ -201,6 +201,7 @@
     <Compile Include="Controllers\Factories\SerializerFactory.cs" />
     <Compile Include="Controllers\NotificationController.cs" />
     <Compile Include="Controllers\MgmtController.cs" />
+    <Compile Include="Helpers\CurrencyConverter.cs" />
     <Compile Include="Data\PersistenceContext.cs" />
     <Compile Include="Data\Transaction.cs" />
     <Compile Include="Migrations\201702171634197_Initial.cs" />

@@ -17,14 +17,15 @@ namespace MerchantAPI.Services
     {
         public const string ESCAPE = "(escape('";
 
-
         public ServiceTransitionResult SaleSingleCurrency(int endpointId, SaleRequestModel model)
         {
             byte[] partnerResponse = new byte[0];
             NameValueCollection requestParameters = null;
             try
             {
-                requestParameters = CommDooFrontendFactory.CreateMultyCurrencyPaymentParams(endpointId, model);
+                Data.TransactionData transactionData = Data.TransactionsDataStorage.setNewFibonatixTransaction(model.client_orderid, "sale");
+
+                requestParameters = CommDooFrontendFactory.CreateMultyCurrencyPaymentParams(endpointId, model, transactionData.fibonatixTransactionID);
 
                 var parameters = new StringBuilder();
                 foreach (string key in requestParameters.Keys) {
@@ -38,9 +39,11 @@ namespace MerchantAPI.Services
                 string redirectToCommDoo = WebApiConfig.Settings.PaymentASPXEndpoint + "?" + parameters.ToString();
 
                 // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo
-                Data.Cache.setRedirectUrlForRequest(model.client_orderid, redirectToCommDoo);
+                Data.TransactionsDataStorage.setTransactionState(transactionData.fibonatixTransactionID, Data.TransactionData.TransactionState.Started);
+                Data.Cache.setRedirectUrlForRequest(transactionData.fibonatixTransactionID, redirectToCommDoo);
+                Data.Cache.setSaleRequestData(transactionData.fibonatixTransactionID, model);
 
-                string response = "type=async-response&serial-number=00000000-0000-0000-0000-sale-" + model.client_orderid + "&merchant-order-id=" + model.client_orderid;
+                string response = "type=async-response&serial-number=sale-" + Guid.NewGuid().ToString() + "&merchant-order-id=" + model.client_orderid + "&paynet-order-id=" + transactionData.fibonatixTransactionID;
 
                 partnerResponse = Encoding.UTF8.GetBytes(response);
 

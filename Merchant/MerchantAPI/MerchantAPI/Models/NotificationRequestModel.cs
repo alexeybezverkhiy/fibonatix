@@ -7,8 +7,21 @@ using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Models
 {
+    public class NotificationRequestExtraModel
+    {
+        [StringLength(512)]
+        public string customernotifyurl { get; set; }
+        [StringLength(512)]
+        public string fibonatixID { get; set; }
+    }
+
     public class NotificationRequestModel
     {
+        [StringLength(512)]
+        public string customernotifyurl { get; set; }
+        [StringLength(512)]
+        public string fibonatixID { get; set; }
+
         [Required]
         [StringLength(128)]
         public string clientid { get; set; }

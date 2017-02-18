@@ -22,9 +22,12 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         [ActionName("success")]
         public HttpResponseMessage Success(
-            [FromBody] NotificationRequestModel model)
+            [FromBody] NotificationRequestModel model, 
+            [FromUri] NotificationRequestExtraModel model2)
         {
             ServiceTransitionResult result;
+            model.customernotifyurl = model2.customernotifyurl;
+            model.fibonatixID = model2.fibonatixID;
             if (model.IsHashValid(WebApiConfig.Settings.SharedSecret))
             {
                 result = _service.Notified(model);
