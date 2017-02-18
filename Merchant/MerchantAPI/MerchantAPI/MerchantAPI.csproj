@@ -53,6 +53,10 @@
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="EntityFramework.Extended, Version=6.0.0.0, Culture=neutral, PublicKeyToken=05b7e29bdd433584, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.Extended.6.1.0.168\lib\net45\EntityFramework.Extended.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
@@ -204,9 +208,9 @@
     <Compile Include="Helpers\CurrencyConverter.cs" />
     <Compile Include="Data\PersistenceContext.cs" />
     <Compile Include="Data\Transaction.cs" />
-    <Compile Include="Migrations\201702171634197_Initial.cs" />
-    <Compile Include="Migrations\201702171634197_Initial.Designer.cs">
-      <DependentUpon>201702171634197_Initial.cs</DependentUpon>
+    <Compile Include="Migrations\201702181422219_Initial.cs" />
+    <Compile Include="Migrations\201702181422219_Initial.Designer.cs">
+      <DependentUpon>201702181422219_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\NotificationRequestModel.cs" />
@@ -270,8 +274,8 @@
     <Folder Include="CommDoo\BackEnd\Responses\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201702171634197_Initial.resx">
-      <DependentUpon>201702171634197_Initial.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201702181422219_Initial.resx">
+      <DependentUpon>201702181422219_Initial.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

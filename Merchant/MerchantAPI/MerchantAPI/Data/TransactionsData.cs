@@ -75,7 +75,6 @@ namespace MerchantAPI.Data
         {
             using (var db = new PersistenceContext())
             {
-                // Query for the Blog named ADO.NET Blog 
                 var tr = db.Transactions
                     .Where(t => t.TransactionId == transID)
                     .FirstOrDefault();
