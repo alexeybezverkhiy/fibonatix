@@ -10,7 +10,7 @@ namespace MerchantAPI.Helpers
         // See https://www.timeanddate.com/time/zones/cet
         private const string DestinationTimeZoneId = "Central Europe Standard Time";
 
-        public static DateTime ConvertToWesternEurope(DateTime utc)
+        public static DateTime ConvertToCentralEurope(DateTime utc)
         {
             DateTime westernEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(utc, DestinationTimeZoneId);
             return westernEurope;
