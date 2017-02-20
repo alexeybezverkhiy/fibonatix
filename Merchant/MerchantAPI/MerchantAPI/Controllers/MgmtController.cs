@@ -7,7 +7,6 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Results;
-using MerchantAPI.App_Start;
 using MerchantAPI.Controllers.Factories;
 
 namespace MerchantAPI.Controllers
@@ -19,37 +18,23 @@ namespace MerchantAPI.Controllers
         [Route("settings")]
         public JsonResult<SettingsModel> Settings()
         {
-            return Json(CollectSettings(), 
-                SerializerFactory.CreateJsonSerializerSettings());
-        }
-
-        private SettingsModel CollectSettings()
-        {
             SettingsModel settings = new SettingsModel
             {
-                ApplicationMode = WebApiConfig.Settings.ApplicationMode.ToString(),
+                IsTestingMode = WebApiConfig.Settings.IsTestingMode,
                 Version = WebApiConfig.Settings.Version,
                 ClientId = WebApiConfig.Settings.ClientId,
                 SharedSecret = "<invisibly>",
-                PaymentKey = WebApiConfig.Settings.PaymentKey,
                 PublicServerName = WebApiConfig.Settings.PublicServerName,
                 PaymentASPXEndpoint = WebApiConfig.Settings.PaymentASPXEndpoint,
                 CacheSlidingExpirationSeconds = WebApiConfig.Settings.CacheSlidingExpirationSeconds,
-                CacheSlidingExpirationTimeSpan = WebApiConfig.SettingsFactory.CreateCacheSlidingExpiration(),
-                MerchantControlKeys = $"Collection has {WebApiConfig.Settings.MerchantControlKeys.Count} pair(s)",
+                MerchantControlKeys = "Collection has " + WebApiConfig.Settings.MerchantControlKeys.Count + " pair(s)"
             };
-            return settings;
+            return Json(settings, SerializerFactory.CreateJsonSerializerSettings());
         }
 
         [HttpGet]
         [Route("cache")]
         public JsonResult<CacheData[]> Cache()
-        {
-            return Json(CollectCacheData(),
-                SerializerFactory.CreateJsonSerializerSettings());
-        }
-
-        private CacheData[] CollectCacheData()
         {
             CacheData[] cache = new CacheData[HttpContext.Current.Cache.Count];
             int i = 0;
@@ -57,14 +42,14 @@ namespace MerchantAPI.Controllers
             {
                 cache[i++] = new CacheData(entry.Key.ToString(), entry.Value.ToString());
             }
-            return cache;
+            return Json(cache, SerializerFactory.CreateJsonSerializerSettings());
         }
     }
 
     public class SettingsModel
     {
         [DataMember]
-        public string ApplicationMode { get; set; }
+        public bool IsTestingMode { get; set; }
 
         [DataMember]
         public string Version { get; set; }
@@ -76,19 +61,13 @@ namespace MerchantAPI.Controllers
         public string SharedSecret { get; set; }
 
         [DataMember]
-        public string PaymentKey { get; set; }
-
-        [DataMember]
         public string PublicServerName { get; set; }
 
         [DataMember]
         public string PaymentASPXEndpoint { get; set; }
 
         [DataMember]
-        public int CacheSlidingExpirationSeconds { get; set; }
-
-        [DataMember]
-        public TimeSpan CacheSlidingExpirationTimeSpan { get; set; }
+        public int CacheSlidingExpirationSeconds{ get; set; }
 
         [DataMember]
         public string MerchantControlKeys { get; set; }

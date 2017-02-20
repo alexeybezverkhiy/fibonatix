@@ -38,7 +38,7 @@ namespace MerchantAPI.Helpers
             long month = (birthday % 10000) / 100;
             long year = birthday / 10000;
 
-            return $"{day:00}.{month:00}.{year:0000}";
+            return string.Format("{0:00}.{1:00}.{2:0000}", day, month, year);
         }
 
         /*
