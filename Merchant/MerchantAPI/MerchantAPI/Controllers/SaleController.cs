@@ -67,7 +67,7 @@ namespace MerchantAPI.Controllers
         [ActionName("success")]
         public HttpResponseMessage SuccessPostback(
             [FromUri] int endpointId,
-            [FromUri] SuccessPaymentModel model)
+            [FromUri] SaleSuccessPaymentModel model)
         {
             if(model.transactionid != null)
                 TransactionsDataStorage.UpdateTransaction(model.fibonatixID, model.transactionid, TransactionState.Finished);
@@ -84,7 +84,7 @@ namespace MerchantAPI.Controllers
         [ActionName("failure")]
         public HttpResponseMessage FailurePostback(
             [FromUri] int endpointId,
-            [FromUri] FailurePaymentModel model)
+            [FromUri] SaleFailurePaymentModel model)
         {
             TransactionsDataStorage.UpdateTransactionState(model.fibonatixID, TransactionState.Finished);
             TransactionsDataStorage.UpdateTransactionStatus(model.fibonatixID, TransactionStatus.Declined);

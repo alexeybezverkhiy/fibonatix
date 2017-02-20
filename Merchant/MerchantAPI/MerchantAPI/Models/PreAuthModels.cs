@@ -8,7 +8,7 @@ using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Models
 {
-    public class SaleRequestModel : BaseFibonatixModel
+    public class PreAuthRequestModel : BaseFibonatixModel
     {
         [Required]
         [StringLength(65535)]
@@ -112,13 +112,13 @@ namespace MerchantAPI.Models
         }
     }
 
-    public class SaleResponseModel
+    public class PreAuthResponseModel
     {
         private static string SUCC_ASYNC_RESPONSE = "async-response";
         private static string FAIL_ERROR = "error";
         private static string FAIL_VALIDATION_ERROR = "validation-error";
 
-        public SaleResponseModel(string clientOrderId)
+        public PreAuthResponseModel(string clientOrderId)
         {
             merchant_order_id = clientOrderId;
         }
@@ -177,7 +177,7 @@ namespace MerchantAPI.Models
         }
     }
 
-    public class SaleBasePaymentModel
+    public class PreAuthBasePaymentModel
     {
         [Required]
         public long clientid { get; set; }
@@ -197,7 +197,7 @@ namespace MerchantAPI.Models
         public string hash { get; set; }
     }
 
-    public class SaleFailurePaymentModel : SaleBasePaymentModel
+    public class PreAuthFailurePaymentModel : PreAuthBasePaymentModel
     {
         [Required]
         public string customerredirecturl { get; set; }
@@ -214,7 +214,7 @@ namespace MerchantAPI.Models
         public string errortext { get; set; }
     }
 
-    public class SaleSuccessPaymentModel : SaleBasePaymentModel
+    public class PreAuthSuccessPaymentModel : SaleBasePaymentModel
     {
         [Required]
         public string customerredirecturl { get; set; }

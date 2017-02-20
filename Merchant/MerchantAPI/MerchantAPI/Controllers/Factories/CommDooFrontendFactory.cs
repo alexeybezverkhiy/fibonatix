@@ -80,6 +80,69 @@ namespace MerchantAPI.Controllers.Factories
             return data;
         }
 
+
+        public static NameValueCollection CreateMultyCurrencyPaymentParams(
+            int endpointGroupId,
+            PreAuthRequestModel model,
+            string fibonatixID) {
+            NameValueCollection data = CreatePaymentParams(model, fibonatixID);
+            data.Add("relatedinformation-endpointgroupid", "" + endpointGroupId);
+            data.Add("hash", CommDooHashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
+                WebApiConfig.Settings.SharedSecret));
+            return data;
+        }
+
+        public static NameValueCollection CreateSingleCurrencyPaymentParams(
+            int endpointId,
+            PreAuthRequestModel model,
+            string fibonatixID) {
+            NameValueCollection data = CreatePaymentParams(model, fibonatixID);
+            data.Add("relatedinformation-endpointid", "" + endpointId);
+            data.Add("hash", CommDooHashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
+                WebApiConfig.Settings.SharedSecret));
+            return data;
+        }
+
+        private static NameValueCollection CreatePaymentParams(
+            PreAuthRequestModel model, string fibonatixID) {
+            DateTime now = DateTime.Now;
+            NameValueCollection data = new NameValueCollection
+            {
+                {"clientid", WebApiConfig.Settings.ClientId},
+                {"payment", "creditcard_fibonatix"},
+                {"paymentmode", "reservation" },
+                {"referenceid", model.client_orderid + "-" + now.ToString("yyyyMMddHHmmss.fff")},
+                {"orderid", model.client_orderid},
+                {"creditcardowner", model.card_printed_name},
+                {"firstname", model.first_name},
+                {"lastname", model.last_name},
+                {"idcardnumber", "" + model.ssn},
+                {"dateofbirth", CommDooTargetConverter.ConvertBirthdayToString(model.birthday)},
+                {"street", model.address1},
+                {"city", model.city},
+                {"state", model.state},
+                {"postalcode", model.zip_code},
+                {"country", CountryConverter.ConvertCountryToCommDooSpace(model.country)},
+                {"phonenumber", String.IsNullOrEmpty(model.phone) ? model.cell_phone : model.phone},
+                {"emailaddress", model.email},
+                {"amount", CurrencyConverter.MajorAmountToMinor(model.amount, model.currency)},
+                {"currency", model.currency},
+                {"creditcardnumber", model.credit_card_number},
+                {"expirationmonth", "" + model.expire_month},
+                {"expirationyear", "" + model.expire_year},
+                {"cvv", "" + model.cvv2},
+                {"ipaddress", model.ipaddress},
+                {"website", model.site_url},
+                {"successurl", ResolveInternalUrl(SUCC_EXTRA_PATH) + "?customerredirecturl=" + model.redirect_url + "&fibonatixID=" + fibonatixID},
+                {"notificationurl", ResolveInternalNotificationUrl(SUCC_EXTRA_PATH + "?customernotifyurl=" + model.server_callback_url + "&fibonatixID=" + fibonatixID)},
+                {"failurl", ResolveInternalUrl(FAIL_EXTRA_PATH) + "?customerredirecturl=" + model.redirect_url + "&fibonatixID=" + fibonatixID},
+                {"timestamp", CommDooTargetConverter.ConvertToWesternEurope(now).ToString("ddMMyyyyHHmmss")},
+                {"relatedinformation-orderdescription", model.order_desc}
+            };
+            return data;
+        }
+
+
         public static string ResolveInternalUrl(string extraPath) {
             return String.Format("{0}://{1}:{2}{3}{4}",
                 HttpContext.Current.Request.Url.Scheme,
