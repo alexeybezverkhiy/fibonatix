@@ -11,6 +11,7 @@ using System.Web.Http;
 using MerchantAPI.Controllers.Factories;
 using MerchantAPI.Models;
 using MerchantAPI.Services;
+using MerchantAPI.Data;
 
 namespace MerchantAPI.Controllers
 {
@@ -64,23 +65,32 @@ namespace MerchantAPI.Controllers
 
         [HttpGet]
         [ActionName("success")]
-        public string SuccessPostback(
+        public HttpResponseMessage SuccessPostback(
             [FromUri] int endpointId,
             [FromUri] SuccessPaymentModel model)
         {
-            SaleResponseModel result = new SaleResponseModel(model.referenceid);
-            return result.ToHttpResponse();
+            if(model.transactionid != null)
+                TransactionsDataStorage.UpdateTransaction(model.fibonatixID, model.transactionid, TransactionState.Finished);
+            else
+                TransactionsDataStorage.UpdateTransactionState(model.fibonatixID, TransactionState.Finished);
+            TransactionsDataStorage.UpdateTransactionStatus(model.fibonatixID, TransactionStatus.Approved);
+
+            var result = new ServiceTransitionResult(HttpStatusCode.Moved, model.customerredirecturl);
+            HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
+            return response;
         }
 
         [HttpGet]
         [ActionName("failure")]
-        public string FailurePostback(
+        public HttpResponseMessage FailurePostback(
             [FromUri] int endpointId,
             [FromUri] FailurePaymentModel model)
         {
-            SaleResponseModel result = new SaleResponseModel(model.referenceid);
-            result.SetError(model.errornumber, model.errortext);
-            return result.ToHttpResponse();
+            TransactionsDataStorage.UpdateTransactionState(model.fibonatixID, TransactionState.Finished);
+            TransactionsDataStorage.UpdateTransactionStatus(model.fibonatixID, TransactionStatus.Declined);
+            var result = new ServiceTransitionResult(HttpStatusCode.Moved, model.customerredirecturl);
+            HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
+            return response;
         }
 
     }

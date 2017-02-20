@@ -48,7 +48,7 @@ namespace MerchantAPI.Controllers.Factories
             NameValueCollection data = new NameValueCollection
             {
                 {"clientid", WebApiConfig.Settings.ClientId},
-                {"payment", "creditcard"},
+                {"payment", "creditcard_fibonatix"},
                 {"referenceid", model.client_orderid + "-" + now.ToString("yyyyMMddHHmmss.fff")},
                 {"orderid", model.client_orderid},
                 {"creditcardowner", model.card_printed_name},
@@ -71,9 +71,9 @@ namespace MerchantAPI.Controllers.Factories
                 {"cvv", "" + model.cvv2},
                 {"ipaddress", model.ipaddress},
                 {"website", model.site_url},
-                {"successurl", ResolveInternalUrl(SUCC_EXTRA_PATH)},
+                {"successurl", ResolveInternalUrl(SUCC_EXTRA_PATH) + "?customerredirecturl=" + model.redirect_url + "&fibonatixID=" + fibonatixID},
                 {"notificationurl", ResolveInternalNotificationUrl(SUCC_EXTRA_PATH + "?customernotifyurl=" + model.server_callback_url + "&fibonatixID=" + fibonatixID)},
-                {"failurl", ResolveInternalUrl(FAIL_EXTRA_PATH)},
+                {"failurl", ResolveInternalUrl(FAIL_EXTRA_PATH) + "?customerredirecturl=" + model.redirect_url + "&fibonatixID=" + fibonatixID},
                 {"timestamp", CommDooTargetConverter.ConvertToWesternEurope(now).ToString("ddMMyyyyHHmmss")},
                 {"relatedinformation-orderdescription", model.order_desc}
             };
@@ -83,7 +83,8 @@ namespace MerchantAPI.Controllers.Factories
         public static string ResolveInternalUrl(string extraPath) {
             return String.Format("{0}://{1}:{2}{3}{4}",
                 HttpContext.Current.Request.Url.Scheme,
-                WebApiConfig.Settings.PublicServerName,
+                // WebApiConfig.Settings.PublicServerName,
+                "localhost",
                 HttpContext.Current.Request.Url.Port,
                 HttpContext.Current.Request.Url.AbsolutePath, extraPath);
         }

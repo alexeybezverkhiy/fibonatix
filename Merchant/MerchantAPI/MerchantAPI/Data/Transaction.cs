@@ -21,6 +21,7 @@ namespace MerchantAPI.Data
         Undefined = 0,
         Approved = 1,
         Declined = 2,
+        Error = 100,
     }
 
     public enum TransactionType

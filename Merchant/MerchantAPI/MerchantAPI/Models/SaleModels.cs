@@ -200,6 +200,12 @@ namespace MerchantAPI.Models
     public class FailurePaymentModel : BasePaymentModel
     {
         [Required]
+        public string customerredirecturl { get; set; }
+
+        [Required]
+        public string fibonatixID { get; set; }
+
+        [Required]
         [StringLength(50)]
         public string errornumber { get; set; }
 
@@ -211,7 +217,13 @@ namespace MerchantAPI.Models
     public class SuccessPaymentModel : BasePaymentModel
     {
         [Required]
-        public long transactionid { get; set; }
+        public string customerredirecturl { get; set; }
+
+        [Required]
+        public string fibonatixID { get; set; }
+
+        [Required]
+        public string transactionid { get; set; }
 
         public long subscriptionid { get; set; }
 

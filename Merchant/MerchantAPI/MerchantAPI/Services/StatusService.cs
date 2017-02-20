@@ -6,6 +6,7 @@ using System.Web;
 using MerchantAPI.Models;
 using System.Text;
 using MerchantAPI.Data;
+using System.Collections.Specialized;
 
 namespace MerchantAPI.Services
 {
@@ -43,110 +44,17 @@ namespace MerchantAPI.Services
             try {
                 Transaction transactionData = TransactionsDataStorage.FindByTransactionId(model.orderid);
 
-                if (transactionData.Type == TransactionType.Sale ) {
-
-                    SaleRequestModel sale_model = Cache.getSaleRequestData(model.orderid);
-                    string redirectURL = Cache.getRedirectUrlForRequest(model.orderid);
-
-                    switch (transactionData.State) {
-                        case TransactionState.Started:
-                        case TransactionState.Redirected: {
-                                if (redirectURL != null || sale_model == null) {
-                                    string redirectHTML = redirectTemplate.Replace("{0}", redirectURL);
-                                    // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo
-                                    response =
-                                        "type=status-response\n" +
-                                        "&status=processing\n" +
-                                        "&amount=" + sale_model.amount + "\n" +
-                                        "&paynet-order-id=" + model.orderid + "\n" +
-                                        "&merchant-order-id=" + model.client_orderid + "\n" +
-                                        "&phone=" + sale_model.phone + "\n" +
-                                        "&html=" + HttpUtility.UrlEncode(redirectHTML) + "\n" +
-                                        "&serial-number=" + transactionData.SerialNumber + "\n" +
-                                        "&last-four-digits=" + sale_model.credit_card_number.Substring(sale_model.credit_card_number.Length - 4) + "\n" +
-                                        "&bin=" + "" + "\n" +
-                                        "&card-type=" + "" + "\n" +
-                                        "&gate-partial-reversal=" + "" + "\n" +
-                                        "&gate-partial-capture=" + "" + "\n" +
-                                        "&transaction-type=" + "sale" + "\n" +
-                                        "&processor-rrn=" + "" + "\n" +
-                                        "&processor-tx-id=" + "" + "\n" +
-                                        "&receipt-id=" + "" + "\n" +
-                                        "&name=" + HttpUtility.UrlEncode(sale_model.first_name + " " + sale_model.last_name) + "\n" +
-                                        "&cardholder-name=" + HttpUtility.UrlEncode(sale_model.card_printed_name) + "\n" +
-                                        "&card-exp-month=" + sale_model.expire_month + "\n" +
-                                        "&card-exp-year=" + sale_model.expire_year + "\n" +
-                                        "&card-hash-id=" + "" + "\n" +
-                                        "&email=" + sale_model.email + "\n" +
-                                        "&bank-name=" + "" + "\n" +
-                                        "&terminal-id=" + "" + "\n" +
-                                        "&paynet-processing-date=" + "" + "\n" +
-                                        "&approval-code=" + "" + "\n" +
-                                        "&order-stage=" + "sale_3d_validating" + "\n" +
-                                        "&descriptor=" + sale_model.order_desc + "\n" +
-                                        "&by-request-sn=" + model.by_request_sn + "\n";
-                                } else {
-                                    response =
-                                        "type=validation-error\n" +
-                                        "&serial-number=" + transactionData.SerialNumber + "\n" +
-                                        "&error-code=1\n" +
-                                        "&error-message=" + HttpUtility.UrlEncode("Error parsing " + model.client_orderid + " as client order ID and " + model.orderid + " as order ID");
-                                }
-                            }
-                            break;
-                        case TransactionState.Finished: {
-                                if (redirectURL != null || sale_model == null) {
-                                    string redirectHTML = redirectTemplate.Replace("{0}", redirectURL);
-                                    response =
-                                        "type=status-response\n" +
-                                        "&status=approved\n" +
-                                        "&amount=" + sale_model.amount + "\n" +
-                                        "&paynet-order-id=" + model.orderid + "\n" +
-                                        "&merchant-order-id=" + model.client_orderid + "\n" +
-                                        "&phone=" + sale_model.phone + "\n" +
-                                        "&html=" + "" + "\n" +
-                                        "&serial-number=" + transactionData.SerialNumber + "\n" +
-                                        "&last-four-digits=" + sale_model.credit_card_number.Substring(sale_model.credit_card_number.Length - 4) + "\n" +
-                                        "&bin=" + "" + "\n" +
-                                        "&card-type=" + "" + "\n" +
-                                        "&gate-partial-reversal=" + "" + "\n" +
-                                        "&gate-partial-capture=" + "" + "\n" +
-                                        "&transaction-type=" + "sale" + "\n" +
-                                        "&processor-rrn=" + "" + "\n" +
-                                        "&processor-tx-id=" + "" + "\n" +
-                                        "&receipt-id=" + "" + "\n" +
-                                        "&name=" + HttpUtility.UrlEncode(sale_model.first_name + " " + sale_model.last_name) + "\n" +
-                                        "&cardholder-name=" + HttpUtility.UrlEncode(sale_model.card_printed_name) + "\n" +
-                                        "&card-exp-month=" + sale_model.expire_month + "\n" +
-                                        "&card-exp-year=" + sale_model.expire_year + "\n" +
-                                        "&card-hash-id=" + "" + "\n" +
-                                        "&email=" + sale_model.email + "\n" +
-                                        "&bank-name=" + "" + "\n" +
-                                        "&terminal-id=" + "" + "\n" +
-                                        "&paynet-processing-date=" + "" + "\n" +
-                                        "&approval-code=" + "" + "\n" +
-                                        "&order-stage=" + "sale_approved" + "\n" +
-                                        "&descriptor=" + sale_model.order_desc + "\n" +
-                                        "&by-request-sn=" + model.by_request_sn + "\n";
-                                } else {
-                                    response =
-                                        "type=validation-error\n" +
-                                        "&serial-number=" + transactionData.SerialNumber + "\n" +
-                                        "&error-code=1\n" +
-                                        "&error-message=" + HttpUtility.UrlEncode("Error parsing " + model.client_orderid + " as client order ID and " + model.orderid + " as order ID");
-                                }
-                            }
-                            break;
-                        case TransactionState.Created:
-                        default: {
-                                response =
-                                    "type=validation-error\n" +
-                                    "&serial-number=" + transactionData.SerialNumber + "\n" +
-                                    "&error-code=1\n" +
-                                    "&error-message=" + HttpUtility.UrlEncode("Undefined state of transaction");
-                            }
-                            break;
-                    }
+                switch(transactionData.Type) {
+                    case TransactionType.Sale:
+                        response = PrepareStringResponse(StatusSaleSingleCurrency(transactionData));
+                        break;
+                    case TransactionType.Capture:
+                    case TransactionType.Preauth:
+                    case TransactionType.Return:
+                    case TransactionType.Verify:
+                    case TransactionType.Void:
+                    default:
+                        break;
                 }
                 partnerResponse = Encoding.UTF8.GetBytes(response);
             } catch (Exception e) {
@@ -170,6 +78,170 @@ namespace MerchantAPI.Services
             //            SaleResponseModel succ = new SaleResponseModel();
             //            succ.SetSucc();
             //            return succ;
+        }
+
+        private NameValueCollection StatusSaleSingleCurrency(Transaction transactionData) {
+
+            NameValueCollection response = new NameValueCollection();
+
+            SaleRequestModel sale_model = Cache.getSaleRequestData(transactionData.TransactionId);
+            string redirectURL = Cache.getRedirectUrlForRequest(transactionData.TransactionId);
+
+            switch (transactionData.State) {
+                case TransactionState.Started:
+                case TransactionState.Redirected: {
+                        if (transactionData.State == TransactionState.Started)
+                            TransactionsDataStorage.UpdateTransactionState(transactionData.TransactionId, TransactionState.Created);
+                        if (redirectURL != null && sale_model != null) {
+                            string redirectHTML = redirectTemplate.Replace("{0}", redirectURL);
+                            // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo
+                            response["type"] = "status-response";
+                            response["status"] = "processing";
+                            response["amount"] = sale_model.amount;
+                            response["paynet-order-id"] = transactionData.TransactionId;
+                            response["merchant-order-id"] = transactionData.MerchantTransactionId;
+                            response["phone"] = sale_model.phone;
+                            response["html"] = HttpUtility.UrlEncode(redirectHTML);
+                            response["serial-number"] = Guid.NewGuid().ToString();
+                            response["last-four-digits"] = sale_model.credit_card_number.Substring(sale_model.credit_card_number.Length - 4);
+                            response["bin"] = "";
+                            response["card-type"] = "";
+                            response["gate-partial-reversal"] = "";
+                            response["gate-partial-capture"] = "";
+                            response["transaction-type"] = "sale";
+                            response["processor-rrn"] = "";
+                            response["processor-tx-id"] = "";
+                            response["receipt-id"] = "";
+                            response["name"] = HttpUtility.UrlEncode(sale_model.first_name + " " + sale_model.last_name);
+                            response["cardholder-name"] = HttpUtility.UrlEncode(sale_model.card_printed_name);
+                            response["card-exp-month"] = sale_model.expire_month.ToString();
+                            response["card-exp-year"] = sale_model.expire_year.ToString();
+                            response["card-hash-id"] = "";
+                            response["email"] = sale_model.email;
+                            response["bank-name"] = "";
+                            response["terminal-id"] = "";
+                            response["paynet-processing-date"] = "";
+                            response["approval-code"] = "";
+                            response["order-stage"] = "sale_3d_validating";
+                            response["descriptor"] = sale_model.order_desc;
+                            response["by-request-sn"] = transactionData.SerialNumber;
+                            response = CalculateHashForSaleStatus(response);
+                        } else {
+                            TransactionsDataStorage.UpdateTransactionState(transactionData.TransactionId, TransactionState.Finished);
+                            TransactionsDataStorage.UpdateTransactionStatus(transactionData.TransactionId, TransactionStatus.Error);
+                            response["type"] = "validation-error";
+                            response["serial-number"] = Guid.NewGuid().ToString();
+                            response["error-code"] = "1";
+                            response["error-message"] = HttpUtility.UrlEncode("Error parsing " + transactionData.MerchantTransactionId + " as client order ID and " + transactionData.TransactionId + " as order ID");
+                        }
+                    }
+                    break;
+                case TransactionState.Finished: {
+                        switch (transactionData.Status) {
+                            case TransactionStatus.Approved:
+                                response["type"] = "status-response";
+                                response["status"] = "approved";
+                                response["amount"] = sale_model.amount;
+                                response["paynet-order-id"] = transactionData.TransactionId;
+                                response["merchant-order-id"] = transactionData.MerchantTransactionId;
+                                response["phone"] = sale_model.phone;
+                                response["html"] = "";
+                                response["serial-number"] = Guid.NewGuid().ToString();
+                                response["last-four-digits"] = sale_model.credit_card_number.Substring(sale_model.credit_card_number.Length - 4);
+                                response["bin"] = "";
+                                response["card-type"] = "";
+                                response["gate-partial-reversal"] = "";
+                                response["gate-partial-capture"] = "";
+                                response["transaction-type"] = "sale";
+                                response["processor-rrn"] = "";
+                                response["processor-tx-id"] = "";
+                                response["receipt-id"] = "";
+                                response["name"] = HttpUtility.UrlEncode(sale_model.first_name + " " + sale_model.last_name);
+                                response["cardholder-name"] = HttpUtility.UrlEncode(sale_model.card_printed_name);
+                                response["card-exp-month"] = sale_model.expire_month.ToString();
+                                response["card-exp-year"] = sale_model.expire_year.ToString();
+                                response["card-hash-id"] = "";
+                                response["email"] = sale_model.email;
+                                response["bank-name"] = "";
+                                response["terminal-id"] = "";
+                                response["paynet-processing-date"] = "";
+                                response["approval-code"] = "";
+                                response["order-stage"] = "sale_approved";
+                                response["descriptor"] = sale_model.order_desc;
+                                response["by-request-sn"] = transactionData.SerialNumber;
+                                response = CalculateHashForSaleStatus(response);
+                                break;
+                            case TransactionStatus.Declined:
+                                response["type"] = "status-response";
+                                response["status"] = "declined";
+                                response["amount"] = sale_model.amount;
+                                response["paynet-order-id"] = transactionData.TransactionId;
+                                response["merchant-order-id"] = transactionData.MerchantTransactionId;
+                                response["phone"] = sale_model.phone;
+                                response["html"] = "";
+                                response["serial-number"] = Guid.NewGuid().ToString();
+                                response["last-four-digits"] = sale_model.credit_card_number.Substring(sale_model.credit_card_number.Length - 4);
+                                response["bin"] = "";
+                                response["card-type"] = "";
+                                response["gate-partial-reversal"] = "";
+                                response["gate-partial-capture"] = "";
+                                response["transaction-type"] = "sale";
+                                response["processor-rrn"] = "";
+                                response["processor-tx-id"] = "";
+                                response["receipt-id"] = "";
+                                response["name"] = HttpUtility.UrlEncode(sale_model.first_name + " " + sale_model.last_name);
+                                response["cardholder-name"] = HttpUtility.UrlEncode(sale_model.card_printed_name);
+                                response["card-exp-month"] = sale_model.expire_month.ToString();
+                                response["card-exp-year"] = sale_model.expire_year.ToString();
+                                response["card-hash-id"] = "";
+                                response["email"] = sale_model.email;
+                                response["bank-name"] = "";
+                                response["terminal-id"] = "";
+                                response["paynet-processing-date"] = "";
+                                response["approval-code"] = "";
+                                response["order-stage"] = "sale_declined";
+                                response["descriptor"] = sale_model.order_desc;
+                                response["by-request-sn"] = transactionData.SerialNumber;
+                                response = CalculateHashForSaleStatus(response);
+                                break;
+                            case TransactionStatus.Error:
+                            case TransactionStatus.Undefined:
+                            default:
+                                response["type"] = "validation-error";
+                                response["serial-number"] = Guid.NewGuid().ToString();
+                                response["error-code"] = "1";
+                                response["error-message"] = HttpUtility.UrlEncode("Error parsing " + transactionData.MerchantTransactionId + " as client order ID and " + transactionData.TransactionId + " as order ID");
+                                break;
+                        }
+                    }
+                    break;
+                case TransactionState.Created:
+                default: {
+                        response["type"] = "validation-error";
+                        response["serial-number"] = Guid.NewGuid().ToString();
+                        response["error-code"] = "1";
+                        response["error-message"] = HttpUtility.UrlEncode("Undefined state of transaction");
+                    }
+                    break;
+            }
+            return response;
+        }
+
+        private NameValueCollection CalculateHashForSaleStatus(NameValueCollection response) {
+            return response;
+        }
+
+        private string PrepareStringResponse(NameValueCollection response) {
+            var stringResponse = new StringBuilder();
+            foreach (string key in response.Keys) {
+                stringResponse.AppendFormat("{0}={1}&\n",
+                    HttpUtility.UrlEncode(key),
+                    HttpUtility.UrlEncode(response[key]));
+            }
+            if (response.Count > 0)
+                stringResponse.Length -= 2;
+
+            return stringResponse.ToString();
         }
     }
 }

@@ -38,14 +38,23 @@ namespace MerchantAPI.Data
             }
         }
 
-        public static Transaction UpdateTransactionState(string transactionID, TransactionState state)
-        {
-            using (var db = new PersistenceContext())
-            {
+        public static Transaction UpdateTransactionState(string transactionID, TransactionState state) {
+            using (var db = new PersistenceContext()) {
                 Transaction updated = db.Transactions
                     .FirstOrDefault(t => t.TransactionId == transactionID);
                 if (updated == null) return null;
                 updated.State = state;
+                CommitChanges(db, updated);
+                return updated;
+            }
+        }
+
+        public static Transaction UpdateTransactionStatus(string transactionID, TransactionStatus status) {
+            using (var db = new PersistenceContext()) {
+                Transaction updated = db.Transactions
+                    .FirstOrDefault(t => t.TransactionId == transactionID);
+                if (updated == null) return null;
+                updated.Status = status;
                 CommitChanges(db, updated);
                 return updated;
             }
