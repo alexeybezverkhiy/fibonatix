@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Web.Http.ModelBinding;
+using MerchantAPI.App_Start;
 using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Models
@@ -85,7 +86,7 @@ namespace MerchantAPI.Models
 
         public bool IsHashValid(string sharedSecret)
         {
-            if (WebApiConfig.Settings.IsTestingMode) return true;
+            if (WebApiConfig.Settings.ApplicationMode == ApplicationMode.TESTING) return true;
             
             string calculatedHash = HashHelper.SHA1(AssemblyHashContent(sharedSecret));
             return string.Equals(hash, calculatedHash, StringComparison.OrdinalIgnoreCase);

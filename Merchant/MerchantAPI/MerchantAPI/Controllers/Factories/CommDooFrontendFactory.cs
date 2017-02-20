@@ -48,7 +48,7 @@ namespace MerchantAPI.Controllers.Factories
             NameValueCollection data = new NameValueCollection
             {
                 {"clientid", WebApiConfig.Settings.ClientId},
-                {"payment", "creditcard"},
+                {"payment", WebApiConfig.Settings.PaymentKey},
                 {"referenceid", model.client_orderid + "-" + now.ToString("yyyyMMddHHmmss.fff")},
                 {"orderid", model.client_orderid},
                 {"creditcardowner", model.card_printed_name},

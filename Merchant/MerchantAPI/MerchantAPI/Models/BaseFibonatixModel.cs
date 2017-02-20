@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Web;
+using MerchantAPI.App_Start;
 using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Models
@@ -28,7 +29,7 @@ namespace MerchantAPI.Models
 
         public bool IsHashValid(int endpoint, string merchantControlKey)
         {
-            if (WebApiConfig.Settings.IsTestingMode) return true;
+            if (WebApiConfig.Settings.ApplicationMode == ApplicationMode.TESTING) return true;
 
             string calulatedHash = HashHelper.SHA1(AssemblyHashContent(endpoint, merchantControlKey));
             return string.Equals(control, calulatedHash, StringComparison.OrdinalIgnoreCase);
