@@ -24,7 +24,7 @@ namespace MerchantAPI.Controllers.Factories
         {
             NameValueCollection data = CreatePaymentParams(model, fibonatixID);
             data.Add("relatedinformation-endpointgroupid", "" + endpointGroupId);
-            data.Add("hash", CommDooHashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data, 
+            data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data, 
                 WebApiConfig.Settings.SharedSecret));
             return data;
         }
@@ -36,7 +36,7 @@ namespace MerchantAPI.Controllers.Factories
         {
             NameValueCollection data = CreatePaymentParams(model, fibonatixID);
             data.Add("relatedinformation-endpointid", "" + endpointId);
-            data.Add("hash", CommDooHashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
+            data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
                 WebApiConfig.Settings.SharedSecret));
             return data;
         }
@@ -48,7 +48,7 @@ namespace MerchantAPI.Controllers.Factories
             NameValueCollection data = new NameValueCollection
             {
                 {"clientid", WebApiConfig.Settings.ClientId},
-                {"payment", "creditcard_fibonatix"},
+                {"payment", WebApiConfig.Settings.PaymentKey},
                 {"referenceid", model.client_orderid + "-" + now.ToString("yyyyMMddHHmmss.fff")},
                 {"orderid", model.client_orderid},
                 {"creditcardowner", model.card_printed_name},
@@ -87,7 +87,7 @@ namespace MerchantAPI.Controllers.Factories
             string fibonatixID) {
             NameValueCollection data = CreatePaymentParams(model, fibonatixID);
             data.Add("relatedinformation-endpointgroupid", "" + endpointGroupId);
-            data.Add("hash", CommDooHashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
+            data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
                 WebApiConfig.Settings.SharedSecret));
             return data;
         }
@@ -98,7 +98,7 @@ namespace MerchantAPI.Controllers.Factories
             string fibonatixID) {
             NameValueCollection data = CreatePaymentParams(model, fibonatixID);
             data.Add("relatedinformation-endpointid", "" + endpointId);
-            data.Add("hash", CommDooHashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
+            data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
                 WebApiConfig.Settings.SharedSecret));
             return data;
         }
@@ -109,9 +109,8 @@ namespace MerchantAPI.Controllers.Factories
             NameValueCollection data = new NameValueCollection
             {
                 {"clientid", WebApiConfig.Settings.ClientId},
-                {"payment", "creditcard_fibonatix"},
-                {"paymentmode", "reservation" },
                 {"payment", WebApiConfig.Settings.PaymentKey},
+                {"paymentmode", "reservation" },
                 {"referenceid", model.client_orderid + "-" + now.ToString("yyyyMMddHHmmss.fff")},
                 {"orderid", model.client_orderid},
                 {"creditcardowner", model.card_printed_name},

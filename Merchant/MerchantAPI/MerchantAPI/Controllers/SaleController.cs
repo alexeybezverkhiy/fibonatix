@@ -29,12 +29,13 @@ namespace MerchantAPI.Controllers
             [FromUri] int endpointId,
             [FromBody] SaleRequestModel model)
         {
+            SaleResponseModel err = null;
             ServiceTransitionResult result = null;
 
             string controlKey = WebApiConfig.Settings.MerchantControlKeys["" + endpointId];
             if (string.IsNullOrEmpty(controlKey))
             {
-                SaleResponseModel err = new SaleResponseModel(model.client_orderid);
+                err = new SaleResponseModel(model.client_orderid);
                 err.SetValidationError("2", "INVALID_CONTROL_CODE");
             }
             else
@@ -45,11 +46,14 @@ namespace MerchantAPI.Controllers
                 }
                 else
                 {
-                    SaleResponseModel err = new SaleResponseModel(model.client_orderid);
+                    err = new SaleResponseModel(model.client_orderid);
                     err.SetValidationError("2", "INVALID_CONTROL_CODE");
-
-                    result = new ServiceTransitionResult(HttpStatusCode.OK, err.ToHttpResponse());
                 }
+            }
+
+            if (err != null)
+            {
+                result = new ServiceTransitionResult(HttpStatusCode.OK, err.ToHttpResponse());
             }
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
@@ -69,10 +73,16 @@ namespace MerchantAPI.Controllers
             [FromUri] int endpointId,
             [FromUri] SaleSuccessPaymentModel model)
         {
-            if(model.transactionid != null)
-                TransactionsDataStorage.UpdateTransaction(model.fibonatixID, model.transactionid, TransactionState.Finished);
+            if (model.transactionid != null)
+            {
+                TransactionsDataStorage.UpdateTransaction(model.fibonatixID, model.transactionid,
+                    TransactionState.Finished);
+            }
             else
-                TransactionsDataStorage.UpdateTransactionState(model.fibonatixID, TransactionState.Finished);
+            {
+                TransactionsDataStorage.UpdateTransactionState(model.fibonatixID, 
+                    TransactionState.Finished);
+            }
             TransactionsDataStorage.UpdateTransactionStatus(model.fibonatixID, TransactionStatus.Approved);
 
             var result = new ServiceTransitionResult(HttpStatusCode.Moved, model.customerredirecturl);
@@ -86,8 +96,8 @@ namespace MerchantAPI.Controllers
             [FromUri] int endpointId,
             [FromUri] SaleFailurePaymentModel model)
         {
-            TransactionsDataStorage.UpdateTransactionState(model.fibonatixID, TransactionState.Finished);
-            TransactionsDataStorage.UpdateTransactionStatus(model.fibonatixID, TransactionStatus.Declined);
+            TransactionsDataStorage.UpdateTransaction(model.fibonatixID, 
+                TransactionState.Finished, TransactionStatus.Declined);
             var result = new ServiceTransitionResult(HttpStatusCode.Moved, model.customerredirecturl);
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;

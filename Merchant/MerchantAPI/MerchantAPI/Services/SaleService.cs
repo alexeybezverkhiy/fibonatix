@@ -30,18 +30,18 @@ namespace MerchantAPI.Services
 
                 var parameters = new StringBuilder();
                 foreach (string key in requestParameters.Keys) {
-                    parameters.AppendFormat("{0}={1}&",
-                        HttpUtility.UrlEncode(key),
-                        HttpUtility.UrlEncode(requestParameters[key]));
+                    parameters
+                        .Append(parameters.Length > 0 ? "&" : string.Empty)
+                        .Append(HttpUtility.UrlEncode(key))
+                        .Append('=')
+                        .Append(HttpUtility.UrlEncode(requestParameters[key]));
                 }
-                if (requestParameters.Count > 0)
-                    parameters.Length -= 1;
-
-                string redirectToCommDoo = WebApiConfig.Settings.PaymentASPXEndpoint + "?" + parameters.ToString();
+                
+                string redirectToCommDoo = WebApiConfig.Settings.PaymentASPXEndpoint + "?" + parameters;
 
                 // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo
-                TransactionsDataStorage.UpdateTransactionState(transactionData.TransactionId, TransactionState.Started);
-                TransactionsDataStorage.UpdateTransactionStatus(transactionData.TransactionId, TransactionStatus.Undefined);
+                TransactionsDataStorage.UpdateTransaction(transactionData.TransactionId, 
+                    TransactionState.Started, TransactionStatus.Undefined);
                 Cache.setRedirectUrlForRequest(transactionData.TransactionId, redirectToCommDoo);
                 Cache.setSaleRequestData(transactionData.TransactionId, model);
 

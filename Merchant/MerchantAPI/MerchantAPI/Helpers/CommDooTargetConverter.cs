@@ -7,9 +7,8 @@ namespace MerchantAPI.Helpers
 {
     public class CommDooTargetConverter
     {
-        // Either https://www.timeanddate.com/time/zones/west
-        // Or https://www.timeanddate.com/time/zones/cet
-        private const string DestinationTimeZoneId = "W. Europe Standard Time";
+        // See https://www.timeanddate.com/time/zones/cet
+        private const string DestinationTimeZoneId = "Central Europe Standard Time";
 
         public static DateTime ConvertToWesternEurope(DateTime utc)
         {

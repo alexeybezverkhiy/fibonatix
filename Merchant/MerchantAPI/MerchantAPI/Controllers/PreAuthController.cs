@@ -58,9 +58,15 @@ namespace MerchantAPI.Controllers
             [FromUri] int endpointId,
             [FromUri] PreAuthSuccessPaymentModel model) {
             if (model.transactionid != null)
-                TransactionsDataStorage.UpdateTransaction(model.fibonatixID, model.transactionid, TransactionState.Finished);
+            {
+                TransactionsDataStorage.UpdateTransaction(model.fibonatixID, model.transactionid,
+                    TransactionState.Finished);
+            }
             else
-                TransactionsDataStorage.UpdateTransactionState(model.fibonatixID, TransactionState.Finished);
+            {
+                TransactionsDataStorage.UpdateTransactionState(model.fibonatixID, 
+                    TransactionState.Finished);
+            }
             TransactionsDataStorage.UpdateTransactionStatus(model.fibonatixID, TransactionStatus.Approved);
 
             var result = new ServiceTransitionResult(HttpStatusCode.Moved, model.customerredirecturl);
@@ -73,8 +79,8 @@ namespace MerchantAPI.Controllers
         public HttpResponseMessage FailurePostback(
             [FromUri] int endpointId,
             [FromUri] PreAuthFailurePaymentModel model) {
-            TransactionsDataStorage.UpdateTransactionState(model.fibonatixID, TransactionState.Finished);
-            TransactionsDataStorage.UpdateTransactionStatus(model.fibonatixID, TransactionStatus.Declined);
+            TransactionsDataStorage.UpdateTransaction(model.fibonatixID, 
+                TransactionState.Finished, TransactionStatus.Declined);
             var result = new ServiceTransitionResult(HttpStatusCode.Moved, model.customerredirecturl);
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;

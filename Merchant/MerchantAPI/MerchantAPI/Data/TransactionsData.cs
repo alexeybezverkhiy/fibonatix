@@ -77,6 +77,23 @@ namespace MerchantAPI.Data
             }
         }
 
+        public static Transaction UpdateTransaction(
+            string transactionID, 
+            TransactionState state,
+            TransactionStatus status)
+        {
+            using (var db = new PersistenceContext())
+            {
+                Transaction updated = db.Transactions
+                    .FirstOrDefault(t => t.TransactionId == transactionID);
+                if (updated == null) return null;
+                updated.State = state;
+                updated.Status = status;
+                CommitChanges(db, updated);
+                return updated;
+            }
+        }
+
         public static Transaction FindByTransactionId(string transactionID)
         {
             using (var db = new PersistenceContext())

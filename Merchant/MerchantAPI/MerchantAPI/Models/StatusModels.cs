@@ -3,18 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
+using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Models
 {
-    public class StatusRequestModel
+    public class StatusRequestModel : BaseFibonatixModel
     {
         [Required]
         [StringLength(128)]
         public string login { get; set; }
-
-        [Required]
-        [StringLength(128)]
-        public string client_orderid { get; set; }
 
         [Required]
         [StringLength(128)]
@@ -24,10 +22,14 @@ namespace MerchantAPI.Models
         [StringLength(128)]
         public string by_request_sn { get; set; }
 
-        [Required]
-        [StringLength(40, MinimumLength = 40)]
-        public string control { get; set; }
-
+        protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint, string merchantControlKey)
+        {
+            return builder
+                .Append(login)
+                .Append(string.IsNullOrEmpty(client_orderid) ? string.Empty : client_orderid)
+                .Append(string.IsNullOrEmpty(orderid) ? string.Empty : orderid)
+                .Append(merchantControlKey);
+        }
     }
 
     public class StatusResponseModel
