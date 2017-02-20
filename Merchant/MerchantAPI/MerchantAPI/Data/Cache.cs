@@ -40,5 +40,21 @@ namespace MerchantAPI.Data
             }
             return data;
         }
+        public static void setPreAuthRequestData(string merchant_orderid, Models.PreAuthRequestModel model) {
+            try {
+                HttpContext.Current.Cache.Insert("preauth_data:" + merchant_orderid, model, null,
+                    System.Web.Caching.Cache.NoAbsoluteExpiration,
+                    WebApiConfig.SettingsFactory.CreateCacheSlidingExpiration());
+            } catch {
+            }
+        }
+        public static Models.PreAuthRequestModel getPreAuthRequestData(string merchant_orderid) {
+            Models.PreAuthRequestModel data = null;
+            try {
+                data = (Models.PreAuthRequestModel)HttpContext.Current.Cache.Get("preauth_data:" + merchant_orderid);
+            } catch {
+            }
+            return data;
+        }
     }
 }

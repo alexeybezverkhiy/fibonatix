@@ -234,6 +234,7 @@
     <Compile Include="Helpers\HashHelper.cs" />
     <Compile Include="Models\BaseFibonatixModel.cs" />
     <Compile Include="Models\CaptureModels.cs" />
+    <Compile Include="Models\PreAuthModels.cs" />
     <Compile Include="Models\StatusModels.cs" />
     <Compile Include="Models\SaleModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

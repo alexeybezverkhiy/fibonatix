@@ -40,7 +40,8 @@ namespace MerchantAPI.Services
                 string redirectToCommDoo = WebApiConfig.Settings.PaymentASPXEndpoint + "?" + parameters.ToString();
 
                 // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo
-                TransactionsDataStorage.UpdateTransactionState(transactionData.TransactionId, TransactionState.Finished);
+                TransactionsDataStorage.UpdateTransactionState(transactionData.TransactionId, TransactionState.Started);
+                TransactionsDataStorage.UpdateTransactionStatus(transactionData.TransactionId, TransactionStatus.Undefined);
                 Cache.setRedirectUrlForRequest(transactionData.TransactionId, redirectToCommDoo);
                 Cache.setSaleRequestData(transactionData.TransactionId, model);
 

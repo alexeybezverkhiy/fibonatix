@@ -19,7 +19,7 @@ namespace MerchantAPI.Controllers.Factories
                 serviceResult.Status == System.Net.HttpStatusCode.TemporaryRedirect ||
                 serviceResult.Status == System.Net.HttpStatusCode.MovedPermanently ||
                 serviceResult.Status == System.Net.HttpStatusCode.Moved) {
-                response.Content.Headers.Add("Location", serviceResult.StringContent);
+                response.Headers.Location = new Uri(serviceResult.StringContent);
             }
             else {
                 response.Content = new StringContent(serviceResult.StringContent);
