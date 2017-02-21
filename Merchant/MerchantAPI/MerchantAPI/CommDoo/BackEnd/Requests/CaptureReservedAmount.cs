@@ -14,19 +14,20 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
     [XmlRoot("Request")]
     public class CaptureReservedAmountRequest : Request
     {
-        [XmlElement("Client")]
+        [Required]
+        [XmlElement(ElementName = "Client")]
         public ClientData Client { get; set; }
-        [XmlElement("Security")]
+        [Required]
+        [XmlElement(ElementName = "Security")]
         public SecurityData Security { get; set; }
-        [XmlElement("Payment")]
+        [Required]
+        [XmlElement(ElementName = "Payment")]
         public PaymentData Payment { get; set; }
-        [XmlElement("Notification")]
+        [XmlElement(ElementName = "Notification")]
         public NotificationData Notification { get; set; }
-        // [XmlElement("Customer")]
-        [XmlIgnore]
+        [XmlElement(ElementName = "Customer")]
         public CustomerData Customer { get; set; }
-        // [XmlElement("Purchase")]
-        [XmlIgnore]
+        [XmlElement(ElementName = "Purchase")]
         public PurchaseData Purchase { get; set; }
 
         public static CaptureReservedAmountRequest createRequestByModel(CaptureRequestModel model, string commDooReferencedTransactionID) {
@@ -40,8 +41,8 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
                     ReferenceID = model.client_orderid + "-" + DateTime.Now.ToString("yyyyMMddHHmmss.fff"),
                     RelatedInformation = new RelatedInformationData() {
                         ReferencedTransactionID = commDooReferencedTransactionID,
-                    },
-                }
+                    },                    
+                },
             };
             return request;
         }

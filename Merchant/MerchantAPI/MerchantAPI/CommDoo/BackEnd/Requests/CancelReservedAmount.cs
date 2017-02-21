@@ -12,11 +12,11 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
     [XmlRoot("Request")]
     public class CancelReservedAmountRequest : Request
     {
-        [XmlElement("Client")]
+        [XmlElement(ElementName = "Client")]
         public ClientData Client { get; set; }
-        [XmlElement("Security")]
+        [XmlElement(ElementName = "Security")]
         public SecurityData Security { get; set; }
-        [XmlElement("Payment")]
+        [XmlElement(ElementName = "Payment")]
         public PaymentData Payment { get; set; }
 
         public override string executeRequest() {

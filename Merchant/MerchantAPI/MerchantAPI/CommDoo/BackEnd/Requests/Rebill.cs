@@ -12,17 +12,17 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
     [XmlRoot("Request")]
     public class RebillRequest : Request
     {
-        [XmlElement("Client")]
+        [XmlElement(ElementName = "Client")]
         public ClientData Client { get; set; }
-        [XmlElement("Security")]
+        [XmlElement(ElementName = "Security")]
         public SecurityData Security { get; set; }
-        [XmlElement("Payment")]
+        [XmlElement(ElementName = "Payment")]
         public PaymentData Payment { get; set; }
-        [XmlElement("Notification")]
+        [XmlElement(ElementName = "Notification")]
         public NotificationData Notification { get; set; }
-        [XmlElement("Customer")]
+        [XmlElement(ElementName = "Customer")]
         public CustomerData Customer { get; set; }
-        [XmlElement("Purchase")]
+        [XmlElement(ElementName = "Purchase")]
         public PurchaseData Purchase { get; set; }
 
         public override string executeRequest() {

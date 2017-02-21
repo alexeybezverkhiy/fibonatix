@@ -12,13 +12,13 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
     [XmlRoot("Request")]
     public class RefundRequest : Request
     {
-        [XmlElement("Client")]
+        [XmlElement(ElementName = "Client")]
         public ClientData Client { get; set; }
-        [XmlElement("Security")]
+        [XmlElement(ElementName = "Security")]
         public SecurityData Security { get; set; }
-        [XmlElement("Order")]
+        [XmlElement(ElementName = "Order")]
         public PaymentData Order { get; set; }
-        [XmlElement("Purchase")]
+        [XmlElement(ElementName = "Purchase")]
         public PurchaseData Purchase { get; set; }
 
         public override string executeRequest() {

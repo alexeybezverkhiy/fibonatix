@@ -55,7 +55,7 @@ namespace MerchantAPI.Services
                                "&serial-number=" + transactionData.SerialNumber + "\n" +
                                "&merchant-order-id=" + model.client_orderid + "\n" +
                                "&paynet-order-id=" + transactionData.TransactionId + "\n" +
-                               "&error-message=" + xmlResponse.Error.ErrorMessage + "\n" +
+                               "&error-message=" + HttpUtility.UrlEncode(xmlResponse.Error.ErrorMessage) + "\n" +
                                "&error-code=" + xmlResponse.Error.ErrorNumber + "\n";
                 }
                 partnerResponse = Encoding.UTF8.GetBytes(response);

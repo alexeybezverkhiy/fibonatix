@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Net;
+using System.ComponentModel.DataAnnotations;
 
 namespace MerchantAPI.CommDoo.BackEnd.Requests
 {
@@ -40,221 +41,217 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
 
         public class ClientData
         {
-            [XmlElement("ClientID")]
+            [XmlElement(ElementName = "ClientID")]
             public string ClientID { get; set; }
         }
         public class SecurityData
         {
-            [XmlElement("Timestamp")]
+            [XmlElement(ElementName = "Timestamp")]
             public string Timestamp { get; set; }
-            [XmlElement("Hash")]
+            [XmlElement(ElementName = "Hash")]
             public string Hash { get; set; }
         }
         public class PaymentData
         {
-            [XmlElement("TransactionID")]
+            [XmlElement(ElementName = "TransactionID")]
             public string TransactionID { get; set; }
-            [XmlElement("PaymentType")]
+            [XmlElement(ElementName = "PaymentType")]
             public string PaymentType { get; set; }
-            [XmlElement("PaymentMode")]
+            [XmlElement(ElementName = "PaymentMode")]
             public string PaymentMode { get; set; }
-            [XmlElement("Amount")]
+            [XmlElement(ElementName = "Amount")]
             public string Amount { get; set; }
-            [XmlElement("Currency")]
+            [XmlElement(ElementName = "Currency")]
             public string Currency { get; set; }
-            [XmlElement("ReferenceID")]
+            [XmlElement(ElementName = "ReferenceID")]
             public string ReferenceID { get; set; }
-            [XmlElement("AdditionalData")]
+            [XmlElement(ElementName = "AdditionalData")]
             public string AdditionalData { get; set; }
-            [XmlElement("RelatedInformation")]
+            [XmlElement(ElementName = "RelatedInformation")]
             public RelatedInformationData RelatedInformation { get; set; }
-            [XmlElement("SubscriptionData")]
+            [XmlElement(ElementName = "SubscriptionData")]
             public SubscriptionData Subscription { get; set; }
         }
         public class RelatedInformationData
         {
-            [XmlElement("RiskCheckID")]
+            [XmlElement(ElementName = "RiskCheckID")]
             public string RiskCheckID { get; set; }
-            [XmlElement("OrderID")]
+            [XmlElement(ElementName = "OrderID")]
             public string OrderID { get; set; }
-            [XmlElement("ReferencedTransactionID")]
+            [XmlElement(ElementName = "ReferencedTransactionID")]
             public string ReferencedTransactionID { get; set; }
-            [XmlElement("RefundType")]
+            [XmlElement(ElementName = "RefundType")]
             public string RefundType { get; set; }
-            [XmlElement("Purpose")]
+            [XmlElement(ElementName = "Purpose")]
             public string Purpose { get; set; }
-            [XmlElement("Website")]
+            [XmlElement(ElementName = "Website")]
             public string Website { get; set; }
-            [XmlElement("SEPADirectDebitMandateReferenceID")]
+            [XmlElement(ElementName = "SEPADirectDebitMandateReferenceID")]
             public string SEPADirectDebitMandateReferenceID { get; set; }
-            [XmlElement("SEPADirectDebitMandateDate")]
+            [XmlElement(ElementName = "SEPADirectDebitMandateDate")]
             public string SEPADirectDebitMandateDate { get; set; }
-            [XmlElement("Username")]
+            [XmlElement(ElementName = "Username")]
             public string Username { get; set; }
-            [XmlElement("Tariff")]
+            [XmlElement(ElementName = "Tariff")]
             public string Tariff { get; set; }
-            [XmlElement("DateOfRegistration")]
+            [XmlElement(ElementName = "DateOfRegistration")]
             public string DateOfRegistration { get; set; }
-            [XmlElement("AmazonOrderReferenceID")]
+            [XmlElement(ElementName = "AmazonOrderReferenceID")]
             public string AmazonOrderReferenceID { get; set; }
         }
         public class SubscriptionData
         {
-            [XmlElement("Timeunit")]
+            [XmlElement(ElementName = "Timeunit")]
             public string Timeunit { get; set; }
-            [XmlElement("BillingCycle")]
+            [XmlElement(ElementName = "BillingCycle")]
             public string BillingCycle { get; set; }
-            [XmlElement("DurationPeriod")]
+            [XmlElement(ElementName = "DurationPeriod")]
             public string DurationPeriod { get; set; }
-            [XmlElement("RenewalPeriod")]
+            [XmlElement(ElementName = "RenewalPeriod")]
             public string RenewalPeriod { get; set; }
-            [XmlElement("MinimumDurationPeriod")]
+            [XmlElement(ElementName = "MinimumDurationPeriod")]
             public string MinimumDurationPeriod { get; set; }
-            [XmlElement("MaximumDurationPeriod")]
+            [XmlElement(ElementName = "MaximumDurationPeriod")]
             public string MaximumDurationPeriod { get; set; }
-            [XmlElement("CancellationPeriod")]
+            [XmlElement(ElementName = "CancellationPeriod")]
             public string CancellationPeriod { get; set; }
-            [XmlElement("Trial")]
+            [XmlElement(ElementName = "Trial")]
             public TrialData Trial { get; set; }
             public class TrialData
             {
-                [XmlElement("DurationPeriod")]
+                [XmlElement(ElementName = "DurationPeriod")]
                 public string DurationPeriod { get; set; }
-                [XmlElement("Timeunit")]
+                [XmlElement(ElementName = "Timeunit")]
                 public string Timeunit { get; set; }
-                [XmlElement("Amount")]
+                [XmlElement(ElementName = "Amount")]
                 public string Amount { get; set; }
             }
         }
         public class RedirectionData
         {
-            [XmlElement("SuccessURL")]
+            [XmlElement(ElementName = "SuccessURL")]
             public string SuccessURL { get; set; }
-            [XmlElement("FailURL")]
+            [XmlElement(ElementName = "FailURL")]
             public string FailURL { get; set; }
         }
         public class NotificationData
         {
-            [XmlElement("NotificationURL")]
+            [XmlElement(ElementName = "NotificationURL")]
             public string NotificationURL { get; set; }
         }
         public class CustomerData
         {
-            [XmlElement("CustomerID")]
+            [XmlElement(ElementName = "CustomerID")]
             public string CustomerID { get; set; }
-            [XmlElement("ReferenceCustomerID")]
+            [XmlElement(ElementName = "ReferenceCustomerID")]
             public string ReferenceCustomerID { get; set; }
-            [XmlElement("Person")]
+            [XmlElement(ElementName = "Person")]
             public PersonData Person { get; set; }
-            [XmlElement("Address")]
+            [XmlElement(ElementName = "Address")]
             public AddressData Address { get; set; }
-            [XmlElement("Person")]
+            [XmlElement(ElementName = "Bank")]
             public BankData Bank { get; set; }
-            [XmlElement("Person")]
+            [XmlElement(ElementName = "CreditCard")]
             public CreditCardData CreditCard { get; set; }
         }
-
         public class PurchaseData
         {
-            [XmlElement("Delivery")]
+            [XmlElement(ElementName = "Delivery")]
             public DeliveryData Delivery { get; set; }
             [XmlArray("Items")]
             [XmlArrayItem(typeof(ItemData), ElementName = "Item")]
             public List<ItemData> Items { get; set; }
         }
-
         public class DeliveryData
         {
-            [XmlElement("Person")]
+            [XmlElement(ElementName = "Person")]
             public PersonData Person { get; set; }
-            [XmlElement("Address")]
+            [XmlElement(ElementName = "Address")]
             public AddressData Address { get; set; }
         }
-
         public class PersonData
         {
-            [XmlElement("CompanyName")]
+            [XmlElement(ElementName = "CompanyName")]
             public string CompanyName { get; set; }
-            [XmlElement("FirstName")]
+            [XmlElement(ElementName = "FirstName")]
             public string FirstName { get; set; }
-            [XmlElement("LastName")]
+            [XmlElement(ElementName = "LastName")]
             public string LastName { get; set; }
-            [XmlElement("Salutation")]
+            [XmlElement(ElementName = "Salutation")]
             public string Salutation { get; set; }
-            [XmlElement("Title")]
+            [XmlElement(ElementName = "Title")]
             public string Title { get; set; }
-            [XmlElement("DateOfBirth")]
+            [XmlElement(ElementName = "DateOfBirth")]
             public string DateOfBirth { get; set; }
-            [XmlElement("Gender")]
+            [XmlElement(ElementName = "Gender")]
             public string Gender { get; set; }
-            [XmlElement("IDCardNumber")]
+            [XmlElement(ElementName = "IDCardNumber")]
             public string IDCardNumber { get; set; }
         }
         public class AddressData
         {
-            [XmlElement("Street")]
+            [XmlElement(ElementName = "Street")]
             public string Street { get; set; }
-            [XmlElement("HouseNumber")]
+            [XmlElement(ElementName = "HouseNumber")]
             public string HouseNumber { get; set; }
-            [XmlElement("PostalCode")]
+            [XmlElement(ElementName = "PostalCode")]
             public string PostalCode { get; set; }
-            [XmlElement("City")]
+            [XmlElement(ElementName = "City")]
             public string City { get; set; }
-            [XmlElement("State")]
+            [XmlElement(ElementName = "State")]
             public string State { get; set; }
-            [XmlElement("Country")]
+            [XmlElement(ElementName = "Country")]
             public string Country { get; set; }
-            [XmlElement("PhoneNumber")]
+            [XmlElement(ElementName = "PhoneNumber")]
             public string PhoneNumber { get; set; }
-            [XmlElement("EmailAddress")]
+            [XmlElement(ElementName = "EmailAddress")]
             public string EmailAddress { get; set; }
-            [XmlElement("IPAddress")]
+            [XmlElement(ElementName = "IPAddress")]
             public string IPAddress { get; set; }
         }
         public class BankData
         {
-            [XmlElement("BankAccountNumber")]
+            [XmlElement(ElementName = "BankAccountNumber")]
             public string BankAccountNumber { get; set; }
-            [XmlElement("BankCode")]
+            [XmlElement(ElementName = "BankCode")]
             public string BankCode { get; set; }
-            [XmlElement("BankCountry")]
+            [XmlElement(ElementName = "BankCountry")]
             public string BankCountry { get; set; }
-            [XmlElement("BankAccountHolder")]
+            [XmlElement(ElementName = "BankAccountHolder")]
             public string BankAccountHolder { get; set; }
-            [XmlElement("IBAN")]
+            [XmlElement(ElementName = "IBAN")]
             public string IBAN { get; set; }
-            [XmlElement("BIC")]
+            [XmlElement(ElementName = "BIC")]
             public string BIC { get; set; }
         }
         public class CreditCardData
         {
-            [XmlElement("CreditCardNumber")]
+            [XmlElement(ElementName = "CreditCardNumber")]
             public string CreditCardNumber { get; set; }
-            [XmlElement("CreditCardExpirationMonth")]
+            [XmlElement(ElementName = "CreditCardExpirationMonth")]
             public string CreditCardExpirationMonth { get; set; }
-            [XmlElement("CreditCardExpirationYear")]
+            [XmlElement(ElementName = "CreditCardExpirationYear")]
             public string CreditCardExpirationYear { get; set; }
-            [XmlElement("CreditCardType")]
+            [XmlElement(ElementName = "CreditCardType")]
             public string CreditCardType { get; set; }
-            [XmlElement("CreditCardValidationValue")]
+            [XmlElement(ElementName = "CreditCardValidationValue")]
             public string CreditCardValidationValue { get; set; }
         }
-
         public class ItemData
         {
-            [XmlElement("ID")]
+            [XmlElement(ElementName = "ID")]
             public string ID { get; set; }
-            [XmlElement("Name")]
+            [XmlElement(ElementName = "Name")]
             public string Name { get; set; }
-            [XmlElement("Description")]
+            [XmlElement(ElementName = "Description")]
             public string Description { get; set; }
-            [XmlElement("Quantity")]
+            [XmlElement(ElementName = "Quantity")]
             public string Quantity { get; set; }
-            [XmlElement("TotalPrice")]
+            [XmlElement(ElementName = "TotalPrice")]
             public string TotalPrice { get; set; }
-            [XmlElement("Currency")]
+            [XmlElement(ElementName = "Currency")]
             public string Currency { get; set; }
-            [XmlElement("TaxPercentage")]
+            [XmlElement(ElementName = "TaxPercentage")]
             public string TaxPercentage { get; set; }
 
         }
