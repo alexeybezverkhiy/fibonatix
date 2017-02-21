@@ -6,6 +6,12 @@ using System.Web;
 
 namespace MerchantAPI.App_Start
 {
+    public enum ApplicationMode
+    {
+        TESTING,
+        PRODUCTION
+    }
+
     public interface ISettings
     {
         string Version { get; }
@@ -13,14 +19,15 @@ namespace MerchantAPI.App_Start
         string ClientId { get; }
         string SharedSecret { get; }
         NameValueCollection MerchantControlKeys { get; }
-        bool IsTestingMode { get; }
+        ApplicationMode ApplicationMode { get; }
         string PaymentASPXEndpoint { get; }
         int CacheSlidingExpirationSeconds { get; }
+        string PaymentKey { get;  }
     }
 
     public class TestSettings : ISettings
     {
-        public bool IsTestingMode => true;
+        public ApplicationMode ApplicationMode => ApplicationMode.TESTING;
         public string Version => "1.0.0.0";
         public string ClientId => "99999999";
         public string SharedSecret => "test";
@@ -28,6 +35,7 @@ namespace MerchantAPI.App_Start
         public string PublicServerName => "87.117.3.242";
         public string PaymentASPXEndpoint => "https://frontend.payment-transaction.net/payment.aspx";
         public int CacheSlidingExpirationSeconds => 600;
+        public string PaymentKey => "creditcard_fibonatix";
         public NameValueCollection MerchantControlKeys => MerchantControlKeyCollection;
 
         private static readonly NameValueCollection MerchantControlKeyCollection = new NameValueCollection
@@ -39,7 +47,7 @@ namespace MerchantAPI.App_Start
 
     public class ProductionSettings : ISettings
     {
-        public bool IsTestingMode => false;
+        public ApplicationMode ApplicationMode => ApplicationMode.PRODUCTION;
         public string Version => "1.0.0.0";
         public string PublicServerName
         {
@@ -63,6 +71,11 @@ namespace MerchantAPI.App_Start
             get { return 600; }
         }
 
+        public string PaymentKey
+        {
+            get { return "creditcard_fibonatix"; }
+        }
+
         public NameValueCollection MerchantControlKeys => MerchantControlKeyCollection;
         private static readonly NameValueCollection MerchantControlKeyCollection = new NameValueCollection();
     }
@@ -80,8 +93,7 @@ namespace MerchantAPI.App_Start
 
         public TimeSpan CreateCacheSlidingExpiration()
         {
-            return new TimeSpan(0, _settings.CacheSlidingExpirationSeconds / 60, 
-                _settings.CacheSlidingExpirationSeconds % 60);
+            return new TimeSpan(0, 0, _settings.CacheSlidingExpirationSeconds);
         }
     }
 }

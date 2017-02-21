@@ -7,11 +7,10 @@ namespace MerchantAPI.Helpers
 {
     public class CommDooTargetConverter
     {
-        // Either https://www.timeanddate.com/time/zones/west
-        // Or https://www.timeanddate.com/time/zones/cet
-        private const string DestinationTimeZoneId = "W. Europe Standard Time";
+        // See https://www.timeanddate.com/time/zones/cet
+        private const string DestinationTimeZoneId = "Central Europe Standard Time";
 
-        public static DateTime ConvertToWesternEurope(DateTime utc)
+        public static DateTime ConvertToCentralEurope(DateTime utc)
         {
             DateTime westernEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(utc, DestinationTimeZoneId);
             return westernEurope;
@@ -38,7 +37,7 @@ namespace MerchantAPI.Helpers
             long month = (birthday % 10000) / 100;
             long year = birthday / 10000;
 
-            return string.Format("{0:00}.{1:00}.{2:0000}", day, month, year);
+            return $"{day:00}.{month:00}.{year:0000}";
         }
 
         /*

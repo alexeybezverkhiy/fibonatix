@@ -24,8 +24,32 @@ namespace MerchantAPI.Controllers
             [FromUri] int endpointId,
             [FromBody] StatusRequestModel model)
         {
-            ServiceTransitionResult result = _service.StatusSingleCurrency(endpointId, model);
+            SaleResponseModel err = null;
+            ServiceTransitionResult result = null;
 
+            string controlKey = WebApiConfig.Settings.MerchantControlKeys["" + endpointId];
+            if (string.IsNullOrEmpty(controlKey))
+            {
+                err = new SaleResponseModel(model.client_orderid);
+                err.SetValidationError("2", "INVALID_CONTROL_CODE");
+            }
+            else
+            {
+                if (model.IsHashValid(endpointId, controlKey))
+                {
+                    result = _service.StatusSingleCurrency(endpointId, model, controlKey);
+                }
+                else
+                {
+                    err = new SaleResponseModel(model.client_orderid);
+                    err.SetValidationError("2", "INVALID_CONTROL_CODE");
+                }
+            }
+
+            if (err != null)
+            {
+                result = new ServiceTransitionResult(HttpStatusCode.OK, err.ToHttpResponse());
+            }
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }
