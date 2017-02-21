@@ -22,10 +22,24 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
-            [FromBody] SaleRequestModel model)
+            [FromBody] CaptureRequestModel model)
         {
-            ServiceTransitionResult result = _service.CaptureSingleCurrency(endpointId, model);
+            ServiceTransitionResult result = null;
 
+            string controlKey = WebApiConfig.Settings.MerchantControlKeys["" + endpointId];
+            if (string.IsNullOrEmpty(controlKey)) {
+                CaptureResponseModel err = new CaptureResponseModel(model.client_orderid);
+                err.SetValidationError("2", "INVALID_CONTROL_CODE");
+            } else {
+                if (model.IsHashValid(endpointId, controlKey)) {
+                    result = _service.CaptureSingleCurrency(endpointId, model);
+                } else {
+                    CaptureResponseModel err = new CaptureResponseModel(model.client_orderid);
+                    err.SetValidationError("2", "INVALID_CONTROL_CODE");
+
+                    result = new ServiceTransitionResult(HttpStatusCode.OK, err.ToHttpResponse());
+                }
+            }
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }

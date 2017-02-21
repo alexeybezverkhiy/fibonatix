@@ -8,6 +8,7 @@ using System.IO;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Net;
 
 namespace MerchantAPI.CommDoo.BackEnd.Requests
 {
@@ -16,6 +17,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
         static internal string timestampPattern = @"ddMMyyyyHHmmss";
 
         static internal string sharedSecret = "test";
+        static internal string serviceURL = "https://service.commpay.net/server2server/payment/transaction.asmx";
 
         public static string GetWesternEuropeDateTime() {
             TimeZoneInfo cstZone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time" /* "Central European Standard Time" */);
@@ -33,130 +35,129 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
         }
 
 
+        public abstract string executeRequest();
         public abstract string calculateHash();
 
         public class ClientData
         {
-            [XmlAttribute("ClientID")]
+            [XmlElement("ClientID")]
             public string ClientID { get; set; }
         }
         public class SecurityData
         {
-            [XmlAttribute("Timestamp")]
+            [XmlElement("Timestamp")]
             public string Timestamp { get; set; }
-            [XmlAttribute("Hash")]
+            [XmlElement("Hash")]
             public string Hash { get; set; }
         }
         public class PaymentData
         {
-            [XmlAttribute("TransactionID")]
+            [XmlElement("TransactionID")]
             public string TransactionID { get; set; }
-            [XmlAttribute("PaymentType")]
+            [XmlElement("PaymentType")]
             public string PaymentType { get; set; }
-            [XmlAttribute("PaymentMode")]
+            [XmlElement("PaymentMode")]
             public string PaymentMode { get; set; }
-            [XmlAttribute("Amount")]
+            [XmlElement("Amount")]
             public string Amount { get; set; }
-            [XmlAttribute("Currency")]
+            [XmlElement("Currency")]
             public string Currency { get; set; }
-            [XmlAttribute("ReferenceID")]
+            [XmlElement("ReferenceID")]
             public string ReferenceID { get; set; }
-            [XmlAttribute("AdditionalData")]
+            [XmlElement("AdditionalData")]
             public string AdditionalData { get; set; }
-            [XmlAttribute("RelatedInformation")]
+            [XmlElement("RelatedInformation")]
             public RelatedInformationData RelatedInformation { get; set; }
-            [XmlAttribute("SubscriptionData")]
+            [XmlElement("SubscriptionData")]
             public SubscriptionData Subscription { get; set; }
         }
         public class RelatedInformationData
         {
-            [XmlAttribute("RiskCheckID")]
+            [XmlElement("RiskCheckID")]
             public string RiskCheckID { get; set; }
-            [XmlAttribute("OrderID")]
+            [XmlElement("OrderID")]
             public string OrderID { get; set; }
-            [XmlAttribute("ReferencedTransactionID")]
+            [XmlElement("ReferencedTransactionID")]
             public string ReferencedTransactionID { get; set; }
-            [XmlAttribute("RefundType")]
+            [XmlElement("RefundType")]
             public string RefundType { get; set; }
-            [XmlAttribute("Purpose")]
+            [XmlElement("Purpose")]
             public string Purpose { get; set; }
-            [XmlAttribute("Website")]
+            [XmlElement("Website")]
             public string Website { get; set; }
-            [XmlAttribute("SEPADirectDebitMandateReferenceID")]
+            [XmlElement("SEPADirectDebitMandateReferenceID")]
             public string SEPADirectDebitMandateReferenceID { get; set; }
-            [XmlAttribute("SEPADirectDebitMandateDate")]
+            [XmlElement("SEPADirectDebitMandateDate")]
             public string SEPADirectDebitMandateDate { get; set; }
-            [XmlAttribute("Username")]
+            [XmlElement("Username")]
             public string Username { get; set; }
-            [XmlAttribute("Tariff")]
+            [XmlElement("Tariff")]
             public string Tariff { get; set; }
-            [XmlAttribute("DateOfRegistration")]
+            [XmlElement("DateOfRegistration")]
             public string DateOfRegistration { get; set; }
-            [XmlAttribute("AmazonOrderReferenceID")]
+            [XmlElement("AmazonOrderReferenceID")]
             public string AmazonOrderReferenceID { get; set; }
         }
         public class SubscriptionData
         {
-            [XmlAttribute("Timeunit")]
+            [XmlElement("Timeunit")]
             public string Timeunit { get; set; }
-            [XmlAttribute("BillingCycle")]
+            [XmlElement("BillingCycle")]
             public string BillingCycle { get; set; }
-            [XmlAttribute("DurationPeriod")]
+            [XmlElement("DurationPeriod")]
             public string DurationPeriod { get; set; }
-            [XmlAttribute("RenewalPeriod")]
+            [XmlElement("RenewalPeriod")]
             public string RenewalPeriod { get; set; }
-            [XmlAttribute("MinimumDurationPeriod")]
+            [XmlElement("MinimumDurationPeriod")]
             public string MinimumDurationPeriod { get; set; }
-            [XmlAttribute("MaximumDurationPeriod")]
+            [XmlElement("MaximumDurationPeriod")]
             public string MaximumDurationPeriod { get; set; }
-            [XmlAttribute("CancellationPeriod")]
+            [XmlElement("CancellationPeriod")]
             public string CancellationPeriod { get; set; }
-            [XmlAttribute("Trial")]
+            [XmlElement("Trial")]
             public TrialData Trial { get; set; }
             public class TrialData
             {
-                [XmlAttribute("DurationPeriod")]
+                [XmlElement("DurationPeriod")]
                 public string DurationPeriod { get; set; }
-                [XmlAttribute("Timeunit")]
+                [XmlElement("Timeunit")]
                 public string Timeunit { get; set; }
-                [XmlAttribute("Amount")]
+                [XmlElement("Amount")]
                 public string Amount { get; set; }
             }
         }
         public class RedirectionData
         {
-            [XmlAttribute("SuccessURL")]
+            [XmlElement("SuccessURL")]
             public string SuccessURL { get; set; }
-            [XmlAttribute("FailURL")]
+            [XmlElement("FailURL")]
             public string FailURL { get; set; }
         }
         public class NotificationData
         {
-            [XmlAttribute("NotificationURL")]
+            [XmlElement("NotificationURL")]
             public string NotificationURL { get; set; }
         }
         public class CustomerData
         {
-            [XmlAttribute("CustomerID")]
+            [XmlElement("CustomerID")]
             public string CustomerID { get; set; }
-            [XmlAttribute("ReferenceCustomerID")]
+            [XmlElement("ReferenceCustomerID")]
             public string ReferenceCustomerID { get; set; }
-
-            [XmlAttribute("Person")]
+            [XmlElement("Person")]
             public PersonData Person { get; set; }
-            [XmlAttribute("Address")]
+            [XmlElement("Address")]
             public AddressData Address { get; set; }
-            [XmlAttribute("Person")]
+            [XmlElement("Person")]
             public BankData Bank { get; set; }
-            [XmlAttribute("Person")]
+            [XmlElement("Person")]
             public CreditCardData CreditCard { get; set; }
         }
 
         public class PurchaseData
         {
-            [XmlAttribute("Delivery")]
+            [XmlElement("Delivery")]
             public DeliveryData Delivery { get; set; }
-
             [XmlArray("Items")]
             [XmlArrayItem(typeof(ItemData), ElementName = "Item")]
             public List<ItemData> Items { get; set; }
@@ -164,99 +165,182 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
 
         public class DeliveryData
         {
-            [XmlAttribute("Person")]
+            [XmlElement("Person")]
             public PersonData Person { get; set; }
-            [XmlAttribute("Address")]
+            [XmlElement("Address")]
             public AddressData Address { get; set; }
-
         }
 
         public class PersonData
         {
-            [XmlAttribute("CompanyName")]
+            [XmlElement("CompanyName")]
             public string CompanyName { get; set; }
-            [XmlAttribute("FirstName")]
+            [XmlElement("FirstName")]
             public string FirstName { get; set; }
-            [XmlAttribute("LastName")]
+            [XmlElement("LastName")]
             public string LastName { get; set; }
-            [XmlAttribute("Salutation")]
+            [XmlElement("Salutation")]
             public string Salutation { get; set; }
-            [XmlAttribute("Title")]
+            [XmlElement("Title")]
             public string Title { get; set; }
-            [XmlAttribute("DateOfBirth")]
+            [XmlElement("DateOfBirth")]
             public string DateOfBirth { get; set; }
-            [XmlAttribute("Gender")]
+            [XmlElement("Gender")]
             public string Gender { get; set; }
-            [XmlAttribute("IDCardNumber")]
+            [XmlElement("IDCardNumber")]
             public string IDCardNumber { get; set; }
         }
         public class AddressData
         {
-            [XmlAttribute("Street")]
+            [XmlElement("Street")]
             public string Street { get; set; }
-            [XmlAttribute("HouseNumber")]
+            [XmlElement("HouseNumber")]
             public string HouseNumber { get; set; }
-            [XmlAttribute("PostalCode")]
+            [XmlElement("PostalCode")]
             public string PostalCode { get; set; }
-            [XmlAttribute("City")]
+            [XmlElement("City")]
             public string City { get; set; }
-            [XmlAttribute("State")]
+            [XmlElement("State")]
             public string State { get; set; }
-            [XmlAttribute("Country")]
+            [XmlElement("Country")]
             public string Country { get; set; }
-            [XmlAttribute("PhoneNumber")]
+            [XmlElement("PhoneNumber")]
             public string PhoneNumber { get; set; }
-            [XmlAttribute("EmailAddress")]
+            [XmlElement("EmailAddress")]
             public string EmailAddress { get; set; }
-            [XmlAttribute("IPAddress")]
+            [XmlElement("IPAddress")]
             public string IPAddress { get; set; }
         }
         public class BankData
         {
-            [XmlAttribute("BankAccountNumber")]
+            [XmlElement("BankAccountNumber")]
             public string BankAccountNumber { get; set; }
-            [XmlAttribute("BankCode")]
+            [XmlElement("BankCode")]
             public string BankCode { get; set; }
-            [XmlAttribute("BankCountry")]
+            [XmlElement("BankCountry")]
             public string BankCountry { get; set; }
-            [XmlAttribute("BankAccountHolder")]
+            [XmlElement("BankAccountHolder")]
             public string BankAccountHolder { get; set; }
-            [XmlAttribute("IBAN")]
+            [XmlElement("IBAN")]
             public string IBAN { get; set; }
-            [XmlAttribute("BIC")]
+            [XmlElement("BIC")]
             public string BIC { get; set; }
         }
         public class CreditCardData
         {
-            [XmlAttribute("CreditCardNumber")]
+            [XmlElement("CreditCardNumber")]
             public string CreditCardNumber { get; set; }
-            [XmlAttribute("CreditCardExpirationMonth")]
+            [XmlElement("CreditCardExpirationMonth")]
             public string CreditCardExpirationMonth { get; set; }
-            [XmlAttribute("CreditCardExpirationYear")]
+            [XmlElement("CreditCardExpirationYear")]
             public string CreditCardExpirationYear { get; set; }
-            [XmlAttribute("CreditCardType")]
+            [XmlElement("CreditCardType")]
             public string CreditCardType { get; set; }
-            [XmlAttribute("CreditCardValidationValue")]
+            [XmlElement("CreditCardValidationValue")]
             public string CreditCardValidationValue { get; set; }
         }
 
         public class ItemData
         {
-            [XmlAttribute("ID")]
+            [XmlElement("ID")]
             public string ID { get; set; }
-            [XmlAttribute("Name")]
+            [XmlElement("Name")]
             public string Name { get; set; }
-            [XmlAttribute("Description")]
+            [XmlElement("Description")]
             public string Description { get; set; }
-            [XmlAttribute("Quantity")]
+            [XmlElement("Quantity")]
             public string Quantity { get; set; }
-            [XmlAttribute("TotalPrice")]
+            [XmlElement("TotalPrice")]
             public string TotalPrice { get; set; }
-            [XmlAttribute("Currency")]
+            [XmlElement("Currency")]
             public string Currency { get; set; }
-            [XmlAttribute("TaxPercentage")]
+            [XmlElement("TaxPercentage")]
             public string TaxPercentage { get; set; }
 
+        }
+
+        public string getXml() {
+            XmlSerializer formatter = new XmlSerializer(this.GetType());
+            StringWriter writer = new Utf8StringWriter();
+            formatter.Serialize(writer, this);
+            var serializedValue = writer.ToString();
+            return serializedValue;
+        }
+        public class Utf8StringWriter : StringWriter
+        {
+            public override Encoding Encoding => Encoding.UTF8;
+        }
+
+        internal string sendRequest(string url) {
+            calculateHash();
+            string xmlReq = getXml();
+            var ret = ProcessRequest(url, System.Text.Encoding.UTF8.GetBytes("xml=" + HttpUtility.UrlEncode(xmlReq)));
+            return System.Text.Encoding.UTF8.GetString(ret.ToArray());
+        }
+
+        internal MemoryStream ProcessRequest(string url, byte[] request) {
+            var webRequest = CreateWebRequest(url, request);
+            return GetResponseStream(webRequest);
+        }
+
+        private WebRequest CreateWebRequest(string url, byte[] request) {
+            var webRequest = WebRequest.Create(url);
+            webRequest.Method = "POST";
+            webRequest.ContentType = "application/x-www-form-urlencoded";
+
+            byte[] data = request;
+            webRequest.ContentLength = data.Length;
+
+            var httpWebRequest = webRequest as HttpWebRequest;
+            if (httpWebRequest != null) {
+                httpWebRequest.UserAgent = String.Format("Fibonatix.CommDoo.WebGate {0}", this.GetType().Assembly.GetName().Version.ToString());
+                httpWebRequest.KeepAlive = false;
+            }
+
+            using (var requestStream = webRequest.GetRequestStream()) {
+                requestStream.Write(data, 0, data.Length);
+            }
+
+            return webRequest;
+        }
+
+        private MemoryStream GetResponseStream(WebRequest webRequest) {
+            WebResponse webResponse = null;
+            try {
+                webResponse = webRequest.GetResponse();
+                return Copy(webResponse.GetResponseStream());
+            } catch (WebException ex) {
+                Stream responseStream;
+                if (TryGetResponseDataFromWebException(ex, out responseStream)) {
+                    return Copy(responseStream);
+                }
+                throw ex;
+            } finally {
+                if (webResponse != null) {
+                    webResponse.Close();
+                }
+            }
+        }
+        private MemoryStream Copy(Stream stream) {
+            var memoryStream = new MemoryStream();
+            stream.CopyTo(memoryStream);
+            return memoryStream;
+        }
+        private bool TryGetResponseDataFromWebException(WebException webException, out Stream responseData) {
+            responseData = null;
+
+            var response = webException.Response as HttpWebResponse;
+            if (response == null) {
+                return false;
+            }
+
+            // Unprocessable Entity (The request was well-formed but was unable to be followed due to semantic errors.)
+            if (response.StatusCode == (HttpStatusCode)422) {
+                responseData = response.GetResponseStream();
+                response.Close();
+                return true;
+            }
+            return false;
         }
     }
 }

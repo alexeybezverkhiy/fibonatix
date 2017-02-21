@@ -5,25 +5,51 @@ using System.Web;
 using System.ComponentModel.DataAnnotations;
 using System.Xml;
 using System.Xml.Serialization;
+using MerchantAPI.Models;
+using MerchantAPI.Helpers;
 
 namespace MerchantAPI.CommDoo.BackEnd.Requests
 {
     [Serializable()]
     [XmlRoot("Request")]
-    public class CaptureReservedAmount : Request
+    public class CaptureReservedAmountRequest : Request
     {
-        [XmlAttribute("Client")]
+        [XmlElement("Client")]
         public ClientData Client { get; set; }
-        [XmlAttribute("Security")]
+        [XmlElement("Security")]
         public SecurityData Security { get; set; }
-        [XmlAttribute("Payment")]
+        [XmlElement("Payment")]
         public PaymentData Payment { get; set; }
-        [XmlAttribute("Notification")]
+        [XmlElement("Notification")]
         public NotificationData Notification { get; set; }
-        [XmlAttribute("Customer")]
+        // [XmlElement("Customer")]
+        [XmlIgnore]
         public CustomerData Customer { get; set; }
-        [XmlAttribute("Purchase")]
+        // [XmlElement("Purchase")]
+        [XmlIgnore]
         public PurchaseData Purchase { get; set; }
+
+        public static CaptureReservedAmountRequest createRequestByModel(CaptureRequestModel model, string commDooReferencedTransactionID) {
+            CaptureReservedAmountRequest request = new CaptureReservedAmountRequest() {
+                Client = new ClientData() {
+                    ClientID = "99999999",
+                },
+                Payment = new PaymentData() {
+                    Amount = CurrencyConverter.MajorAmountToMinor(model.amount, model.currency),
+                    // Currency = model.currency,
+                    ReferenceID = model.client_orderid + "-" + DateTime.Now.ToString("yyyyMMddHHmmss.fff"),
+                    RelatedInformation = new RelatedInformationData() {
+                        ReferencedTransactionID = commDooReferencedTransactionID,
+                    },
+                }
+            };
+            return request;
+        }
+
+        public override string executeRequest() {
+            string requestURL = serviceURL + "/CaptureReservedAmount";
+            return sendRequest(requestURL);
+        }
 
         public override string calculateHash() {
 
@@ -41,7 +67,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
                 strToHashCal += Payment.ReferenceID;
                 strToHashCal += Payment.AdditionalData;
                 if (Payment.RelatedInformation != null)
-                    strToHashCal += Payment.RelatedInformation.ReferencedTransactionID;
+                    strToHashCal += "ReferencedTransactionID" + Payment.RelatedInformation.ReferencedTransactionID;
                 if (Notification != null)
                     strToHashCal += Notification.NotificationURL;
                 if (Purchase != null) {
@@ -79,10 +105,11 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
                     }
                 }
                 strToHashCal += sharedSecret;
-                strHash = sha1(strToHashCal);
+                strHash = sha1(strToHashCal);                
             } catch {
                 strHash = null;
             }
+            Security.Hash = strHash;
             return strHash;
         }
     }

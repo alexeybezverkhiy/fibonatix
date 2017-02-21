@@ -56,5 +56,39 @@ namespace MerchantAPI.Data
             }
             return data;
         }
+        public static void setCaptureRequestData(string merchant_orderid, Models.CaptureRequestModel model) {
+            try {
+                HttpContext.Current.Cache.Insert("capture_data:" + merchant_orderid, model, null,
+                    System.Web.Caching.Cache.NoAbsoluteExpiration,
+                    WebApiConfig.SettingsFactory.CreateCacheSlidingExpiration());
+            } catch {
+            }
+        }
+        public static Models.CaptureRequestModel getCaptureRequestData(string merchant_orderid) {
+            Models.CaptureRequestModel data = null;
+            try {
+                data = (Models.CaptureRequestModel)HttpContext.Current.Cache.Get("capture_data:" + merchant_orderid);
+            } catch {
+            }
+            return data;
+        }
+
+        public static void setBackendResponseData(string transactionid, CommDoo.BackEnd.Responses.Response reponse) {
+            try {
+                HttpContext.Current.Cache.Insert("backend_response:" + transactionid, reponse, null,
+                    System.Web.Caching.Cache.NoAbsoluteExpiration,
+                    WebApiConfig.SettingsFactory.CreateCacheSlidingExpiration());
+            } catch {
+            }
+        }
+        public static CommDoo.BackEnd.Responses.Response getBackendResponseData(string transactionid) {
+            CommDoo.BackEnd.Responses.Response data = null;
+            try {
+                data = (CommDoo.BackEnd.Responses.Response)HttpContext.Current.Cache.Get("backend_response:" + transactionid);
+            } catch {
+            }
+            return data;
+        }
+
     }
 }

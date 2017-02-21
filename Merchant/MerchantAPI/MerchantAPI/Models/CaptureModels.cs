@@ -9,7 +9,7 @@ using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Models
 {
-    public class CaptureModels : BaseFibonatixModel
+    public class CaptureRequestModel : BaseFibonatixModel
     {
         [Required]
         [StringLength(50, MinimumLength = 1)]

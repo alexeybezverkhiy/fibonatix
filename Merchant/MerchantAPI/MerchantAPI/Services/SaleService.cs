@@ -45,10 +45,10 @@ namespace MerchantAPI.Services
                 Cache.setRedirectUrlForRequest(transactionData.TransactionId, redirectToCommDoo);
                 Cache.setSaleRequestData(transactionData.TransactionId, model);
 
-                string response = "type=async-response" +
-                                  "&serial-number=" + transactionData.SerialNumber +
-                                  "&merchant-order-id=" + model.client_orderid + 
-                                  "&paynet-order-id=" + transactionData.TransactionId;
+                string response = "type=async-response" + "\n" +
+                                  "&serial-number=" + transactionData.SerialNumber + "\n" +
+                                  "&merchant-order-id=" + model.client_orderid + "\n" +
+                                  "&paynet-order-id=" + transactionData.TransactionId + "\n";
 
                 partnerResponse = Encoding.UTF8.GetBytes(response);
 
