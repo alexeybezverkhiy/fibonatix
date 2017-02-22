@@ -28,10 +28,13 @@ namespace MerchantAPI.Services
 
                 requestParameters = CommDooFrontendFactory.CreateMultyCurrencyPaymentParams(endpointId, model, transactionData.TransactionId);
 
-                var parameters = new StringBuilder();
+                var parameters = new StringBuilder(256);
                 foreach (string key in requestParameters.Keys) {
+                    if (parameters.Length > 0)
+                    {
+                        parameters.Append('&');
+                    }
                     parameters
-                        .Append(parameters.Length > 0 ? "&" : string.Empty)
                         .Append(HttpUtility.UrlEncode(key))
                         .Append('=')
                         .Append(HttpUtility.UrlEncode(requestParameters[key]));

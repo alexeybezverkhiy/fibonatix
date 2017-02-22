@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -12,6 +13,7 @@ using MerchantAPI.Controllers.Factories;
 using MerchantAPI.Models;
 using MerchantAPI.Services;
 using MerchantAPI.Data;
+using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Controllers
 {
@@ -42,6 +44,12 @@ namespace MerchantAPI.Controllers
             {
                 if (model.IsHashValid(endpointId, controlKey))
                 {
+                    string raw = RawContentReader.Read(Request).Result;
+                    NameValueCollection pairs = ControllerHelper.DeserializeHttpParameters(raw);
+                    ControllerHelper.EliminateCardData(pairs);
+//                    string holder = ControllerHelper.SerializeHttpParameters(pairs);
+//                    NameValueCollection pa = ControllerHelper.DeserializeHttpParameters(holder);
+
                     result = _service.SaleSingleCurrency(endpointId, model);
                 }
                 else
@@ -102,6 +110,5 @@ namespace MerchantAPI.Controllers
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }
-
     }
 }
