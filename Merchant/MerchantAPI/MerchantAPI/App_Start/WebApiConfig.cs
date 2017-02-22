@@ -17,7 +17,8 @@ namespace MerchantAPI
         static WebApiConfig()
         {
 //            Settings = new ProductionSettings();
-            Settings = new TestSettings();
+            Settings = new StageSettings();
+//            Settings = new TestSettings();
             SettingsFactory = new SettingsFactory(Settings);
         }
 

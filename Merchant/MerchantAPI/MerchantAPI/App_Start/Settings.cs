@@ -9,6 +9,7 @@ namespace MerchantAPI.App_Start
     public enum ApplicationMode
     {
         TESTING,
+        STAGE,
         PRODUCTION
     }
 
@@ -33,6 +34,26 @@ namespace MerchantAPI.App_Start
         public string SharedSecret => "test";
         // public string PublicServerName => "5.149.150.98";
         public string PublicServerName => "87.117.3.242";
+        public string PaymentASPXEndpoint => "https://frontend.payment-transaction.net/payment.aspx";
+        public int CacheSlidingExpirationSeconds => 600;
+        public string PaymentKey => "creditcard_fibonatix";
+        public NameValueCollection MerchantControlKeys => MerchantControlKeyCollection;
+
+        private static readonly NameValueCollection MerchantControlKeyCollection = new NameValueCollection
+        {
+            {"250", "DDA76C34-0621-47DD-ADF2-F9D594ADCE2E"},
+            {"251", "DDA76C34-0621-47DD-ADF2-F9D594ADCE2E"}
+        };
+    }
+
+    public class StageSettings : ISettings
+    {
+        public ApplicationMode ApplicationMode => ApplicationMode.STAGE;
+        public string Version => "1.0.0.0";
+        public string ClientId => "99999999";
+        public string SharedSecret => "test";
+        // public string PublicServerName => "5.149.150.98";
+        public string PublicServerName => "x.x.x.x";
         public string PaymentASPXEndpoint => "https://frontend.payment-transaction.net/payment.aspx";
         public int CacheSlidingExpirationSeconds => 600;
         public string PaymentKey => "creditcard_fibonatix";
