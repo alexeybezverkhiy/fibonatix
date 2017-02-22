@@ -10,7 +10,12 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
 {
     [Serializable()]
     [XmlRoot("Request")]
-    public class RenewReservedAmount : CaptureReservedAmount
+
+    public class RenewReservedAmountRequest : CaptureReservedAmountRequest
     {
+        public override string executeRequest() {
+            string requestURL = serviceURL + "/CaptureReservedAmount";
+            return sendRequest(requestURL);
+        }
     }
 }

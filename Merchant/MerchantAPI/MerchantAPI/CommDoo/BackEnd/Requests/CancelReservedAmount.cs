@@ -10,14 +10,19 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
 {
     [Serializable()]
     [XmlRoot("Request")]
-    public class CancelReservedAmount : Request
+    public class CancelReservedAmountRequest : Request
     {
-        [XmlAttribute("Client")]
+        [XmlElement(ElementName = "Client")]
         public ClientData Client { get; set; }
-        [XmlAttribute("Security")]
+        [XmlElement(ElementName = "Security")]
         public SecurityData Security { get; set; }
-        [XmlAttribute("Payment")]
+        [XmlElement(ElementName = "Payment")]
         public PaymentData Payment { get; set; }
+
+        public override string executeRequest() {
+            string requestURL = serviceURL + "/CancelReservedAmount";
+            return sendRequest(requestURL);
+        }
 
         public override string calculateHash() {
 
@@ -37,6 +42,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
             } catch {
                 strHash = null;
             }
+            Security.Hash = strHash;
             return strHash;
         }
     }

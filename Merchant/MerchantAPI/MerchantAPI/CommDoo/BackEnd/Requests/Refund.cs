@@ -10,16 +10,21 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
 {
     [Serializable()]
     [XmlRoot("Request")]
-    public class Refund : Request
+    public class RefundRequest : Request
     {
-        [XmlAttribute("Client")]
+        [XmlElement(ElementName = "Client")]
         public ClientData Client { get; set; }
-        [XmlAttribute("Security")]
+        [XmlElement(ElementName = "Security")]
         public SecurityData Security { get; set; }
-        [XmlAttribute("Order")]
+        [XmlElement(ElementName = "Order")]
         public PaymentData Order { get; set; }
-        [XmlAttribute("Purchase")]
+        [XmlElement(ElementName = "Purchase")]
         public PurchaseData Purchase { get; set; }
+
+        public override string executeRequest() {
+            string requestURL = serviceURL + "/Refund";
+            return sendRequest(requestURL);
+        }
 
         public override string calculateHash() {
 
@@ -57,6 +62,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
             } catch {
                 strHash = null;
             }
+            Security.Hash = strHash;
             return strHash;
         }
     }

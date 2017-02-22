@@ -10,20 +10,25 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
 {
     [Serializable()]
     [XmlRoot("Request")]
-    public class Rebill : Request
+    public class RebillRequest : Request
     {
-        [XmlAttribute("Client")]
+        [XmlElement(ElementName = "Client")]
         public ClientData Client { get; set; }
-        [XmlAttribute("Security")]
+        [XmlElement(ElementName = "Security")]
         public SecurityData Security { get; set; }
-        [XmlAttribute("Payment")]
+        [XmlElement(ElementName = "Payment")]
         public PaymentData Payment { get; set; }
-        [XmlAttribute("Notification")]
+        [XmlElement(ElementName = "Notification")]
         public NotificationData Notification { get; set; }
-        [XmlAttribute("Customer")]
+        [XmlElement(ElementName = "Customer")]
         public CustomerData Customer { get; set; }
-        [XmlAttribute("Purchase")]
+        [XmlElement(ElementName = "Purchase")]
         public PurchaseData Purchase { get; set; }
+
+        public override string executeRequest() {
+            string requestURL = serviceURL + "/Rebill";
+            return sendRequest(requestURL);
+        }
 
         public override string calculateHash() {
 
@@ -130,6 +135,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
             } catch {
                 strHash = null;
             }
+            Security.Hash = strHash;
             return strHash;
         }
     }

@@ -200,6 +200,7 @@
     <Compile Include="CommDoo\BackEnd\Requests\Request.cs" />
     <Compile Include="CommDoo\BackEnd\Requests\ReserveAmount.cs" />
     <Compile Include="CommDoo\BackEnd\Requests\Start.cs" />
+    <Compile Include="CommDoo\BackEnd\Responses\Response.cs" />
     <Compile Include="Connectors\CommDooFrontendConnector.cs" />
     <Compile Include="Controllers\AccountVerificationController.cs" />
     <Compile Include="Controllers\Factories\SerializerFactory.cs" />
@@ -272,7 +273,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="CommDoo\BackEnd\Responses\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201702181556495_Initial.resx">
