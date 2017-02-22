@@ -42,6 +42,10 @@ namespace MerchantAPI.Helpers
         public static NameValueCollection DeserializeHttpParameters(string raw)
         {
             string[] pairs = raw.Split(HttpParameterDelimiterChars);
+            if (pairs.Length % 2 != 0)
+            {
+                throw new ArgumentException($"Length of parsed raw parameters is odd [actual={pairs.Length}], but must be even");
+            }
             NameValueCollection result = new NameValueCollection();
             for (int i = 0; i < pairs.Length; i += 2)
             {
