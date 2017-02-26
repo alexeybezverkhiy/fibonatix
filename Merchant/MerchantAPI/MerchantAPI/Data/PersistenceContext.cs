@@ -14,6 +14,7 @@ namespace MerchantAPI.Data
         }
 
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<MerchantCallback> MerchantCallbacks { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

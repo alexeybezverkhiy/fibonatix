@@ -18,15 +18,16 @@ namespace MerchantAPI.Controllers.Factories
             if(serviceResult.Status == System.Net.HttpStatusCode.Redirect ||
                 serviceResult.Status == System.Net.HttpStatusCode.TemporaryRedirect ||
                 serviceResult.Status == System.Net.HttpStatusCode.MovedPermanently ||
-                serviceResult.Status == System.Net.HttpStatusCode.Moved) {
+                serviceResult.Status == System.Net.HttpStatusCode.Moved)
+            {
                 response.Headers.Location = new Uri(serviceResult.StringContent);
             }
-            else {
+            else
+            {
                 response.Content = new StringContent(serviceResult.StringContent);
                 response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
             }
             return response;
         }
-
     }
 }

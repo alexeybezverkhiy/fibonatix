@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using MerchantAPI.Services;
 
 namespace MerchantAPI.Data
 {
@@ -60,10 +61,7 @@ namespace MerchantAPI.Data
             }
         }
 
-        public static Transaction UpdateTransaction(
-            string transactionID, 
-            string processingTransactionID,
-            TransactionState state)
+        public static Transaction UpdateTransaction(string transactionID, string processingTransactionID, TransactionState state)
         {
             using (var db = new PersistenceContext())
             {
@@ -72,6 +70,25 @@ namespace MerchantAPI.Data
                 if (updated == null) return null;
                 updated.ProcessingTransactionId = processingTransactionID;
                 updated.State = state;
+                CommitChanges(db, updated);
+                return updated;
+            }
+        }
+
+        public static Transaction UpdateTransaction(
+            string transactionID, 
+            string processingTransactionID, 
+            TransactionState state, 
+            TransactionStatus status)
+        {
+            using (var db = new PersistenceContext())
+            {
+                Transaction updated = db.Transactions
+                    .FirstOrDefault(t => t.TransactionId == transactionID);
+                if (updated == null) return null;
+                updated.ProcessingTransactionId = processingTransactionID;
+                updated.State = state;
+                updated.Status = status;
                 CommitChanges(db, updated);
                 return updated;
             }
@@ -145,4 +162,45 @@ namespace MerchantAPI.Data
                     }
                     */
         }
+
+    public class MerchantCallbackStorage
+    {
+        private static void CommitChanges(PersistenceContext db, MerchantCallback callback)
+        {
+            callback.LastModified = DateTime.UtcNow;
+            db.SaveChanges();
+        }
+
+        public static MerchantCallback FindByTransactionId(string transactionID)
+        {
+            using (var db = new PersistenceContext())
+            {
+                return db.MerchantCallbacks
+                    .SingleOrDefault(c => c.TransactionId == transactionID);
+            }
+        }
+
+        public static MerchantCallback UpdateMerchantCallback(
+            MerchantCallback updated,
+            CallbackState state,
+            string stateReason)
+        {
+            using (var db = new PersistenceContext())
+            {
+                updated.State = state;
+                updated.StateReason = stateReason;
+                if (state == CallbackState.Delivered)
+                {
+                    updated.NextAttemptTime = null;
+                    updated.StateReason = "";
+                }
+                else if (state == CallbackState.Repeating || state == CallbackState.Failed)
+                {
+                    CallbackDeliveryService.AdjustNextAttempt(updated, stateReason);
+                }
+                CommitChanges(db, updated);
+                return updated;
+            }
+        }
+    }
 }

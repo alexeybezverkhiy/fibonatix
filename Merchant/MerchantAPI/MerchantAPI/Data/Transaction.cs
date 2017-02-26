@@ -10,6 +10,7 @@ namespace MerchantAPI.Data
 {
     public enum TransactionState
     {
+        Undefined = 0,
         Created = 1,
         Started = 2,
         Redirected = 3,
@@ -38,6 +39,7 @@ namespace MerchantAPI.Data
     {
         [Key]
         public int ID { get; set; }
+        [Index("TransactionTransactionId_UIDX", IsUnique = true)]
         [StringLength(36)]   // 36 = size of Guid type
         public string TransactionId { get; set; }
         [StringLength(36)]   // 36 = size of Guid type
@@ -46,8 +48,11 @@ namespace MerchantAPI.Data
         public string ProcessingTransactionId { get; set; }
         [StringLength(48)]
         public string MerchantTransactionId { get; set; }
+        [Index("TransactionType_IDX")]
         public TransactionType Type { get; set; }
+        [Index("TransactionState_IDX")]
         public TransactionState State { get; set; }
+        [Index("TransactionStatus_IDX")]
         public TransactionStatus Status { get; set; }
         public DateTime LastModified { get; set; }
         public string ReferenceQuery { get; set; }

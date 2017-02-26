@@ -8,12 +8,13 @@ using System.Text;
 using MerchantAPI.Data;
 using System.Collections.Specialized;
 using MerchantAPI.Helpers;
+using Microsoft.Ajax.Utilities;
 
 namespace MerchantAPI.Services
 {
     public class StatusService
     {
-        static string redirectTemplate = 
+        private readonly string redirectTemplate = 
 @"<!DOCTYPE html>
 <html>
 <head>
@@ -38,49 +39,41 @@ namespace MerchantAPI.Services
 
         public ServiceTransitionResult StatusSingleCurrency(int endpointId, StatusRequestModel model, string merchantControlKey)
         {
-            string response = "";
-            byte[] partnerResponse = new byte[0];
+            NameValueCollection response;
             try {
                 Transaction transactionData = TransactionsDataStorage.FindByTransactionId(model.orderid);
+                if (transactionData == null)
+                {
+                    return new ServiceTransitionResult(HttpStatusCode.BadRequest,
+                        $"ERROR: Unknown 'orderid' [{model.orderid}] for Status request\n");
+                }
 
                 switch(transactionData.Type) {
                     case TransactionType.Sale:
-                        response = PrepareStringResponse(StatusSaleSingleCurrency(transactionData, merchantControlKey));
+                        response = StatusSaleSingleCurrency(transactionData, merchantControlKey);
                         break;
                     case TransactionType.Preauth:
-                        response = PrepareStringResponse(StatusPreAuthSingleCurrency(transactionData, merchantControlKey));
+                        response = StatusPreAuthSingleCurrency(transactionData, merchantControlKey);
                         break;
                     case TransactionType.Capture:
-                        response = PrepareStringResponse(StatusCaptureSingleCurrency(transactionData));
+                        response = StatusCaptureSingleCurrency(transactionData, merchantControlKey);
                         break;
                     case TransactionType.Return:
                     case TransactionType.Verify:
                     case TransactionType.Void:
                     default:
-                        throw (new Exception("Unsupported method"));
+                        throw new ArgumentException($"Unsupported transaction type [{transactionData.Type}] for Status request");
                 }
-                partnerResponse = Encoding.UTF8.GetBytes(response);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 return new ServiceTransitionResult(HttpStatusCode.InternalServerError,
-                    "CONNECTION ERROR: " + e.Message + "\n");
+                    "ERROR: " + e.Message + "\n");
             } finally { }
 
-            string strResponse = Encoding.UTF8.GetString(partnerResponse);
-            //            int begin = strResponse.IndexOf(ESCAPE);
-            //            if (begin >= 0)
-            //            {
-            //                begin += ESCAPE.Length;
-            //                int end = strResponse.IndexOf("')");
-            //                string redirectUrl = strResponse.Substring(begin, end - begin);
-            //                partnerResponse = client.UploadValues(new Uri(redirectUrl), "GET", new NameValueCollection());
-            //                strResponse = u8.GetString(partnerResponse);
-            //            }
-
+            string responseStr = PrepareStringResponse(response);
             return new ServiceTransitionResult(HttpStatusCode.OK,
-                strResponse + "\n");
-            //            SaleResponseModel succ = new SaleResponseModel();
-            //            succ.SetSucc();
-            //            return succ;
+                responseStr + "\n");
         }
 
         private NameValueCollection StatusSaleSingleCurrency(Transaction transactionData, string merchantControlKey) {
@@ -94,9 +87,11 @@ namespace MerchantAPI.Services
                 case TransactionState.Started:
                 case TransactionState.Redirected:
                     if (transactionData.State == TransactionState.Started)
+                    {
                         TransactionsDataStorage.UpdateTransactionState(transactionData.TransactionId, TransactionState.Redirected);
+                    }
                     if (redirectURL != null && sale_model != null) {
-                        string redirectHTML = redirectTemplate.Replace("{0}", redirectURL);
+                        string redirectHTML = redirectTemplate.FormatInvariant(redirectURL);
                         // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo
                         response["type"] = "status-response";
                         response["status"] = "processing";
@@ -128,7 +123,7 @@ namespace MerchantAPI.Services
                         response["order-stage"] = "sale_3d_validating";
                         response["descriptor"] = sale_model.order_desc;
                         response["by-request-sn"] = transactionData.SerialNumber;
-                        response["control"] = CalculateHashForSaleStatus(response, merchantControlKey);
+                        response["control"] = CalculateHash(response, merchantControlKey);
                     } else {
                         TransactionsDataStorage.UpdateTransaction(transactionData.TransactionId, TransactionState.Finished, TransactionStatus.Error);
                         response["type"] = "validation-error";
@@ -170,7 +165,7 @@ namespace MerchantAPI.Services
                                 response["order-stage"] = "sale_approved";
                                 response["descriptor"] = sale_model.order_desc;
                                 response["by-request-sn"] = transactionData.SerialNumber;
-                                response["control"] = CalculateHashForSaleStatus(response, merchantControlKey);
+                                response["control"] = CalculateHash(response, merchantControlKey);
                                 break;
                             case TransactionStatus.Declined:
                                 response["type"] = "status-response";
@@ -203,7 +198,7 @@ namespace MerchantAPI.Services
                                 response["order-stage"] = "sale_failed";
                                 response["descriptor"] = sale_model.order_desc;
                                 response["by-request-sn"] = transactionData.SerialNumber;
-                                response["control"] = CalculateHashForSaleStatus(response, merchantControlKey);
+                                response["control"] = CalculateHash(response, merchantControlKey);
                                 break;
                             case TransactionStatus.Error:
                             case TransactionStatus.Undefined:
@@ -234,11 +229,12 @@ namespace MerchantAPI.Services
             "orderid",
         };
 
-        private string CalculateHashForSaleStatus(NameValueCollection response, string salt)
+        private string CalculateHash(NameValueCollection response, string salt)
         {
-            StringBuilder content = HashHelper.AssemblyHashContent(STATUS_HASH_KEY_SEQUENSE, response, salt);
-            content.Append(salt);
-            return HashHelper.SHA1(content.ToString());
+            return HashHelper.SHA1(HashHelper
+                .AssemblyHashContent(STATUS_HASH_KEY_SEQUENSE, response, salt)
+                .Append(salt)
+                .ToString());
         }
 
         private NameValueCollection StatusPreAuthSingleCurrency(Transaction transactionData, string merchantControlKey) {
@@ -252,9 +248,12 @@ namespace MerchantAPI.Services
                 case TransactionState.Started:
                 case TransactionState.Redirected:
                     if (transactionData.State == TransactionState.Started)
-                        TransactionsDataStorage.UpdateTransactionState(transactionData.TransactionId, TransactionState.Redirected);
+                    {
+                        TransactionsDataStorage.UpdateTransactionState(transactionData.TransactionId,
+                            TransactionState.Redirected);
+                    }
                     if (redirectURL != null && preauth_model != null) {
-                        string redirectHTML = redirectTemplate.Replace("{0}", redirectURL);
+                        string redirectHTML = redirectTemplate.FormatInvariant(redirectURL);
                         // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo
                         response["type"] = "status-response";
                         response["status"] = "processing";
@@ -286,7 +285,7 @@ namespace MerchantAPI.Services
                         response["order-stage"] = "auth_3d_validating";
                         response["descriptor"] = preauth_model.order_desc;
                         response["by-request-sn"] = transactionData.SerialNumber;
-                        response["control"] = CalculateHashForPreAuthStatus(response, merchantControlKey);
+                        response["control"] = CalculateHash(response, merchantControlKey);
                     } else {
                         TransactionsDataStorage.UpdateTransaction(transactionData.TransactionId, TransactionState.Finished, TransactionStatus.Error);
                         response["type"] = "validation-error";
@@ -328,7 +327,7 @@ namespace MerchantAPI.Services
                             response["order-stage"] = "auth_approved";
                             response["descriptor"] = preauth_model.order_desc;
                             response["by-request-sn"] = transactionData.SerialNumber;
-                            response["control"] = CalculateHashForPreAuthStatus(response, merchantControlKey);
+                            response["control"] = CalculateHash(response, merchantControlKey);
                             break;
                         case TransactionStatus.Declined:
                             response["type"] = "status-response";
@@ -361,7 +360,7 @@ namespace MerchantAPI.Services
                             response["order-stage"] = "auth_failed";
                             response["descriptor"] = preauth_model.order_desc;
                             response["by-request-sn"] = transactionData.SerialNumber;
-                            response["control"] = CalculateHashForPreAuthStatus(response, merchantControlKey);
+                            response["control"] = CalculateHash(response, merchantControlKey);
                             break;
                         case TransactionStatus.Error:
                         case TransactionStatus.Undefined:
@@ -384,15 +383,8 @@ namespace MerchantAPI.Services
             return response;
         }
 
-        private string CalculateHashForPreAuthStatus(NameValueCollection response, string salt)
+        private NameValueCollection StatusCaptureSingleCurrency(Transaction transactionData, string merchantControlKey)
         {
-            StringBuilder content = HashHelper.AssemblyHashContent(STATUS_HASH_KEY_SEQUENSE, response, salt);
-            content.Append(salt);
-            return HashHelper.SHA1(content.ToString());
-        }
-
-        private NameValueCollection StatusCaptureSingleCurrency(Transaction transactionData) {
-
             NameValueCollection response = new NameValueCollection();
 
             PreAuthRequestModel preauth_model = Cache.getPreAuthRequestData(transactionData.TransactionId);
@@ -403,7 +395,9 @@ namespace MerchantAPI.Services
                 case TransactionState.Started:
                 case TransactionState.Redirected: {
                         if (transactionData.State != TransactionState.Started)
+                        {
                             TransactionsDataStorage.UpdateTransactionState(transactionData.TransactionId, TransactionState.Started);
+                        }
                         if (capture_model != null) {
                             // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo
                             response["type"] = "status-response";
@@ -414,7 +408,7 @@ namespace MerchantAPI.Services
                             response["phone"] = preauth_model != null ? preauth_model.phone : "";
                             response["html"] = "";
                             response["serial-number"] = Guid.NewGuid().ToString();
-                            response["last-four-digits"] = preauth_model != null ? preauth_model.credit_card_number.Substring(preauth_model.credit_card_number.Length - 4) : "";
+                            response["last-four-digits"] = preauth_model?.credit_card_number.Substring(preauth_model.credit_card_number.Length - 4) ?? "";
                             response["bin"] = "";
                             response["card-type"] = "";
                             response["gate-partial-reversal"] = "";
@@ -436,7 +430,7 @@ namespace MerchantAPI.Services
                             response["order-stage"] = "capture_validating";
                             response["descriptor"] = preauth_model.order_desc;
                             response["by-request-sn"] = transactionData.SerialNumber;
-                            response = CalculateHashForCaptureStatus(response);
+                            response["control"] = CalculateHash(response, merchantControlKey);
                         } else {
                             TransactionsDataStorage.UpdateTransaction(transactionData.TransactionId, TransactionState.Finished, TransactionStatus.Error);
                             response["type"] = "validation-error";
@@ -479,7 +473,7 @@ namespace MerchantAPI.Services
                                 response["order-stage"] = "capture_approved";
                                 response["descriptor"] = preauth_model != null ? preauth_model.order_desc : "";
                                 response["by-request-sn"] = transactionData.SerialNumber;
-                                response = CalculateHashForCaptureStatus(response);
+                                response["control"] = CalculateHash(response, merchantControlKey);
                                 break;
                             case TransactionStatus.Declined:
                                 response["type"] = "status-response";
@@ -512,7 +506,7 @@ namespace MerchantAPI.Services
                                 response["order-stage"] = "capture_failed";
                                 response["descriptor"] = preauth_model != null ? preauth_model.order_desc : "";
                                 response["by-request-sn"] = transactionData.SerialNumber;
-                                response = CalculateHashForCaptureStatus(response);
+                                response["control"] = CalculateHash(response, merchantControlKey);
                                 break;
                             case TransactionStatus.Error:
                                 response["type"] = "error";
@@ -542,16 +536,15 @@ namespace MerchantAPI.Services
             return response;
         }
 
-        private NameValueCollection CalculateHashForCaptureStatus(NameValueCollection response) {
-            return response;
-        }
-
         private string PrepareStringResponse(NameValueCollection response) {
             var stringResponse = new StringBuilder(256);
             foreach (string key in response.Keys) {
+                if (stringResponse.Length > 0)
+                {
+                    stringResponse.Append("\n&");
+                }
                 stringResponse
-                    .Append(stringResponse.Length > 0 ? "\n&" : string.Empty)
-                    .Append(HttpUtility.UrlEncode(key))
+                    .Append(key)
                     .Append('=')
                     .Append(HttpUtility.UrlEncode(response[key]));
             }

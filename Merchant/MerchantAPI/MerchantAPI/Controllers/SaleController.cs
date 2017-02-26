@@ -84,14 +84,13 @@ namespace MerchantAPI.Controllers
             if (model.transactionid != null)
             {
                 TransactionsDataStorage.UpdateTransaction(model.fibonatixID, model.transactionid,
-                    TransactionState.Finished);
-            }
+                    TransactionState.Finished, TransactionStatus.Approved);
+                }
             else
             {
-                TransactionsDataStorage.UpdateTransactionState(model.fibonatixID, 
-                    TransactionState.Finished);
+                TransactionsDataStorage.UpdateTransaction(model.fibonatixID, 
+                    TransactionState.Finished, TransactionStatus.Approved);
             }
-            TransactionsDataStorage.UpdateTransactionStatus(model.fibonatixID, TransactionStatus.Approved);
 
             var result = new ServiceTransitionResult(HttpStatusCode.Moved, model.customerredirecturl);
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);

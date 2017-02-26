@@ -22,7 +22,7 @@ namespace MerchantAPI.Controllers.Factories
             SaleRequestModel model,
             string fibonatixID)
         {
-            NameValueCollection data = CreatePaymentParams(model, fibonatixID);
+            NameValueCollection data = CreatePaymentParams(model, fibonatixID, endpointGroupId);
             data.Add("relatedinformation-endpointgroupid", "" + endpointGroupId);
             data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data, 
                 WebApiConfig.Settings.SharedSecret));
@@ -34,7 +34,7 @@ namespace MerchantAPI.Controllers.Factories
             SaleRequestModel model,
             string fibonatixID)
         {
-            NameValueCollection data = CreatePaymentParams(model, fibonatixID);
+            NameValueCollection data = CreatePaymentParams(model, fibonatixID, endpointId);
             data.Add("relatedinformation-endpointid", "" + endpointId);
             data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
                 WebApiConfig.Settings.SharedSecret));
@@ -42,7 +42,9 @@ namespace MerchantAPI.Controllers.Factories
         }
 
         private static NameValueCollection CreatePaymentParams(
-            SaleRequestModel model, string fibonatixID)
+            SaleRequestModel model, 
+            string fibonatixID,
+            int endpointId)
         {
             DateTime now = DateTime.Now;
             NameValueCollection data = new NameValueCollection
@@ -61,7 +63,7 @@ namespace MerchantAPI.Controllers.Factories
                 {"state", model.state},
                 {"postalcode", model.zip_code},
                 {"country", CountryConverter.ConvertCountryToCommDooSpace(model.country)},
-                {"phonenumber", String.IsNullOrEmpty(model.phone) ? model.cell_phone : model.phone},
+                {"phonenumber", string.IsNullOrEmpty(model.phone) ? model.cell_phone : model.phone},
                 {"emailaddress", model.email},
                 {"amount", CurrencyConverter.MajorAmountToMinor(model.amount, model.currency)},
                 {"currency", model.currency},
@@ -71,9 +73,9 @@ namespace MerchantAPI.Controllers.Factories
                 {"cvv", "" + model.cvv2},
                 {"ipaddress", model.ipaddress},
                 {"website", model.site_url},
-                {"successurl", ResolveInternalUrl(SUCC_EXTRA_PATH) + "?customerredirecturl=" + model.redirect_url + "&fibonatixID=" + fibonatixID},
-                {"notificationurl", ResolveInternalNotificationUrl(SUCC_EXTRA_PATH + "?customernotifyurl=" + model.server_callback_url + "&fibonatixID=" + fibonatixID)},
-                {"failurl", ResolveInternalUrl(FAIL_EXTRA_PATH) + "?customerredirecturl=" + model.redirect_url + "&fibonatixID=" + fibonatixID},
+                {"successurl", ResolveInternalUrl(SUCC_EXTRA_PATH) + CreateRedirectParams(model.redirect_url, fibonatixID)},
+                {"notificationurl", ResolveInternalNotificationUrl(endpointId, SUCC_EXTRA_PATH) + CreateNotifyParams(model.server_callback_url, fibonatixID)},
+                {"failurl", ResolveInternalUrl(FAIL_EXTRA_PATH) + CreateRedirectParams(model.redirect_url, fibonatixID)},
                 {"timestamp", CommDooTargetConverter.ConvertToCentralEurope(now).ToString("ddMMyyyyHHmmss")},
                 {"relatedinformation-orderdescription", model.order_desc}
             };
@@ -85,7 +87,7 @@ namespace MerchantAPI.Controllers.Factories
             int endpointGroupId,
             PreAuthRequestModel model,
             string fibonatixID) {
-            NameValueCollection data = CreatePaymentParams(model, fibonatixID);
+            NameValueCollection data = CreatePaymentParams(model, fibonatixID, endpointGroupId);
             data.Add("relatedinformation-endpointgroupid", "" + endpointGroupId);
             data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
                 WebApiConfig.Settings.SharedSecret));
@@ -96,15 +98,14 @@ namespace MerchantAPI.Controllers.Factories
             int endpointId,
             PreAuthRequestModel model,
             string fibonatixID) {
-            NameValueCollection data = CreatePaymentParams(model, fibonatixID);
+            NameValueCollection data = CreatePaymentParams(model, fibonatixID, endpointId);
             data.Add("relatedinformation-endpointid", "" + endpointId);
             data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
                 WebApiConfig.Settings.SharedSecret));
             return data;
         }
 
-        private static NameValueCollection CreatePaymentParams(
-            PreAuthRequestModel model, string fibonatixID) {
+        private static NameValueCollection CreatePaymentParams(PreAuthRequestModel model, string fibonatixID, int endpointId) {
             DateTime now = DateTime.Now;
             NameValueCollection data = new NameValueCollection
             {
@@ -123,7 +124,7 @@ namespace MerchantAPI.Controllers.Factories
                 {"state", model.state},
                 {"postalcode", model.zip_code},
                 {"country", CountryConverter.ConvertCountryToCommDooSpace(model.country)},
-                {"phonenumber", String.IsNullOrEmpty(model.phone) ? model.cell_phone : model.phone},
+                {"phonenumber", string.IsNullOrEmpty(model.phone) ? model.cell_phone : model.phone},
                 {"emailaddress", model.email},
                 {"amount", CurrencyConverter.MajorAmountToMinor(model.amount, model.currency)},
                 {"currency", model.currency},
@@ -133,31 +134,39 @@ namespace MerchantAPI.Controllers.Factories
                 {"cvv", "" + model.cvv2},
                 {"ipaddress", model.ipaddress},
                 {"website", model.site_url},
-                {"successurl", ResolveInternalUrl(SUCC_EXTRA_PATH) + "?customerredirecturl=" + model.redirect_url + "&fibonatixID=" + fibonatixID},
-                {"notificationurl", ResolveInternalNotificationUrl(SUCC_EXTRA_PATH + "?customernotifyurl=" + model.server_callback_url + "&fibonatixID=" + fibonatixID)},
-                {"failurl", ResolveInternalUrl(FAIL_EXTRA_PATH) + "?customerredirecturl=" + model.redirect_url + "&fibonatixID=" + fibonatixID},
+                {"successurl", ResolveInternalUrl(SUCC_EXTRA_PATH) + CreateRedirectParams(model.redirect_url, fibonatixID)},
+                {"notificationurl", ResolveInternalNotificationUrl(endpointId, SUCC_EXTRA_PATH) + CreateNotifyParams(model.server_callback_url, fibonatixID)},
+                {"failurl", ResolveInternalUrl(FAIL_EXTRA_PATH) + CreateRedirectParams(model.redirect_url, fibonatixID)},
                 {"timestamp", CommDooTargetConverter.ConvertToCentralEurope(now).ToString("ddMMyyyyHHmmss")},
                 {"relatedinformation-orderdescription", model.order_desc}
             };
             return data;
         }
 
-
-        public static string ResolveInternalUrl(string extraPath) {
-            return String.Format("{0}://{1}:{2}{3}{4}",
-                HttpContext.Current.Request.Url.Scheme,
-                // WebApiConfig.Settings.PublicServerName,
-                "localhost",
-                HttpContext.Current.Request.Url.Port,
-                HttpContext.Current.Request.Url.AbsolutePath, extraPath);
+        public static string CreateNotifyParams(string url, string id)
+        {
+            return $"?customernotifyurl={HttpUtility.UrlEncode(url)}&fibonatixID={id}";
         }
 
-        public static string ResolveInternalNotificationUrl(string extraPath) {
-            return String.Format("{0}://{1}:{2}{3}{4}",
-                HttpContext.Current.Request.Url.Scheme,
-                WebApiConfig.Settings.PublicServerName,
-                HttpContext.Current.Request.Url.Port,
-                "/paynet/api/v2/notification", extraPath);
+        public static string CreateRedirectParams(string url, string id)
+        {
+            return $"?customerredirecturl={HttpUtility.UrlEncode(url)}&fibonatixID={id}";
+        }
+
+        public static string ResolveInternalUrl(string extraPath) {
+            return
+                $"{HttpContext.Current.Request.Url.Scheme}://" +
+                $"{/*"localhost"*/ WebApiConfig.Settings.PublicServerName}:{HttpContext.Current.Request.Url.Port}" +
+                $"{HttpContext.Current.Request.Url.AbsolutePath}" +
+                $"{extraPath}";
+        }
+
+        public static string ResolveInternalNotificationUrl(int endpointId, string extraPath) {
+            return 
+                $"{HttpContext.Current.Request.Url.Scheme}://" + 
+                $"{WebApiConfig.Settings.PublicServerName}:{HttpContext.Current.Request.Url.Port}" +
+                $"/paynet/api/v2/notification/{endpointId}" +
+                $"{extraPath}";
         }
 
         private static string[] PAYMENT_HASH_KEY_SEQUENSE =

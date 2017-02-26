@@ -22,6 +22,7 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         [ActionName("success")]
         public HttpResponseMessage Success(
+            int endpointId,
             [FromBody] NotificationRequestModel model, 
             [FromUri] NotificationRequestExtraModel model2)
         {
@@ -30,7 +31,7 @@ namespace MerchantAPI.Controllers
             model.fibonatixID = model2.fibonatixID;
             if (model.IsHashValid(WebApiConfig.Settings.SharedSecret))
             {
-                result = _service.Notified(model);
+                result = _service.Notified(endpointId, model);
             }
             else
             {
