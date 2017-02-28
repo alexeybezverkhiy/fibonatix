@@ -99,14 +99,14 @@ namespace MerchantAPI.Services
             string controlKey = WebApiConfig.Settings.MerchantControlKeys["" + endpointId];
             string[] splittedTargetUrl = merchantServerCallbackUrl.Split('?');
 
-            CallbackRequestModel callback = new CallbackRequestModel(controlKey,
+            CallbackRequestModel callback = new CallbackRequestModel(controlKey, 
                 splittedTargetUrl.Length == 1 ? null : splittedTargetUrl[1])
             {
                 status = transactionStatus == TransactionStatus.Approved ? "approved" : "declined",
                 client_orderid = clientOrderId,
                 orderid = transactionId,
                 type = transaction.Type.ToString().ToLower(),
-                amount = originalRequest["amount"],
+                amount = CurrencyConverter.MinorAmountToMajor(amountInMinor, currency).ToString().Replace(',', '.'),
                 descriptor = "CommDoo Processing Platform",
                 error_code = errorCode,
                 error_message = errorMessage,
@@ -135,6 +135,7 @@ namespace MerchantAPI.Services
             }
             MerchantCallbackStorage.Store(callbackEntity);
 
+            // GET HTTP was helped by https://msdn.microsoft.com/en-us/library/456dfw4f(v=vs.110).aspx
             WebResponse webResponse = null;
             try
             {
