@@ -45,12 +45,7 @@ namespace MerchantAPI.Controllers
                 if (model.IsHashValid(endpointId, controlKey))
                 {
                     string raw = RawContentReader.Read(Request).Result;
-                    NameValueCollection pairs = ControllerHelper.DeserializeHttpParameters(raw);
-                    ControllerHelper.EliminateCardData(pairs);
-//                    string holder = ControllerHelper.SerializeHttpParameters(pairs);
-//                    NameValueCollection pa = ControllerHelper.DeserializeHttpParameters(holder);
-
-                    result = _service.SaleSingleCurrency(endpointId, model);
+                    result = _service.SaleSingleCurrency(endpointId, model, raw);
                 }
                 else
                 {

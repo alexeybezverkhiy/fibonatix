@@ -8,6 +8,7 @@ using MerchantAPI.Controllers.Factories;
 using MerchantAPI.Models;
 using MerchantAPI.Services;
 using MerchantAPI.Data;
+using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Controllers
 {
@@ -25,21 +26,32 @@ namespace MerchantAPI.Controllers
             [FromUri] int endpointId,
             [FromBody] PreAuthRequestModel model)
         {
+            PreAuthResponseModel err = null;
             ServiceTransitionResult result = null;
 
             string controlKey = WebApiConfig.Settings.MerchantControlKeys["" + endpointId];
-            if (string.IsNullOrEmpty(controlKey)) {
-                PreAuthResponseModel err = new PreAuthResponseModel(model.client_orderid);
+            if (string.IsNullOrEmpty(controlKey))
+            {
+                err = new PreAuthResponseModel(model.client_orderid);
                 err.SetValidationError("2", "INVALID_CONTROL_CODE");
-            } else {
-                if (model.IsHashValid(endpointId, controlKey)) {
-                    result = _service.PreAuthSingleCurrency(endpointId, model);
-                } else {
-                    PreAuthResponseModel err = new PreAuthResponseModel(model.client_orderid);
-                    err.SetValidationError("2", "INVALID_CONTROL_CODE");
-
-                    result = new ServiceTransitionResult(HttpStatusCode.OK, err.ToHttpResponse());
+            }
+            else
+            {
+                if (model.IsHashValid(endpointId, controlKey))
+                {
+                    string raw = RawContentReader.Read(Request).Result;
+                    result = _service.PreAuthSingleCurrency(endpointId, model, raw);
                 }
+                else
+                {
+                    err = new PreAuthResponseModel(model.client_orderid);
+                    err.SetValidationError("2", "INVALID_CONTROL_CODE");
+                }
+            }
+
+            if (err != null)
+            {
+                result = new ServiceTransitionResult(HttpStatusCode.OK, err.ToHttpResponse());
             }
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;

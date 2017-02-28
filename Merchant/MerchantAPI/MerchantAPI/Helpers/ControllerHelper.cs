@@ -33,10 +33,17 @@ namespace MerchantAPI.Helpers
             string cardNumber = pairs[PARAM_CARD_NUMBER];
             if (!string.IsNullOrEmpty(cardNumber))
             {
-                pairs[PARAM_CARD_NUMBER] = "*" +
-                    (cardNumber.Length >= 4 ? cardNumber.Substring(cardNumber.Length - 4) : cardNumber);
+                pairs[PARAM_CARD_NUMBER] = "*" + LastFourDigits(cardNumber);
             }
             return pairs;
+        }
+
+        public static string LastFourDigits(string cardNumber)
+        {
+            if (string.IsNullOrEmpty(cardNumber)) return string.Empty;
+            return cardNumber.Length >= 4 
+                ? cardNumber.Substring(cardNumber.Length - 4) 
+                : cardNumber;
         }
 
         public static NameValueCollection DeserializeHttpParameters(string raw)

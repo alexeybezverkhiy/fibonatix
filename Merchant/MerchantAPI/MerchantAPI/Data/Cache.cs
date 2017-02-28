@@ -7,6 +7,7 @@ namespace MerchantAPI.Data
 {
     public class Cache
     {
+        /*
         public static void setRedirectUrlForRequest(string merchant_orderid, string redirect_url) {
             try {
                 HttpContext.Current.Cache.Insert("redirect_url:" + merchant_orderid, redirect_url, null,
@@ -23,7 +24,9 @@ namespace MerchantAPI.Data
             }
             return redirectURL;
         }
+        */
 
+            /*
         public static void setSaleRequestData(string merchant_orderid, Models.SaleRequestModel model) {
             try {
                 HttpContext.Current.Cache.Insert("sale_data:" + merchant_orderid, model, null,
@@ -40,6 +43,8 @@ namespace MerchantAPI.Data
             }
             return data;
         }
+        */
+        /*
         public static void setPreAuthRequestData(string merchant_orderid, Models.PreAuthRequestModel model) {
             try {
                 HttpContext.Current.Cache.Insert("preauth_data:" + merchant_orderid, model, null,
@@ -56,6 +61,8 @@ namespace MerchantAPI.Data
             }
             return data;
         }
+        */
+        /*
         public static void setCaptureRequestData(string merchant_orderid, Models.CaptureRequestModel model) {
             try {
                 HttpContext.Current.Cache.Insert("capture_data:" + merchant_orderid, model, null,
@@ -72,6 +79,7 @@ namespace MerchantAPI.Data
             }
             return data;
         }
+        */
 
         public static void setBackendResponseData(string transactionid, CommDoo.BackEnd.Responses.Response reponse) {
             try {

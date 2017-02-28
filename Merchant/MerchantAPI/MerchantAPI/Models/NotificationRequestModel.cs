@@ -43,7 +43,7 @@ namespace MerchantAPI.Models
          * See https://en.wikipedia.org/wiki/ISO_4217
          */
         [Required]
-        public int currency { get; set; }
+        public string currency { get; set; }
 
         [Required]
         [StringLength(32)]

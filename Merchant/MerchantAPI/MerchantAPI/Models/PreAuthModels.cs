@@ -132,29 +132,26 @@ namespace MerchantAPI.Models
 
         public bool IsSucc()
         {
-            return String.Equals(SUCC_ASYNC_RESPONSE, type);
+            return string.Equals(SUCC_ASYNC_RESPONSE, type);
         }
 
         public string ToHttpResponse()
         {
             if (IsSucc())
             {
-                return String.Format(
-                    "type={0}" +
-                    "&paynet-order-id={1}" +
-                    "&merchant-order-id={2}" +
-                    "&serial-number={3}",
-                    SUCC_ASYNC_RESPONSE, paynet_order_id, merchant_order_id, serial_number);
+                return 
+                    $"type={SUCC_ASYNC_RESPONSE}\n" +
+                    $"&paynet-order-id={paynet_order_id}\n" +
+                    $"&merchant-order-id={merchant_order_id}\n" + 
+                    $"&serial-number={serial_number}\n";
             }
-            return String.Format(
-                    "type={0}" +
-                    "&paynet-order-id={1}" +
-                    "&merchant-order-id={2}" +
-                    "&serial-number={3}" +
-                    "&error-message={4}" +
-                    "&error-code={5}",
-                    type, paynet_order_id, merchant_order_id, serial_number,
-                    HttpUtility.UrlEncode(error_message), error_code);
+            return 
+                $"type={type}\n" + 
+                $"&paynet-order-id={paynet_order_id}\n" + 
+                $"&merchant-order-id={merchant_order_id}\n" +
+                $"&serial-number={serial_number}\n" +
+                $"&error-message={HttpUtility.UrlEncode(error_message)}\n" +
+                $"&error-code={error_code}\n";
         }
 
         public void SetSucc()

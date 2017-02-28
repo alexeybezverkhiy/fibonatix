@@ -8,6 +8,7 @@ using System.Collections.Specialized;
 using MerchantAPI.Data;
 using MerchantAPI.Controllers.Factories;
 using System.Text;
+using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Services
 {
@@ -16,60 +17,73 @@ namespace MerchantAPI.Services
 
         public ServiceTransitionResult CaptureSingleCurrency(
             int endpointId,
-            CaptureRequestModel model)
+            CaptureRequestModel model,
+            string rawModel)
         {
-            byte[] partnerResponse = new byte[0];
-            CommDoo.BackEnd.Requests.CaptureReservedAmountRequest request = null;
-            string response = "";
-            try {
+            Transaction transactionData = new Transaction(TransactionType.Capture, model.client_orderid);
+            try
+            {
+                NameValueCollection referenceQuery = ControllerHelper.DeserializeHttpParameters(rawModel);
+                ControllerHelper.EliminateCardData(referenceQuery);
 
-                Transaction preAuthTransactionData = TransactionsDataStorage.FindByTransactionId(model.orderid);
-                Transaction transactionData = TransactionsDataStorage.CreateNewTransaction(TransactionType.Capture, model.client_orderid);
-                TransactionsDataStorage.UpdateTransactionState(transactionData.TransactionId, TransactionState.Started);
-                TransactionsDataStorage.UpdateTransactionStatus(transactionData.TransactionId, TransactionStatus.Undefined);
-                Cache.setCaptureRequestData(transactionData.TransactionId, model);
+                transactionData.State = TransactionState.Started;
+                transactionData.Status = TransactionStatus.Undefined;
+                transactionData.ReferenceQuery = ControllerHelper.SerializeHttpParameters(referenceQuery);
 
-                request = CommDoo.BackEnd.Requests.CaptureReservedAmountRequest.createRequestByModel(model, preAuthTransactionData.ProcessingTransactionId);
+                TransactionsDataStorage.Store(transactionData);
 
-                string resp = request.executeRequest();
+                // abv: cache version
+                //TransactionsDataStorage.UpdateTransaction(transactionData.TransactionId, TransactionState.Started,
+                //    TransactionStatus.Undefined);
+                //Cache.setCaptureRequestData(transactionData.TransactionId, model);
 
-                CommDoo.BackEnd.Responses.Response xmlResponse = CommDoo.BackEnd.Responses.Response.DeserializeFromString(resp);
+                Transaction preAuthTransactionData = TransactionsDataStorage
+                    .FindByTransactionIdAndType(model.orderid, TransactionType.Preauth);
+                CommDoo.BackEnd.Requests.CaptureReservedAmountRequest request = CommDoo.BackEnd.Requests.CaptureReservedAmountRequest
+                    .createRequestByModel(model, preAuthTransactionData.ProcessingTransactionId);
+                string commdooResponse = request.executeRequest();
+                CommDoo.BackEnd.Responses.Response xmlResponse = CommDoo.BackEnd.Responses.Response
+                    .DeserializeFromString(commdooResponse);
 
                 Cache.setBackendResponseData(transactionData.TransactionId, xmlResponse);
 
-                if (xmlResponse.Error == null && xmlResponse.Payment != null) {
-                    TransactionsDataStorage.UpdateTransactionState(transactionData.TransactionId, TransactionState.Finished);
-                    if(xmlResponse.Payment.Status == "Charged")
-                        TransactionsDataStorage.UpdateTransactionStatus(transactionData.TransactionId, TransactionStatus.Approved);
-                    else
-                        TransactionsDataStorage.UpdateTransactionStatus(transactionData.TransactionId, TransactionStatus.Declined);
-                    response = "type=async-response" + "\n" +
-                               "&serial-number=" + transactionData.SerialNumber + "\n" +
-                               "&merchant-order-id=" + model.client_orderid + "\n" +
-                               "&paynet-order-id=" + transactionData.TransactionId + "\n";
-                } else {
-                    TransactionsDataStorage.UpdateTransactionState(transactionData.TransactionId, TransactionState.Finished);
-                    TransactionsDataStorage.UpdateTransactionStatus(transactionData.TransactionId, TransactionStatus.Error);
+                string response;
+                if (xmlResponse.Error == null && xmlResponse.Payment != null)
+                {
+                    TransactionStatus status = xmlResponse.Payment.Status == "Charged" 
+                        ? TransactionStatus.Approved 
+                        : TransactionStatus.Declined;
+                    TransactionsDataStorage.UpdateTransaction(transactionData.TransactionId, 
+                        TransactionState.Finished, status);
 
-                    response = "type=error" + "\n" +
-                               "&serial-number=" + transactionData.SerialNumber + "\n" +
-                               "&merchant-order-id=" + model.client_orderid + "\n" +
-                               "&paynet-order-id=" + transactionData.TransactionId + "\n" +
-                               "&error-message=" + HttpUtility.UrlEncode(xmlResponse.Error.ErrorMessage) + "\n" +
-                               "&error-code=" + xmlResponse.Error.ErrorNumber + "\n";
+                    response = "type=async-response\n" +
+                               $"&serial-number={transactionData.SerialNumber}\n" +
+                               $"&merchant-order-id={model.client_orderid}\n" +
+                               $"&paynet-order-id={transactionData.TransactionId}";
                 }
-                partnerResponse = Encoding.UTF8.GetBytes(response);
+                else
+                {
+                    TransactionsDataStorage.UpdateTransaction(transactionData.TransactionId, TransactionState.Finished,
+                        TransactionStatus.Error);
 
-            } catch (Exception e) {
+                    response = "type=error\n" +
+                               $"&serial-number={transactionData.SerialNumber}\n" +
+                               $"&merchant-order-id={model.client_orderid}\n" +
+                               $"&paynet-order-id={transactionData.TransactionId}\n" +
+                               $"&error-message={HttpUtility.UrlEncode(xmlResponse.Error.ErrorMessage)}\n" +
+                               $"&error-code={xmlResponse.Error.ErrorNumber}";
+                }
+
+                return new ServiceTransitionResult(HttpStatusCode.OK,
+                    response + "\n");
+            }
+            catch (Exception e)
+            {
+                TransactionsDataStorage.Store(transactionData, e);
+
                 return new ServiceTransitionResult(HttpStatusCode.InternalServerError,
-                    "CONNECTION ERROR: " + e.Message + "\n");
+                    $"EXCP: Processing Capture for [client_orderid={transactionData.TransactionId}] failed\n");
             } finally { }
-
-            string strResponse = Encoding.UTF8.GetString(partnerResponse);
-
-            return new ServiceTransitionResult(HttpStatusCode.OK,
-                strResponse + "\n");
         }
-
     }
 }

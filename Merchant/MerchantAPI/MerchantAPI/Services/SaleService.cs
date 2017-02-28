@@ -10,6 +10,7 @@ using System.Web;
 using MerchantAPI.Connectors;
 using MerchantAPI.Controllers.Factories;
 using MerchantAPI.Data;
+using MerchantAPI.Helpers;
 using MerchantAPI.Models;
 
 namespace MerchantAPI.Services
@@ -18,66 +19,59 @@ namespace MerchantAPI.Services
     {
         public const string ESCAPE = "(escape('";
 
-        public ServiceTransitionResult SaleSingleCurrency(int endpointId, SaleRequestModel model)
+        public ServiceTransitionResult SaleSingleCurrency(int endpointId, SaleRequestModel model, string rawModel)
         {
-            byte[] partnerResponse = new byte[0];
-            NameValueCollection requestParameters;
+            Transaction transactionData = new Transaction(TransactionType.Sale, model.client_orderid);
             try
             {
-                Transaction transactionData = TransactionsDataStorage.CreateNewTransaction(TransactionType.Sale, model.client_orderid);
+                NameValueCollection requestParameters = CommDooFrontendFactory.CreateMultyCurrencyPaymentParams(
+                    endpointId, model, transactionData.TransactionId);
 
-                requestParameters = CommDooFrontendFactory.CreateMultyCurrencyPaymentParams(endpointId, model, transactionData.TransactionId);
-
-                var parameters = new StringBuilder(256);
+                var parameters = new StringBuilder(256)
+                    .Append(WebApiConfig.Settings.PaymentASPXEndpoint);
+                char delim = '?';
                 foreach (string key in requestParameters.Keys) {
-                    if (parameters.Length > 0)
-                    {
-                        parameters.Append('&');
-                    }
                     parameters
-                        .Append(HttpUtility.UrlEncode(key))
+                        .Append(delim)
+                        .Append(key)
                         .Append('=')
                         .Append(HttpUtility.UrlEncode(requestParameters[key]));
+                    delim = '&';
                 }
-                
-                string redirectToCommDoo = WebApiConfig.Settings.PaymentASPXEndpoint + "?" + parameters;
 
+                NameValueCollection referenceQuery = ControllerHelper.DeserializeHttpParameters(rawModel);
+                ControllerHelper.EliminateCardData(referenceQuery);
+
+                transactionData.State = TransactionState.Started;
+                transactionData.Status = TransactionStatus.Undefined;
+                transactionData.RedirectUri = parameters.ToString();
+                transactionData.ReferenceQuery = ControllerHelper.SerializeHttpParameters(referenceQuery);
+
+                TransactionsDataStorage.Store(transactionData);
+
+                // abv: cache version
                 // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo
-                TransactionsDataStorage.UpdateTransaction(transactionData.TransactionId, 
-                    TransactionState.Started, TransactionStatus.Undefined);
-                Cache.setRedirectUrlForRequest(transactionData.TransactionId, redirectToCommDoo);
-                Cache.setSaleRequestData(transactionData.TransactionId, model);
+                //TransactionsDataStorage.UpdateTransaction(transactionData.TransactionId, 
+                //    TransactionState.Started, TransactionStatus.Undefined);
+                //Cache.setRedirectUrlForRequest(transactionData.TransactionId, redirectToCommDoo);
+                //Cache.setSaleRequestData(transactionData.TransactionId, model);
 
                 string response = "type=async-response" + "\n" +
                                   "&serial-number=" + transactionData.SerialNumber + "\n" +
                                   "&merchant-order-id=" + model.client_orderid + "\n" +
                                   "&paynet-order-id=" + transactionData.TransactionId + "\n";
 
-                partnerResponse = Encoding.UTF8.GetBytes(response);
-
-            } catch (Exception e)
+                return new ServiceTransitionResult(HttpStatusCode.OK,
+                    response + "\n");
+            }
+            catch (Exception e)
             {
+                TransactionsDataStorage.Store(transactionData, e);
+
                 return new ServiceTransitionResult(HttpStatusCode.InternalServerError,
-                    "CONNECTION ERROR: " + e.Message + "\n" );
+                    $"EXCP: Processing Sale for [client_orderid={transactionData.TransactionId}] failed\n");
             }
             finally { }
-
-            string strResponse = Encoding.UTF8.GetString(partnerResponse);
-            //            int begin = strResponse.IndexOf(ESCAPE);
-            //            if (begin >= 0)
-            //            {
-            //                begin += ESCAPE.Length;
-            //                int end = strResponse.IndexOf("')");
-            //                string redirectUrl = strResponse.Substring(begin, end - begin);
-            //                partnerResponse = client.UploadValues(new Uri(redirectUrl), "GET", new NameValueCollection());
-            //                strResponse = u8.GetString(partnerResponse);
-            //            }
-
-            return new ServiceTransitionResult(HttpStatusCode.OK,
-                strResponse + "\n" );
-            //            SaleResponseModel succ = new SaleResponseModel();
-            //            succ.SetSucc();
-            //            return succ;
         }
     }
 

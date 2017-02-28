@@ -15,6 +15,7 @@ namespace MerchantAPI.Data
         Started = 2,
         Redirected = 3,
         Finished = 20,
+        Failed = 30,
     }
 
     public enum TransactionStatus
@@ -52,10 +53,14 @@ namespace MerchantAPI.Data
         public TransactionType Type { get; set; }
         [Index("TransactionState_IDX")]
         public TransactionState State { get; set; }
+        [StringLength(128)]
+        public string StateReason { get; set; }
         [Index("TransactionStatus_IDX")]
         public TransactionStatus Status { get; set; }
         public DateTime LastModified { get; set; }
+        public DateTime CreationTime { get; set; }
         public string ReferenceQuery { get; set; }
+        public string RedirectUri { get; set; }
 
         public Transaction() {}
 
@@ -70,6 +75,7 @@ namespace MerchantAPI.Data
             State = TransactionState.Created;
             Status = TransactionStatus.Undefined;
             LastModified = DateTime.UtcNow;
+            CreationTime = DateTime.UtcNow;
             // ReferenceQuery =
         }
 

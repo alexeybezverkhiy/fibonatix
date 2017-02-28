@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using MerchantAPI.Services;
@@ -37,6 +38,33 @@ namespace MerchantAPI.Data
                 db.SaveChanges();
                 return created;
             }
+        }
+
+        public static void Store(Transaction transaction)
+        {
+            using (var db = new PersistenceContext())
+            {
+                if (transaction.ID == 0)
+                {
+                    db.Transactions.Add(transaction);
+                    db.SaveChanges();
+                    return;
+                }
+
+                if (db.Entry(transaction).State == EntityState.Detached)
+                {
+                    db.Transactions.Attach(transaction);
+                }
+                db.Entry(transaction).State = EntityState.Modified;
+                CommitChanges(db, transaction);
+            }
+        }
+
+        public static void Store(Transaction transaction, Exception e)
+        {
+            transaction.State = TransactionState.Failed;
+            transaction.StateReason = $"EXCP: [{e.GetType()}] {e.Message}";
+            Store(transaction);
         }
 
         public static Transaction UpdateTransactionState(string transactionID, TransactionState state) {
@@ -120,6 +148,14 @@ namespace MerchantAPI.Data
             }
         }
 
+        public static Transaction FindByTransactionIdAndType(string transactionID, TransactionType type)
+        {
+            using (var db = new PersistenceContext())
+            {
+                return db.Transactions
+                    .SingleOrDefault(t => t.TransactionId == transactionID && t.Type == type);
+            }
+        }
         /*        
                     /// <summary>
                     /// Assign ID of transaction for return to Merchants
@@ -161,7 +197,7 @@ namespace MerchantAPI.Data
                         }
                     }
                     */
-        }
+    }
 
     public class MerchantCallbackStorage
     {
@@ -169,6 +205,23 @@ namespace MerchantAPI.Data
         {
             callback.LastModified = DateTime.UtcNow;
             db.SaveChanges();
+        }
+
+        public static void Store(MerchantCallback modified)
+        {
+            using (var db = new PersistenceContext())
+            {
+                if (modified.ID == 0)
+                {
+                    db.MerchantCallbacks.Add(modified);
+                }
+                else
+                {
+                    db.MerchantCallbacks.Attach(modified);
+                    db.Entry(modified).State = EntityState.Modified;
+                }
+                db.SaveChanges();
+            }
         }
 
         public static MerchantCallback FindByTransactionId(string transactionID)
@@ -187,6 +240,12 @@ namespace MerchantAPI.Data
         {
             using (var db = new PersistenceContext())
             {
+                if (db.Entry(updated).State == EntityState.Detached)
+                {
+                    db.MerchantCallbacks.Attach(updated);
+                }
+                db.Entry(updated).State = EntityState.Modified;
+
                 updated.State = state;
                 updated.StateReason = stateReason;
                 if (state == CallbackState.Delivered)
