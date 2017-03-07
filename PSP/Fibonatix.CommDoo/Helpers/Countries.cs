@@ -266,7 +266,7 @@ namespace Fibonatix.CommDoo.Helpers
             else return Iso3166CountryCodes.US;
         }
         public static string countryAlpha2String(string c) {
-            if (c == null) return "US";
+            if (c == null) return null;
             string code = c.ToUpper();
             if (code == "AU" || code == "AUS") return "AU";
             else if (code == "AT" || code == "AUT") return "AT";
@@ -519,10 +519,10 @@ namespace Fibonatix.CommDoo.Helpers
             else if (code == "SS" || code == "SSD") return "SS";
             else if (code == "JM" || code == "JAM") return "JM";
             else if (code == "JP" || code == "JPN") return "JP";
-            else return "US";
+            else return null;
         }
         public static string countryAlpha3String(string c) {
-            if (c == null) return "USA";
+            if (c == null) return null;
             string code = c.ToUpper();
             if (code == "AU" || code == "AUS") return "AUS";
             else if (code == "AT" || code == "AUT") return "AUT";
@@ -775,7 +775,7 @@ namespace Fibonatix.CommDoo.Helpers
             else if (code == "SS" || code == "SSD") return "SSD";
             else if (code == "JM" || code == "JAM") return "JAM";
             else if (code == "JP" || code == "JPN") return "JPN";
-            else return "USA";
+            else return null;
         }
     }
 }

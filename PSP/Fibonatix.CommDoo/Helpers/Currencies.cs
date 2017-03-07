@@ -193,5 +193,18 @@ namespace Fibonatix.CommDoo.Helpers
             else if (code == "ZWL") return Iso4217CurrencyCodes.ZWL;
             else return Iso4217CurrencyCodes.Undefined;
         }
+
+        public static string getCurrencyNumCode(Iso4217CurrencyCodes code) {
+            return Iso4217Currencies.GetCurrency(code).Code;
+        }
+        public static string getCurrencyCountryCode(string code) {
+            var values = Enum.GetValues(typeof(Iso4217CurrencyCodes)).Cast<Iso4217CurrencyCodes>();
+
+            foreach (var cc in values) {
+                if (Iso4217Currencies.GetCurrency(cc).Code == code)
+                    return cc.ToString();
+            }
+            return null;
+        }
     }
 }

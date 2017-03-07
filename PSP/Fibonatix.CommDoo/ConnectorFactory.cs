@@ -25,6 +25,9 @@ namespace Fibonatix.CommDoo
                 case AcquirerType.ProcessingCom:
                     ret = ProcessingCom.PComConnector.getConnector(req);
                     break;
+                case AcquirerType.Borgun:
+                    ret = Borgun.BorgunConnector.getConnector(req);
+                    break;
                 default:
                     ret = nullConn;
                     break;

@@ -128,7 +128,7 @@ namespace Fibonatix.CommDoo.Genesis
                         response.preAuth.transaction.processing_status.FunctionResult = "NOK";
                     response.preAuth.transaction.processing_status.error = new PreauthResponse.Transaction.ProcessingStatus.Error() {
                         type = "PROVIDER", // "REJECTED"
-                        number = (int)result.ErrorResponse.Code,
+                        number = result.ErrorResponse.Code.ToString(),
                         message = result.ErrorResponse.Message + " " + result.ErrorResponse.TechnicalMessage,
                     };
                 }
@@ -142,7 +142,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new PreauthResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -159,7 +159,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new PreauthResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM",
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -200,7 +200,7 @@ namespace Fibonatix.CommDoo.Genesis
                     response.capture.transaction.processing_status.FunctionResult = "NOK";
                     response.capture.transaction.processing_status.error = new CaptureResponse.Transaction.ProcessingStatus.Error() {
                         type = "PROVIDER", // "REJECTED"
-                        number = (int)result.ErrorResponse.Code,
+                        number = result.ErrorResponse.Code.ToString(),
                         message = result.ErrorResponse.Message + " " + result.ErrorResponse.TechnicalMessage,
                     };
                 }
@@ -215,7 +215,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new CaptureResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -232,7 +232,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new CaptureResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM",
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -269,7 +269,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new PurchaseResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM",
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -310,7 +310,7 @@ namespace Fibonatix.CommDoo.Genesis
                     response.purchase.transaction.processing_status.FunctionResult = "NOK";
                     response.purchase.transaction.processing_status.error = new PurchaseResponse.Transaction.ProcessingStatus.Error() {
                         type = "PROVIDER", // "REJECTED"
-                        number = (int)result.ErrorResponse.Code,
+                        number = result.ErrorResponse.Code.ToString(),
                         message = result.ErrorResponse.Message + " " + result.ErrorResponse.TechnicalMessage,
                     };
                 }
@@ -325,7 +325,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new PurchaseResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -342,7 +342,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new PurchaseResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM",
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -383,7 +383,7 @@ namespace Fibonatix.CommDoo.Genesis
                     response.purchase.transaction.processing_status.FunctionResult = "NOK";
                     response.purchase.transaction.processing_status.error = new PurchaseResponse.Transaction.ProcessingStatus.Error() {
                         type = "PROVIDER", // "REJECTED"
-                        number = (int)result.ErrorResponse.Code,
+                        number = result.ErrorResponse.Code.ToString(),
                         message = result.ErrorResponse.Message + " " + result.ErrorResponse.TechnicalMessage,
                     };
                 }
@@ -398,7 +398,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new PurchaseResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -415,7 +415,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new PurchaseResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM",
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -456,7 +456,7 @@ namespace Fibonatix.CommDoo.Genesis
                     response.purchase.transaction.processing_status.FunctionResult = "NOK";
                     response.purchase.transaction.processing_status.error = new PurchaseResponse.Transaction.ProcessingStatus.Error() {
                         type = "PROVIDER", // "REJECTED"
-                        number = (int)result.ErrorResponse.Code,
+                        number = result.ErrorResponse.Code.ToString(),
                         message = result.ErrorResponse.Message + " " + result.ErrorResponse.TechnicalMessage,
                     };
                 }
@@ -471,7 +471,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new PurchaseResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -488,7 +488,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new PurchaseResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM",
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -529,7 +529,7 @@ namespace Fibonatix.CommDoo.Genesis
                     response.refund.transaction.processing_status.FunctionResult = "NOK";
                     response.refund.transaction.processing_status.error = new RefundResponse.Transaction.ProcessingStatus.Error() {
                         type = "PROVIDER", // "REJECTED"
-                        number = (int)result.ErrorResponse.Code,
+                        number = result.ErrorResponse.Code.ToString(),
                         message = result.ErrorResponse.Message + " " + result.ErrorResponse.TechnicalMessage,
                     };
                 }
@@ -544,7 +544,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new RefundResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -561,7 +561,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new RefundResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM",
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -602,7 +602,7 @@ namespace Fibonatix.CommDoo.Genesis
                     response.reversal.transaction.processing_status.FunctionResult = "NOK";
                     response.reversal.transaction.processing_status.error = new ReversalResponse.Transaction.ProcessingStatus.Error() {
                         type = "PROVIDER", // "REJECTED"
-                        number = (int)result.ErrorResponse.Code,
+                        number = result.ErrorResponse.Code.ToString(),
                         message = result.ErrorResponse.Message + " " + result.ErrorResponse.TechnicalMessage,
                     };
                 }
@@ -617,7 +617,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new ReversalResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -634,7 +634,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new ReversalResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM",
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -662,7 +662,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new EnrollmentCheck3DResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -678,7 +678,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new EnrollmentCheck3DResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM",
-                                    number = (int)1,
+                                    number = "1",
                                     message = ex.Message,
                                 }
                             }
@@ -721,7 +721,7 @@ namespace Fibonatix.CommDoo.Genesis
                     response.preAuth3D.transaction.processing_status.FunctionResult = "NOK";
                     response.preAuth3D.transaction.processing_status.error = new Preauth3DResponse.Transaction.ProcessingStatus.Error() {
                         type = "PROVIDER", // "REJECTED"
-                        number = (int)result.ErrorResponse.Code,
+                        number = result.ErrorResponse.Code.ToString(),
                         message = result.ErrorResponse.Message + " " + result.ErrorResponse.TechnicalMessage,
                     };
                 }
@@ -735,7 +735,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new Preauth3DResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -752,7 +752,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new Preauth3DResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM",
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -785,7 +785,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new Purchase3DResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM",
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -829,7 +829,7 @@ namespace Fibonatix.CommDoo.Genesis
                     response.purchase3D.transaction.processing_status.FunctionResult = "NOK";
                     response.purchase3D.transaction.processing_status.error = new PurchaseResponse.Transaction.ProcessingStatus.Error() {
                         type = "PROVIDER", // "REJECTED"
-                        number = (int)result.ErrorResponse.Code,
+                        number = result.ErrorResponse.Code.ToString(),
                         message = result.ErrorResponse.Message + " " + result.ErrorResponse.TechnicalMessage,
                     };
                 }
@@ -844,7 +844,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new Purchase3DResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -861,7 +861,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new Purchase3DResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM",
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -905,7 +905,7 @@ namespace Fibonatix.CommDoo.Genesis
                     response.purchase3D.transaction.processing_status.FunctionResult = "NOK";
                     response.purchase3D.transaction.processing_status.error = new PurchaseResponse.Transaction.ProcessingStatus.Error() {
                         type = "PROVIDER", // "REJECTED"
-                        number = (int)result.ErrorResponse.Code,
+                        number = result.ErrorResponse.Code.ToString(),
                         message = result.ErrorResponse.Message + " " + result.ErrorResponse.TechnicalMessage,
                     };
                 }
@@ -920,7 +920,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new Purchase3DResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -937,7 +937,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new Purchase3DResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM",
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -1019,7 +1019,7 @@ namespace Fibonatix.CommDoo.Genesis
                             },
                             error = new NotificationProcessingResponse.NotificationProcessingSection.Transaction.Error() {
                                 type = "SYSTEM", // "DATA"
-                                number = (int)ex.HResult,
+                                number = ((UInt32)ex.HResult).ToString(),
                                 message = ex.Message,
                             },
                         },
@@ -1039,7 +1039,7 @@ namespace Fibonatix.CommDoo.Genesis
                             },
                             error = new NotificationProcessingResponse.NotificationProcessingSection.Transaction.Error() {
                                 message = "Error from Notification center",
-                                number = 600,
+                                number = "600",
                                 type = "SYSTEM"
                             },
                         },
@@ -1069,7 +1069,7 @@ namespace Fibonatix.CommDoo.Genesis
                             },
                             error = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction.Error() {
                                 message = "Function is not support by Genesis",
-                                number = 600,
+                                number = "600",
                                 type = "PROVIDER"
                             },
                         },
@@ -1085,7 +1085,7 @@ namespace Fibonatix.CommDoo.Genesis
                             },
                             error = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction.Error() {
                                 message = "Unknown Error",
-                                number = 600,
+                                number = "600",
                                 type = "SYSTEM"
                             },
                         },
@@ -1134,7 +1134,7 @@ namespace Fibonatix.CommDoo.Genesis
                     response.reconcile.ext_status = result.ErrorResponse.Status;
                     response.reconcile.transaction.processing_status.error = new SingleReconcileResponse.Transaction.ProcessingStatus.Error() {
                         type = "PROVIDER", // "REJECTED"
-                        number = (int)result.ErrorResponse.Code,
+                        number = result.ErrorResponse.Code.ToString(),
                         message = result.ErrorResponse.Message + " " + result.ErrorResponse.TechnicalMessage,
                     };
                 }
@@ -1148,7 +1148,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new SingleReconcileResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -1164,7 +1164,7 @@ namespace Fibonatix.CommDoo.Genesis
                                 FunctionResult = "NOK",
                                 error = new SingleReconcileResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM",
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }

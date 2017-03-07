@@ -36,6 +36,13 @@ namespace Fibonatix.CommDoo.Responses
                 public string CreditCardAlias { get; set; }
                 [XmlElement(ElementName = "AuthCode")]
                 public string AuthCode { get; set; }
+                [XmlElement(ElementName = "RRN")]
+                public string RRN { get; set; }
+                [XmlElement(ElementName = "DateAndTime")]
+                public string DateAndTime { get; set; }
+                [XmlElement(ElementName = "TerminalID")]
+                public string TerminalID { get; set; }
+
                 [XmlElement(ElementName = "StatusType")]
                 public string StatusType { get; set; }
                 [XmlElement(ElementName = "FunctionResult")]
@@ -46,16 +53,15 @@ namespace Fibonatix.CommDoo.Responses
 
                 [XmlElement(ElementName = "Error")]
                 public Error error { get; set; }
+
                 public class Error
                 {
                     [XmlElement(ElementName = "Type")]
                     public string type { get; set; }
                     [XmlElement(ElementName = "Number")]
-                    public int number { get; set; }
+                    public string number { get; set; }
                     [XmlElement(ElementName = "Message")]
                     public string message { get; set; }
-                    // [XmlElement(ElementName = "Advice")]
-                    // public string advice { get; set; }
                 }
             }
 

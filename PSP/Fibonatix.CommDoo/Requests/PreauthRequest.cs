@@ -48,6 +48,15 @@ namespace Fibonatix.CommDoo.Requests
                 public string currency { get; set; }
                 [XmlElement(ElementName = "Usage")]
                 public string usage { get; set; }
+
+                // Three fields only for Borgun - RRN, DateAndTime and TerminalID
+                [XmlElement(ElementName = "RRN")]
+                public string rrn { get; set; }
+                [XmlElement(ElementName = "DateAndTime")]
+                public string datetime { get; set; }
+                [XmlElement(ElementName = "TerminalID")]
+                public string terminal { get; set; }
+
                 [XmlElement(ElementName = "RecurringTransaction")]
                 public RecurringTransaction recurring_transaction { get; set; }
                 [XmlElement(ElementName = "CreditCardData")]
@@ -56,6 +65,7 @@ namespace Fibonatix.CommDoo.Requests
                 public Secure3D threed_secure { get; set; }
                 [XmlElement(ElementName = "CustomerData")]
                 public CustomerData customer_data { get; set; }
+
             }
         }
 
@@ -69,10 +79,14 @@ namespace Fibonatix.CommDoo.Requests
             } else if (getRequestType() == RequestType.NotSupported) {
                 string ExceptionMessage = "Not supported 'Recurrence type' in Preauthorization request for selected Acquirer";
                 throw new System.ComponentModel.DataAnnotations.ValidationException(ExceptionMessage).SetCode((int)ErrorCodes.InputDataInvalidError);
-            } else if (preAuth.transaction.cred_card_data == null && (getAcquirer() != AcquirerType.Kalixa || getRequestType() != RequestType.Repeated)) {
+            } else if (preAuth.transaction.cred_card_data == null && 
+                    ((getAcquirer() != AcquirerType.Kalixa && getAcquirer() != AcquirerType.Borgun) || getRequestType() != RequestType.Repeated)) {
                 string ExceptionMessage = "'Credit card' section is not exist in Preauthorization request";
                 throw new System.ComponentModel.DataAnnotations.ValidationException(ExceptionMessage).SetCode((int)ErrorCodes.InputDataMissingError);
-            } else if (preAuth.transaction.cred_card_data == null && preAuth.transaction.credit_card_alias == null && getAcquirer() == AcquirerType.Kalixa && getRequestType() == RequestType.Repeated) {
+            } else if (preAuth.transaction.cred_card_data == null && 
+                    preAuth.transaction.credit_card_alias == null && 
+                    (getAcquirer() == AcquirerType.Kalixa || getAcquirer() != AcquirerType.Borgun) && 
+                    getRequestType() == RequestType.Repeated) {
                 string ExceptionMessage = "'Credit card' section and 'CreditCardAlias' field are not exist in Preauthorization request for Aquirer who need CreditCard or CreditCardAlias data";
                 throw new System.ComponentModel.DataAnnotations.ValidationException(ExceptionMessage).SetCode((int)ErrorCodes.InputDataMissingError);
             }
@@ -106,9 +120,11 @@ namespace Fibonatix.CommDoo.Requests
                     if (preAuth.transaction.recurring_transaction == null) {
                         ret = RequestType.Single;
                     } else if (preAuth.transaction.recurring_transaction != null && preAuth.transaction.recurring_transaction.type != null) {
-                        if (String.Equals(preAuth.transaction.recurring_transaction.type, "initial", StringComparison.InvariantCultureIgnoreCase) && getAcquirer() == AcquirerType.Kalixa) {
+                        if (String.Equals(preAuth.transaction.recurring_transaction.type, "initial", StringComparison.InvariantCultureIgnoreCase) && 
+                            (getAcquirer() == AcquirerType.Kalixa || getAcquirer() == AcquirerType.Borgun)) {
                             ret = RequestType.Initial;
-                        } else if (String.Equals(preAuth.transaction.recurring_transaction.type, "repeated", StringComparison.InvariantCultureIgnoreCase) && getAcquirer() == AcquirerType.Kalixa) {
+                        } else if (String.Equals(preAuth.transaction.recurring_transaction.type, "repeated", StringComparison.InvariantCultureIgnoreCase) &&
+                            (getAcquirer() == AcquirerType.Kalixa || getAcquirer() == AcquirerType.Borgun)) {
                             ret = RequestType.Repeated;
                         } else if (String.Equals(preAuth.transaction.recurring_transaction.type, "single", StringComparison.InvariantCultureIgnoreCase)) {
                             ret = RequestType.Single;

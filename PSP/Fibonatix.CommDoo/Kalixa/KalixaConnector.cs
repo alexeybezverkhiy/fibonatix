@@ -41,9 +41,9 @@ namespace Fibonatix.CommDoo.Kalixa
 
         public PreauthResponse Preauthorize(PreauthRequest request) {
             if (request.preAuth.transaction.threed_secure != null &&
-                (request.preAuth.transaction.threed_secure.enrolment_res == "Y" ||
-                request.preAuth.transaction.threed_secure.enrolment_res == "N" || 
-                request.preAuth.transaction.threed_secure.enrolment_res == "U")) {
+                (request.preAuth.transaction.threed_secure.enrolment_status == "Y" ||
+                request.preAuth.transaction.threed_secure.enrolment_status == "N" || 
+                request.preAuth.transaction.threed_secure.enrolment_status == "U")) {
                 return PreauthorizeAfterEnroll(request);
             } else {
                 return PreauthorizeNon3D(request);
@@ -91,7 +91,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                         FunctionResult = "NOK",
                                         error = new PreauthResponse.Transaction.ProcessingStatus.Error() {
                                             type = "PROVIDER", // "DATA"
-                                            number = (int)Int32.Parse(resp.payment.state.definition.key),
+                                            number = resp.payment.state.definition.key,
                                             message = resp.payment.state.definition.value + ": " + resp.payment.state.description,
                                         }
                                     }
@@ -108,7 +108,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                     FunctionResult = "NOK",
                                     error = new PreauthResponse.Transaction.ProcessingStatus.Error() {
                                         type = "PROVIDER", // "DATA"
-                                        number = (int)Int32.Parse(resp.errorCode),
+                                        number = resp.errorCode,
                                         message = resp.errorMessage,
                                     }
                                 }
@@ -124,7 +124,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                 FunctionResult = "NOK",
                                 error = new PreauthResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -137,7 +137,7 @@ namespace Fibonatix.CommDoo.Kalixa
         private PreauthResponse PreauthorizeAfterEnroll(PreauthRequest request) {
             PreauthResponse response = null;
             try {
-                if (request.preAuth.transaction.threed_secure.enrolment_res == "Y") {
+                if (request.preAuth.transaction.threed_secure.enrolment_status == "Y") {
                     response = PreauthorizeAfterEnroll90(request);
                     if (response.preAuth.transaction.processing_status.FunctionResult == "ACK") {
                         response = PreauthorizeAfterEnroll120(request);
@@ -153,7 +153,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                 FunctionResult = "NOK",
                                 error = new PreauthResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -204,7 +204,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                         FunctionResult = "NOK",
                                         error = new PreauthResponse.Transaction.ProcessingStatus.Error() {
                                             type = "PROVIDER", // "DATA"
-                                            number = (int)Int32.Parse(resp.statusCode),
+                                            number = resp.statusCode,
                                             message = "Status code: " + resp.actionResults.GetValueByKey("lastStateDefinition") + "/" + Helpers.StatusCodes.getStatusCodeMessage(resp.actionResults.GetValueByKey("lastStateDefinition")),
                                         }
                                     }
@@ -221,7 +221,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                     FunctionResult = "NOK",
                                     error = new PreauthResponse.Transaction.ProcessingStatus.Error() {
                                         type = "PROVIDER", // "DATA"
-                                        number = (int)Int32.Parse(resp.errorCode),
+                                        number = resp.errorCode,
                                         message = resp.errorMessage,
                                     }
                                 }
@@ -237,7 +237,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                 FunctionResult = "NOK",
                                 error = new PreauthResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -289,7 +289,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                         FunctionResult = "NOK",
                                         error = new PreauthResponse.Transaction.ProcessingStatus.Error() {
                                             type = "PROVIDER", // "DATA"
-                                            number = (int)Int32.Parse(resp.statusCode),
+                                            number = resp.statusCode,
                                             message = "Status code: " + resp.actionResults.GetValueByKey("lastStateDefinition") + "/" + Helpers.StatusCodes.getStatusCodeMessage(resp.actionResults.GetValueByKey("lastStateDefinition")),
                                         }
                                     }
@@ -306,7 +306,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                     FunctionResult = "NOK",
                                     error = new PreauthResponse.Transaction.ProcessingStatus.Error() {
                                         type = "PROVIDER", // "DATA"
-                                        number = (int)Int32.Parse(resp.errorCode),
+                                        number = resp.errorCode,
                                         message = resp.errorMessage,
                                     }
                                 }
@@ -322,7 +322,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                 FunctionResult = "NOK",
                                 error = new PreauthResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -372,7 +372,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                         FunctionResult = "NOK",
                                         error = new CaptureResponse.Transaction.ProcessingStatus.Error() {
                                             type = "PROVIDER", // "DATA"
-                                            number = (int)Int32.Parse(resp.statusCode),
+                                            number = resp.statusCode,
                                             message = "Status code: " + resp.actionResults.GetValueByKey("lastStateDefinition")  + "/" + Helpers.StatusCodes.getStatusCodeMessage(resp.actionResults.GetValueByKey("lastStateDefinition")),
                                         }
                                     }
@@ -389,7 +389,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                     FunctionResult = "NOK",
                                     error = new CaptureResponse.Transaction.ProcessingStatus.Error() {
                                         type = "PROVIDER", // "DATA"
-                                        number = (int)Int32.Parse(resp.errorCode),
+                                        number = resp.errorCode,
                                         message = resp.errorMessage,
                                     }
                                 }
@@ -405,7 +405,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                 FunctionResult = "NOK",
                                 error = new CaptureResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -474,7 +474,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                 FunctionResult = "NOK",
                                 error = new PurchaseResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -524,7 +524,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                         FunctionResult = "NOK",
                                         error = new RefundResponse.Transaction.ProcessingStatus.Error() {
                                             type = "PROVIDER", // "DATA"
-                                            number = (int)Int32.Parse(resp.payment.state.definition.key),
+                                            number = resp.payment.state.definition.key,
                                             message = resp.payment.state.definition.value,
                                         }
                                     }
@@ -541,7 +541,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                     FunctionResult = "NOK",
                                     error = new RefundResponse.Transaction.ProcessingStatus.Error() {
                                         type = "PROVIDER", // "DATA"
-                                        number = (int)Int32.Parse(resp.errorCode),
+                                        number = resp.errorCode,
                                         message = resp.errorMessage,
                                     }
                                 }
@@ -557,7 +557,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                 FunctionResult = "NOK",
                                 error = new RefundResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -608,7 +608,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                         FunctionResult = "NOK",
                                         error = new ReversalResponse.Transaction.ProcessingStatus.Error() {
                                             type = "PROVIDER", // "DATA"
-                                            number = (int)Int32.Parse(resp.statusCode),
+                                            number = resp.statusCode,
                                             message = "Unsuccess status :" + resp.statusCode,
                                         }
                                     }
@@ -625,7 +625,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                     FunctionResult = "NOK",
                                     error = new ReversalResponse.Transaction.ProcessingStatus.Error() {
                                         type = "PROVIDER", // "DATA"
-                                        number = (int)Int32.Parse(resp.errorCode),
+                                        number = resp.errorCode,
                                         message = resp.errorMessage,
                                     }
                                 }
@@ -641,7 +641,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                 FunctionResult = "NOK",
                                 error = new ReversalResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -722,7 +722,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                         ProviderTransactionID = resp.payment.paymentID,
                                         error = new ReversalResponse.Transaction.ProcessingStatus.Error() {
                                             type = "PROVIDER", // "DATA"
-                                            number = (int)Int32.Parse(resp.payment.state.definition.value),
+                                            number = resp.payment.state.definition.value,
                                             message = resp.payment.state.definition.key + " : " + resp.payment.state.description,
                                         }
                                     },
@@ -740,7 +740,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                     FunctionResult = "NOK",
                                     error = new ReversalResponse.Transaction.ProcessingStatus.Error() {
                                         type = "PROVIDER", // "DATA"
-                                        number = (int)Int32.Parse(resp.errorCode),
+                                        number = resp.errorCode,
                                         message = resp.errorMessage,
                                     }
                                 },
@@ -756,7 +756,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                 FunctionResult = "NOK",
                                 error = new EnrollmentCheck3DResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -777,7 +777,7 @@ namespace Fibonatix.CommDoo.Kalixa
                             FunctionResult = "NOK",
                             error = new Preauth3DResponse.Transaction.ProcessingStatus.Error() {
                                 type = "PROVIDER",
-                                number = (int)ErrorCodes.InvalidTransactionTypeError,
+                                number = ErrorCodes.InvalidTransactionTypeError.ToString(),
                                 message = "Kalixa aquirer doesn't support 'Preauthorization 3D' request",
                             },
                         },                        
@@ -796,7 +796,7 @@ namespace Fibonatix.CommDoo.Kalixa
                             FunctionResult = "NOK",
                             error = new Purchase3DResponse.Transaction.ProcessingStatus.Error() {
                                 type = "PROVIDER",
-                                number = (int)ErrorCodes.InvalidTransactionTypeError,
+                                number = ErrorCodes.InvalidTransactionTypeError.ToString(),
                                 message = "Kalixa aquirer doesn't support 'Purchase 3D' request",
                             },
                         },
@@ -817,7 +817,7 @@ namespace Fibonatix.CommDoo.Kalixa
                         },
                         error = new NotificationProcessingResponse.NotificationProcessingSection.Transaction.Error() {
                             type = "PROVIDER",
-                            number = (int)ErrorCodes.InvalidTransactionTypeError,
+                            number = ErrorCodes.InvalidTransactionTypeError.ToString(),
                             message = "Kalixa aquirer doesn't support 'Notification Processing' request",
                         },
                     },
@@ -839,7 +839,7 @@ namespace Fibonatix.CommDoo.Kalixa
                         },
                         error = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction.Error() {
                             type = "PROVIDER",
-                            number = (int)ErrorCodes.InvalidTransactionTypeError,
+                            number = ErrorCodes.InvalidTransactionTypeError.ToString(),
                             message = "Kalixa aquirer doesn't support 'Evaluate Provider Response' request",
                         },
                     },
@@ -895,7 +895,7 @@ namespace Fibonatix.CommDoo.Kalixa
                         response.reconcile.ext_status = "";
                         response.reconcile.transaction.processing_status.error = new SingleReconcileResponse.Transaction.ProcessingStatus.Error() {
                             type = "PROVIDER", // "REJECTED"
-                            number = (int)ErrorCodes.ReferenceNotFoundError,
+                            number = ErrorCodes.ReferenceNotFoundError.ToString(),
                             message = "Cannot find transaction with ID = " + request.reconcile.transaction.provider_transaction_id,
                         };
                     }
@@ -908,7 +908,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                     FunctionResult = "NOK",
                                     error = new SingleReconcileResponse.Transaction.ProcessingStatus.Error() {
                                         type = "PROVIDER", // "DATA"
-                                        number = (int)Int32.Parse(resp.errorCode),
+                                        number = resp.errorCode,
                                         message = resp.errorMessage,
                                     }
                                 }
@@ -926,7 +926,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                 FunctionResult = "NOK",
                                 error = new SingleReconcileResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -942,7 +942,7 @@ namespace Fibonatix.CommDoo.Kalixa
                                 FunctionResult = "NOK",
                                 error = new SingleReconcileResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM",
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }

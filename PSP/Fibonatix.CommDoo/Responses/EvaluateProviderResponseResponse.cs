@@ -41,15 +41,16 @@ namespace Fibonatix.CommDoo.Responses
                 }
                 [XmlElement(ElementName = "Error")]
                 public Error error { get; set; }
+                
                 public class Error
                 {
                     [XmlElement(ElementName = "Type")]
                     public string type { get; set; }
                     [XmlElement(ElementName = "Number")]
-                    public int number { get; set; }
+                    public string number { get; set; }
                     [XmlElement(ElementName = "Message")]
                     public string message { get; set; }
-                }
+                }                
             }
         }
     }
