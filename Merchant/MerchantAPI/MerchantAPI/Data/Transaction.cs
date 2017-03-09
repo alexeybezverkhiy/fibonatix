@@ -40,7 +40,7 @@ namespace MerchantAPI.Data
     {
         [Key]
         public int ID { get; set; }
-        [Index("TransactionTransactionId_UIDX", IsUnique = true)]
+        [Index("TransactionTransactionId_UIDX", IsUnique = true, Order = 100)]
         [StringLength(36)]   // 36 = size of Guid type
         public string TransactionId { get; set; }
         [StringLength(36)]   // 36 = size of Guid type
@@ -49,6 +49,7 @@ namespace MerchantAPI.Data
         public string ProcessingTransactionId { get; set; }
         [StringLength(48)]
         public string MerchantTransactionId { get; set; }
+        [Index("TransactionTransactionId_UIDX", IsUnique = true, Order = 200)]
         [Index("TransactionType_IDX")]
         public TransactionType Type { get; set; }
         [Index("TransactionState_IDX")]

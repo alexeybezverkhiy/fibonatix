@@ -8,6 +8,7 @@ using MerchantAPI.Connectors;
 using MerchantAPI.Data;
 using MerchantAPI.Helpers;
 using MerchantAPI.Models;
+using MerchantAPI.Services.Exceptions;
 
 namespace MerchantAPI.Services
 {
@@ -36,8 +37,17 @@ namespace MerchantAPI.Services
 
             if (!string.IsNullOrEmpty(model.customernotifyurl))
             {
-                NotifyMerchant(endpointId, model.customernotifyurl, newStatus, model.referenceid, model.transactionid,
-                    model.transactionstatus, model.clientid, model.amount, model.currency, string.Empty, string.Empty);
+                try
+                {
+                    NotifyMerchant(endpointId, model.customernotifyurl, newStatus, model.fibonatixID,
+                        model.transactionid,
+                        model.transactionstatus, model.clientid, model.amount, model.currency, string.Empty,
+                        string.Empty);
+                }
+                catch (TransactionNotFoundException e)
+                {
+                    return new ServiceTransitionResult(HttpStatusCode.BadRequest, e.Message);
+                }
                 /*
                 string response = 
                             "status=" + ( newStatus == TransactionStatus.Approved ? "accepted" : "declined " ) + "\n" +
@@ -47,8 +57,10 @@ namespace MerchantAPI.Services
                 WebResponse webResponse = null;
                 try {
                     var webRequest = WebRequest.Create(model.customernotifyurl);
-                    webRequest.Method = "POST";     // WebRequestMethods.Http.Get;
+                    webRequest.Method = "POST";
                     webRequest.ContentType = "application/x-www-form-urlencoded";
+                    // If required by the server, set the credentials.  
+                    //webRequest.Credentials = CredentialCache.DefaultCredentials;
 
                     byte[] data = System.Text.Encoding.UTF8.GetBytes(response) ;
                     webRequest.ContentLength = data.Length;
@@ -94,6 +106,10 @@ namespace MerchantAPI.Services
             if (callbackEntity != null) return;
 
             Transaction transaction = TransactionsDataStorage.FindByTransactionId(transactionId);
+            if (transaction == null)
+            {
+                throw new TransactionNotFoundException($"ERROR: Unknown 'transactionId'[{transactionId}] to process NotifyMerchant()\n");
+            }
             NameValueCollection originalRequest = ControllerHelper.DeserializeHttpParameters(transaction.ReferenceQuery);
 
             string controlKey = WebApiConfig.Settings.MerchantControlKeys["" + endpointId];
@@ -110,13 +126,13 @@ namespace MerchantAPI.Services
                 descriptor = "CommDoo Processing Platform",
                 error_code = errorCode,
                 error_message = errorMessage,
-                name = originalRequest["first_name"] + ' ' + originalRequest["first_name"],
+                name = originalRequest["first_name"] + ' ' + originalRequest["last_name"],
                 email = originalRequest["email"],
                 approval_code = "",
                 last_four_digits = int.Parse(ControllerHelper.LastFourDigits(originalRequest["credit_card_number"])),
                 bin = "",
-                card_type = ResolveCardType(originalRequest["credit_card_number"]),
-                gate_partial_reversal = "disable",
+                card_type = ResolveCardType(originalRequest["credit_card_number"]), // cos 'credit_card_number' was eliminated earlier!
+                gate_partial_reversal = "disabled",
                 gate_partial_capture = "disabled",
                 reason_code = "",
                 processor_rrn = "",
@@ -140,35 +156,18 @@ namespace MerchantAPI.Services
             try
             {
                 var webRequest = WebRequest.Create(callbackEntity.CallbackUri + '?' + callbackEntity.CallbackQuery);
-                //webRequest.Method = WebRequestMethods.Http.Get;
-                //byte[] data = System.Text.Encoding.UTF8.GetBytes(callbackEntity.CallbackQuery);
-                //webRequest.ContentLength = data.Length;
-                // If required by the server, set the credentials.  
-                //webRequest.Credentials = CredentialCache.DefaultCredentials;
-
-                var httpWebRequest = webRequest as HttpWebRequest;
-                if (httpWebRequest != null)
-                {
-                    httpWebRequest.UserAgent = $"Fibonatix.CommDoo.WebGate {this.GetType().Assembly.GetName().Version}";
-                    httpWebRequest.KeepAlive = false;
-                }
-
-                //using (var requestStream = webRequest.GetRequestStream())
-                //{
-                    //requestStream.Write(data, 0, data.Length);
-                    //requestStream.Flush();
-                //}
+                ((HttpWebRequest)webRequest).UserAgent = $"Fibonatix.CommDoo.WebGate {this.GetType().Assembly.GetName().Version}";
+                ((HttpWebRequest)webRequest).KeepAlive = false;
 
                 webResponse = webRequest.GetResponse();
-                var httpWebResponse = webResponse as HttpWebResponse;
-                if (httpWebResponse.StatusCode == HttpStatusCode.OK)
+                if (((HttpWebResponse)webResponse).StatusCode == HttpStatusCode.OK)
                 {
                     MerchantCallbackStorage.UpdateMerchantCallback(callbackEntity, CallbackState.Delivered, null);
                 }
                 else
                 {
                     MerchantCallbackStorage.UpdateMerchantCallback(callbackEntity, CallbackState.Repeating, 
-                        $"Repeating due to HTTP status [{httpWebResponse.StatusCode}] of request to Merchant site");
+                        $"Repeating due to HTTP status [{((HttpWebResponse)webResponse).StatusCode}] of request to Merchant site");
                 }
             }
             catch (Exception e)
@@ -182,6 +181,7 @@ namespace MerchantAPI.Services
             }
         }
 
+        // Rules from https://creditcardjs.com/credit-card-type-detection
         private static string[] AmericanExpress = { "American Express", "34", "37" };
         private static string[] ChinaUnionPay = { "China UnionPay", "62", "88" };
         private static string[] DinersClub = { "Diners Club", "300", "301", "302", "303", "304", "305", "309", "36", "38", "39", "54", "55" };
@@ -219,12 +219,12 @@ namespace MerchantAPI.Services
                 if (cardNumber.StartsWith(prefix)) return Maestro[0].ToUpper();
             foreach (var prefix in Dankort)
                 if (cardNumber.StartsWith(prefix)) return Dankort[0].ToUpper();
-            foreach (var prefix in Visa)
-                if (cardNumber.StartsWith(prefix)) return Visa[0].ToUpper();
             foreach (var prefix in MasterCard)
                 if (cardNumber.StartsWith(prefix)) return MasterCard[0].ToUpper();
             foreach (var prefix in VisaElectron)
                 if (cardNumber.StartsWith(prefix)) return VisaElectron[0].ToUpper();
+            foreach (var prefix in Visa)
+                if (cardNumber.StartsWith(prefix)) return Visa[0].ToUpper();
 
             return "UNKNOWN";
         }

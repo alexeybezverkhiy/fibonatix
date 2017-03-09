@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Web;
+using MerchantAPI.App_Start;
 using MerchantAPI.Connectors;
 using MerchantAPI.Controllers.Factories;
 using MerchantAPI.Data;
@@ -17,8 +18,6 @@ namespace MerchantAPI.Services
 {
     public class SaleService
     {
-        public const string ESCAPE = "(escape('";
-
         public ServiceTransitionResult SaleSingleCurrency(int endpointId, SaleRequestModel model, string rawModel)
         {
             Transaction transactionData = new Transaction(TransactionType.Sale, model.client_orderid);
@@ -48,6 +47,10 @@ namespace MerchantAPI.Services
                 transactionData.ReferenceQuery = ControllerHelper.SerializeHttpParameters(referenceQuery);
 
                 TransactionsDataStorage.Store(transactionData);
+                if (WebApiConfig.Settings.ApplicationMode == ApplicationMode.TESTING)
+                {
+                    Cache.TestingPutRedirectUrl(transactionData.MerchantTransactionId, parameters.ToString());
+                }
 
                 // abv: cache version
                 // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo

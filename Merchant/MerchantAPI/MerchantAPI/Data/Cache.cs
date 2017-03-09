@@ -7,15 +7,16 @@ namespace MerchantAPI.Data
 {
     public class Cache
     {
-        /*
-        public static void setRedirectUrlForRequest(string merchant_orderid, string redirect_url) {
+        
+        public static void TestingPutRedirectUrl(string merchant_orderid, string redirect_url) {
             try {
-                HttpContext.Current.Cache.Insert("redirect_url:" + merchant_orderid, redirect_url, null,
+                HttpContext.Current.Cache.Insert("redirect-url:" + merchant_orderid, redirect_url, null,
                     System.Web.Caching.Cache.NoAbsoluteExpiration,
                     WebApiConfig.SettingsFactory.CreateCacheSlidingExpiration());
             } catch {
             }
         }
+        /*
         public static string getRedirectUrlForRequest(string merchant_orderid) {
             string redirectURL = null;
             try {

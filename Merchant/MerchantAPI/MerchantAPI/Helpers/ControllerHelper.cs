@@ -33,7 +33,7 @@ namespace MerchantAPI.Helpers
             string cardNumber = pairs[PARAM_CARD_NUMBER];
             if (!string.IsNullOrEmpty(cardNumber))
             {
-                pairs[PARAM_CARD_NUMBER] = "*" + LastFourDigits(cardNumber);
+                pairs[PARAM_CARD_NUMBER] = cardNumber.Substring(0, 6) + "******" + LastFourDigits(cardNumber);
             }
             return pairs;
         }
