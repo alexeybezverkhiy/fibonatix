@@ -24,20 +24,11 @@ namespace Fibonatix.CommDoo.ProcessingCom
         }
 
         private void FillRequestAuthParam(Entities.Request request, Request.Configurations configurations) {
-            if( configurations.GetConfigurationValue("testmode").ToLower() == "true") {
-                request.setParameter("account_username", "testuser");
-                request.setParameter("account_password", "testpass");
-                request.setParameter("mid", "34030");
-                request.setParameter("mid_q", "3c5957a6");
-                request.inSandBox = true;                
-            }
-            else {
-                request.setParameter("account_username", configurations.GetConfigurationValue("account_username") != null ? configurations.GetConfigurationValue("account_username") : configurations.GetConfigurationValue("login"));
-                request.setParameter("account_password", configurations.GetConfigurationValue("account_password") != null ? configurations.GetConfigurationValue("account_password") : configurations.GetConfigurationValue("password"));
-                request.setParameter("mid", configurations.GetConfigurationValue("mid"));
-                request.setParameter("mid_q", configurations.GetConfigurationValue("mid_q"));
-                request.inSandBox = false;
-            }
+            request.setParameter("account_username", configurations.GetConfigurationValue("account_username") != null ? configurations.GetConfigurationValue("account_username") : configurations.GetConfigurationValue("login"));
+            request.setParameter("account_password", configurations.GetConfigurationValue("account_password") != null ? configurations.GetConfigurationValue("account_password") : configurations.GetConfigurationValue("password"));
+            request.setParameter("mid", configurations.GetConfigurationValue("mid"));
+            request.setParameter("mid_q", configurations.GetConfigurationValue("mid_q"));
+            request.inSandBox = (configurations.GetConfigurationValue("testmode").ToLower() == "true");
         }
 
         private void FillParameter(Entities.Request request, string key, string value) {
@@ -83,12 +74,27 @@ namespace Fibonatix.CommDoo.ProcessingCom
                                 xid = responsePaResParse.result.xid;
                                 eci = responsePaResParse.result.eci;
                                 secure_hash = responsePaResParse.result.secure_hash;
+                            } else {
+                                response = new PreauthResponse() {
+                                    preAuth = new PreauthResponse.ResponseFunction() {
+                                        transaction = new PreauthResponse.Transaction() {
+                                            processing_status = new PreauthResponse.Transaction.ProcessingStatus() {
+                                                FunctionResult = "NOK",
+                                                error = new Response.Transaction.ProcessingStatus.Error() {
+                                                    message = responsePaResParse.status.message,
+                                                    number = responsePaResParse.status.code.ToString(),
+                                                    type = "PROVIDER",
+                                                },
+                                            }
+                                        }
+                                    }
+                                };
+                                return response;
                             }
                         }
                     }
                 } catch {
                 }
-
 
                 Entities.Request req = new Entities.Request();
                 FillRequestAuthParam(req, request.preAuth.configurations);
@@ -97,7 +103,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                 FillParameter(req, "amount", Fibonatix.CommDoo.Helpers.Convertors.MinorAmountToMajor((int)request.preAuth.transaction.amount, Fibonatix.CommDoo.Helpers.Currencies.currencyCodeFromString(request.preAuth.transaction.currency)));
                 FillParameter(req, "card_number", request.preAuth.transaction.cred_card_data.credit_card_number);
                 FillParameter(req, "card_expiry_month", request.preAuth.transaction.cred_card_data.expiration_month.ToString("0,2"));
-                FillParameter(req, "card_expiry_year", request.preAuth.transaction.cred_card_data.expuration_year.ToString());
+                FillParameter(req, "card_expiry_year", request.preAuth.transaction.cred_card_data.expiration_year.ToString());
                 FillParameter(req, "card_cvv2", request.preAuth.transaction.cred_card_data.cvv);
                 FillParameter(req, "ip_address", request.preAuth.transaction.customer_data.ipaddress);
                 FillParameter(req, "cavv", cavv);
@@ -141,7 +147,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                 } else {
                     response.preAuth.transaction.processing_status.error = new Response.Transaction.ProcessingStatus.Error() {
                         message = resp.getErrorMessage(),
-                        number = resp.getParameter("code").GetHashCode(),
+                        number = resp.getParameter("code"),
                         type = "PROVIDER",
                     };
                 }
@@ -153,7 +159,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                                 FunctionResult = "NOK",
                                 error = new PreauthResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -197,7 +203,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                 } else {
                     response.capture.transaction.processing_status.error = new Response.Transaction.ProcessingStatus.Error() {
                         message = resp.getErrorMessage(),
-                        number = resp.getParameter("code").GetHashCode(),
+                        number = resp.getParameter("code"),
                         type = "PROVIDER",
                     };
                 }
@@ -209,7 +215,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                                 FunctionResult = "NOK",
                                 error = new CaptureResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -241,6 +247,22 @@ namespace Fibonatix.CommDoo.ProcessingCom
                                 xid = responsePaResParse.result.xid;
                                 eci = responsePaResParse.result.eci;
                                 secure_hash = responsePaResParse.result.secure_hash;
+                            } else {
+                                response = new PurchaseResponse() {
+                                    purchase = new PurchaseResponse.ResponseFunction() {
+                                        transaction = new PurchaseResponse.Transaction() {
+                                            processing_status = new PurchaseResponse.Transaction.ProcessingStatus() {
+                                                FunctionResult = "NOK",
+                                                error = new Response.Transaction.ProcessingStatus.Error() {
+                                                    message = responsePaResParse.status.message,
+                                                    number = responsePaResParse.status.code.ToString(),
+                                                    type = "PROVIDER",
+                                                },
+                                            }
+                                        }
+                                    }
+                                };
+                                return response;
                             }
                         }
                     }
@@ -256,7 +278,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                     FillParameter(req, "amount", Fibonatix.CommDoo.Helpers.Convertors.MinorAmountToMajor((int)request.purchase.transaction.amount, Fibonatix.CommDoo.Helpers.Currencies.currencyCodeFromString(request.purchase.transaction.currency)));
                     FillParameter(req, "card_number", request.purchase.transaction.cred_card_data.credit_card_number);
                     FillParameter(req, "card_expiry_month", request.purchase.transaction.cred_card_data.expiration_month.ToString("0,2"));
-                    FillParameter(req, "card_expiry_year", request.purchase.transaction.cred_card_data.expuration_year.ToString());
+                    FillParameter(req, "card_expiry_year", request.purchase.transaction.cred_card_data.expiration_year.ToString());
                     FillParameter(req, "card_cvv2", request.purchase.transaction.cred_card_data.cvv);
                     FillParameter(req, "ip_address", request.purchase.transaction.customer_data.ipaddress);
                     if (request.purchase.transaction.recurring_transaction != null) {
@@ -319,7 +341,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                 } else {
                     response.purchase.transaction.processing_status.error = new Response.Transaction.ProcessingStatus.Error() {
                         message = resp.getErrorMessage(),
-                        number = resp.getParameter("code").GetHashCode(),
+                        number = resp.getParameter("code"),
                         type = "PROVIDER",
                     };
                 }
@@ -331,7 +353,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                                 FunctionResult = "NOK",
                                 error = new PurchaseResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM",
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -374,7 +396,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                 } else {
                     response.refund.transaction.processing_status.error = new Response.Transaction.ProcessingStatus.Error() {
                         message = resp.getErrorMessage(),
-                        number = resp.getParameter("code").GetHashCode(),
+                        number = resp.getParameter("code"),
                         type = "PROVIDER",
                     };
                 }
@@ -386,7 +408,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                                 FunctionResult = "NOK",
                                 error = new RefundResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -427,7 +449,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                 } else {
                     response.reversal.transaction.processing_status.error = new Response.Transaction.ProcessingStatus.Error() {
                         message = resp.getErrorMessage(),
-                        number = resp.getParameter("code").GetHashCode(),
+                        number = resp.getParameter("code"),
                         type = "PROVIDER",
                     };
                 }
@@ -439,7 +461,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                                 FunctionResult = "NOK",
                                 error = new ReversalResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -461,7 +483,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                 FillParameter(req, "trans_amount", Convertors.MinorAmountToMajor((int)request.enrollment_check.transaction.amount, Currencies.currencyCodeFromString(request.enrollment_check.transaction.currency)));
                 FillParameter(req, "trans_id", request.enrollment_check.transaction.reference_id);
                 FillParameter(req, "cc_num", request.enrollment_check.transaction.cred_card_data.credit_card_number);
-                FillParameter(req, "cc_exp_yr", request.enrollment_check.transaction.cred_card_data.expuration_year % 100 );
+                FillParameter(req, "cc_exp_yr", request.enrollment_check.transaction.cred_card_data.expiration_year % 100 );
                 FillParameter(req, "cc_exp_mth", request.enrollment_check.transaction.cred_card_data.expiration_month);
 
                 string result = client.ProcessRequest(req);
@@ -475,7 +497,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                                 processing_status = new EnrollmentCheck3DResponse.Transaction.ProcessingStatus() {
                                     StatusType = "Y",
                                     FunctionResult = "ACK",
-                                    ProviderTransactionID = "",
+                                    ProviderTransactionID = Guid.NewGuid().ToString(),
                                 },
                                 reference_id = request.enrollment_check.transaction.reference_id,
                                 secure3D = new Response.Transaction.Secure3D() {
@@ -493,7 +515,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                                 processing_status = new EnrollmentCheck3DResponse.Transaction.ProcessingStatus() {
                                     StatusType = (resp.status.code == 404) ? "N" : "U",
                                     FunctionResult = "ACK",
-                                    ProviderTransactionID = "",
+                                    ProviderTransactionID = Guid.NewGuid().ToString(),
                                 },
                                 reference_id = request.enrollment_check.transaction.reference_id,
                             },
@@ -508,7 +530,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                                     ProviderTransactionID = "",
                                     error = new ReversalResponse.Transaction.ProcessingStatus.Error() {
                                         type = "PROVIDER", // "DATA"
-                                        number = resp.status.code,
+                                        number = resp.status.code.ToString(),
                                         message = resp.status.message,
                                     }
                                 },
@@ -526,7 +548,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                                 FunctionResult = "NOK",
                                 error = new EnrollmentCheck3DResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }
@@ -545,7 +567,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                             FunctionResult = "NOK",
                             error = new Preauth3DResponse.Transaction.ProcessingStatus.Error() {
                                 type = "PROVIDER",
-                                number = (int)120,
+                                number = "120",
                                 message = "'Preauthorize 3D' Request Is Not Supported By Acquier",
                             }
                         }
@@ -562,7 +584,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                             FunctionResult = "NOK",
                             error = new Purchase3DResponse.Transaction.ProcessingStatus.Error() {
                                 type = "PROVIDER",
-                                number = (int)120,
+                                number = "120",
                                 message = "'Purchase 3D' Request Is Not Supported By Acquier",
                             }
                         }
@@ -581,7 +603,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                         },
                         error = new NotificationProcessingResponse.NotificationProcessingSection.Transaction.Error() {
                             type = "PROVIDER",
-                            number = (int)120,
+                            number = "120",
                             message = "'Notification Processing' Request Is Not Supported By Acquier",
                         },
                     },
@@ -601,7 +623,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                         },
                         error = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction.Error() {
                             type = "PROVIDER",
-                            number = (int)120,
+                            number = "120",
                             message = "'Evaluate Provider Response' Request Is Not Supported By Acquier",
                         },
                     },
@@ -644,7 +666,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                 } else {
                     response.reconcile.transaction.processing_status.error = new Response.Transaction.ProcessingStatus.Error() {
                         message = resp.getErrorMessage(),
-                        number = resp.getParameter("code").GetHashCode(),
+                        number = resp.getParameter("code"),
                         type = "PROVIDER",
                     };
                 }
@@ -656,7 +678,7 @@ namespace Fibonatix.CommDoo.ProcessingCom
                                 FunctionResult = "NOK",
                                 error = new SingleReconcileResponse.Transaction.ProcessingStatus.Error() {
                                     type = "SYSTEM", // "DATA"
-                                    number = (int)ex.HResult,
+                                    number = ((UInt32)ex.HResult).ToString(),
                                     message = ex.Message,
                                 }
                             }

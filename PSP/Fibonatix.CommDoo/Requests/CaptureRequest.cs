@@ -52,6 +52,15 @@ namespace Fibonatix.CommDoo.Requests
                 public string usage { get; set; }
                 [XmlElement(ElementName = "CaptureType")]
                 public string capture_type { get; set; }
+
+                // Three fields only for Borgun - RRN, DateAndTime and TerminalID
+                [XmlElement(ElementName = "RRN")]
+                public string rrn { get; set; }
+                [XmlElement(ElementName = "DateAndTime")]
+                public string datetime { get; set; }
+                [XmlElement(ElementName = "TerminalID")]
+                public string terminal { get; set; }
+
                 [XmlElement(ElementName = "RecurringTransaction")]
                 public RecurringTransaction recurring_transaction { get; set; }
                 [XmlElement(ElementName = "CreditCardData")]
@@ -106,7 +115,11 @@ namespace Fibonatix.CommDoo.Requests
                     if (capture.transaction.recurring_transaction == null) {
                         ret = RequestType.Single;
                     } else if (capture.transaction.recurring_transaction != null && capture.transaction.recurring_transaction.type != null) {
-                        if (String.Equals(capture.transaction.recurring_transaction.type, "SINGLE", StringComparison.InvariantCultureIgnoreCase)) {
+                        if (String.Equals(capture.transaction.recurring_transaction.type, "initial", StringComparison.InvariantCultureIgnoreCase) && getAcquirer() == AcquirerType.Kalixa) {
+                            ret = RequestType.Initial;
+                        } else if (String.Equals(capture.transaction.recurring_transaction.type, "repeated", StringComparison.InvariantCultureIgnoreCase) && getAcquirer() == AcquirerType.Kalixa) {
+                            ret = RequestType.Repeated;
+                        } else if (String.Equals(capture.transaction.recurring_transaction.type, "single", StringComparison.InvariantCultureIgnoreCase)) {
                             ret = RequestType.Single;
                         }
                     }

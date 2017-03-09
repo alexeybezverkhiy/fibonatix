@@ -46,6 +46,15 @@ namespace Fibonatix.CommDoo.Requests
                 public string currency { get; set; }
                 [XmlElement(ElementName = "Usage")]
                 public string usage { get; set; }
+
+                // Three fields only for Borgun - RRN, DateAndTime and TerminalID
+                [XmlElement(ElementName = "RRN")]
+                public string rrn { get; set; }
+                [XmlElement(ElementName = "DateAndTime")]
+                public string datetime { get; set; }
+                [XmlElement(ElementName = "TerminalID")]
+                public string terminal { get; set; }
+
                 [XmlElement(ElementName = "RecurringTransaction")]
                 public RecurringTransaction recurring_transaction { get; set; }
                 [XmlElement(ElementName = "Communication")]

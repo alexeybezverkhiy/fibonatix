@@ -48,6 +48,15 @@ namespace Fibonatix.CommDoo.Requests
                 public string currency { get; set; }
                 [XmlElement(ElementName = "Usage")]
                 public string usage { get; set; }
+
+                // Three fields only for Borgun - RRN, DateAndTime and TerminalID
+                [XmlElement(ElementName = "RRN")]
+                public string rrn { get; set; }
+                [XmlElement(ElementName = "DateAndTime")]
+                public string datetime { get; set; }
+                [XmlElement(ElementName = "TerminalID")]
+                public string terminal { get; set; }
+
                 [XmlElement(ElementName = "RecurringTransaction")]
                 public RecurringTransaction recurring_transaction { get; set; }
                 [XmlElement(ElementName = "CreditCardData")]
@@ -69,10 +78,14 @@ namespace Fibonatix.CommDoo.Requests
             } else if (getRequestType() == RequestType.NotSupported) {
                 string ExceptionMessage = "Unsupported 'Recurrence type' in Purchase request";
                 throw new System.ComponentModel.DataAnnotations.ValidationException(ExceptionMessage).SetCode((int)ErrorCodes.InputDataInvalidError);
-            } else if (purchase.transaction.cred_card_data == null && (getAcquirer() != AcquirerType.Kalixa || getRequestType() != RequestType.Repeated)) {
+            } else if (purchase.transaction.cred_card_data == null && 
+                    ((getAcquirer() != AcquirerType.Kalixa && getAcquirer() != AcquirerType.Borgun) || getRequestType() != RequestType.Repeated)) {
                 string ExceptionMessage = "'Credit card' section is not exist in Purchase request for Aquirer who need CreditCard data";
                 throw new System.ComponentModel.DataAnnotations.ValidationException(ExceptionMessage).SetCode((int)ErrorCodes.InputDataMissingError);
-            } else if (purchase.transaction.cred_card_data == null && purchase.transaction.credit_card_alias == null && getAcquirer() == AcquirerType.Kalixa && getRequestType() == RequestType.Repeated) {
+            } else if (purchase.transaction.cred_card_data == null && 
+                    purchase.transaction.credit_card_alias == null && 
+                    (getAcquirer() == AcquirerType.Kalixa || getAcquirer() == AcquirerType.Borgun) && 
+                    getRequestType() == RequestType.Repeated) {
                 string ExceptionMessage = "'Credit card' section and 'CreditCardAlias' field are not exist in Purchase request for Aquirer who need CreditCard or CreditCardAlias data";
                 throw new System.ComponentModel.DataAnnotations.ValidationException(ExceptionMessage).SetCode((int)ErrorCodes.InputDataMissingError);
             }

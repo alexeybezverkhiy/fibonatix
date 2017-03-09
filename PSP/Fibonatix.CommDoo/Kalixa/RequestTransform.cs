@@ -96,8 +96,36 @@ namespace Fibonatix.CommDoo.Kalixa
                     },
                 },
                 userID = getUserID(commDooAuth.preAuth.transaction.customer_data.email, commDooAuth.preAuth.transaction.customer_data.firstname, commDooAuth.preAuth.transaction.customer_data.lastname, commDooAuth.preAuth.transaction.credit_card_alias),
-                userSessionID = commDooAuth.preAuth.transaction.customer_data.email + DateTime.Now.ToBinary().ToString(),
-                userData = new Entities.Requests.Request.UserData() {
+                userSessionID = getUserID(commDooAuth.preAuth.transaction.customer_data.email, commDooAuth.preAuth.transaction.customer_data.firstname, commDooAuth.preAuth.transaction.customer_data.lastname, commDooAuth.preAuth.transaction.credit_card_alias) + DateTime.Now.ToBinary().ToString(),
+                userIP = commDooAuth.preAuth.transaction.customer_data.ipaddress,
+            };
+            if (commDooAuth.preAuth.transaction.cred_card_data != null) {
+                if(commDooAuth.preAuth.transaction.cred_card_data.credit_card_number != null && commDooAuth.preAuth.transaction.cred_card_data.cvv != null)
+                {
+                    ret.paymentAccount = new Entities.Requests.PreauthRequest.PaymentAccount()
+                    {
+                        specificPaymentAccountData = new Entities.Requests.Request.dataList() {
+                            {
+                                new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "CardNumber", value = commDooAuth.preAuth.transaction.cred_card_data.credit_card_number }
+                            },
+                            {
+                                new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "CardVerificationCode", value = commDooAuth.preAuth.transaction.cred_card_data.cvv }
+                            },
+                            {
+                                new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "HolderName", value = commDooAuth.preAuth.transaction.cred_card_data.cardholder_name }
+                            },
+                            {
+                                new Entities.Requests.Request.keyStringValuePair() { type = "keyIntValuePair", key = "ExpiryMonth", value = commDooAuth.preAuth.transaction.cred_card_data.expiration_month.ToString() }
+                            },
+                            {
+                                new Entities.Requests.Request.keyStringValuePair() { type = "keyIntValuePair", key = "ExpiryYear", value = commDooAuth.preAuth.transaction.cred_card_data.expiration_year.ToString() }
+                            },
+                        }
+                    };
+                }
+            }
+            if(commDooAuth.preAuth.transaction.customer_data != null) {
+                ret.userData = new Entities.Requests.Request.UserData() {
                     address = new Entities.Requests.Request.UserData.Address() {
                         city = commDooAuth.preAuth.transaction.customer_data.city,
                         countryCode2 = Countries.countryAlpha2String(commDooAuth.preAuth.transaction.customer_data.country),
@@ -118,30 +146,9 @@ namespace Fibonatix.CommDoo.Kalixa
                     languageCode = "EN",
                     lastname = commDooAuth.preAuth.transaction.customer_data.lastname,
                     username = commDooAuth.preAuth.transaction.customer_data.firstname + " " + commDooAuth.preAuth.transaction.customer_data.lastname,
-                },
-                userIP = commDooAuth.preAuth.transaction.customer_data.ipaddress,
-            };
-            if (commDooAuth.preAuth.transaction.cred_card_data != null) {
-                ret.paymentAccount = new Entities.Requests.PreauthRequest.PaymentAccount() {
-                    specificPaymentAccountData = new Entities.Requests.Request.dataList() {
-                        {
-                            new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "CardNumber", value = commDooAuth.preAuth.transaction.cred_card_data.credit_card_number }
-                        },
-                        {
-                            new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "CardVerificationCode", value = commDooAuth.preAuth.transaction.cred_card_data.cvv }
-                        },
-                        {
-                            new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "HolderName", value = commDooAuth.preAuth.transaction.cred_card_data.cardholder_name }
-                        },
-                        {
-                            new Entities.Requests.Request.keyStringValuePair() { type = "keyIntValuePair", key = "ExpiryMonth", value = commDooAuth.preAuth.transaction.cred_card_data.expiration_month.ToString() }
-                        },
-                        {
-                            new Entities.Requests.Request.keyStringValuePair() { type = "keyIntValuePair", key = "ExpiryYear", value = commDooAuth.preAuth.transaction.cred_card_data.expuration_year.ToString() }
-                        },
-                    }
                 };
             }
+
             return ret;
         }
 
@@ -223,8 +230,35 @@ namespace Fibonatix.CommDoo.Kalixa
                 },
                 userID = getUserID(commDooEnroll.enrollment_check.transaction.customer_data.email, commDooEnroll.enrollment_check.transaction.customer_data.firstname,
                         commDooEnroll.enrollment_check.transaction.customer_data.lastname, commDooEnroll.enrollment_check.transaction.credit_card_alias),
-                userSessionID = commDooEnroll.enrollment_check.transaction.customer_data.email + DateTime.Now.ToBinary().ToString(),
-                userData = new Entities.Requests.Request.UserData() {
+                userSessionID = getUserID(commDooEnroll.enrollment_check.transaction.customer_data.email, commDooEnroll.enrollment_check.transaction.customer_data.firstname,
+                        commDooEnroll.enrollment_check.transaction.customer_data.lastname, commDooEnroll.enrollment_check.transaction.credit_card_alias) + DateTime.Now.ToBinary().ToString(),
+                userIP = commDooEnroll.enrollment_check.transaction.customer_data.ipaddress,
+            };
+
+            if (commDooEnroll.enrollment_check.transaction.cred_card_data != null) {
+                ret.paymentAccount = new Entities.Requests.EnrollmentCheckRequest.PaymentAccount() {
+                    specificPaymentAccountData = new Entities.Requests.Request.dataList() {
+                        {
+                            new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "CardNumber", value = commDooEnroll.enrollment_check.transaction.cred_card_data.credit_card_number }
+                        },
+                        {
+                            new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "CardVerificationCode", value = commDooEnroll.enrollment_check.transaction.cred_card_data.cvv }
+                        },
+                        {
+                            new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "HolderName", value = commDooEnroll.enrollment_check.transaction.cred_card_data.cardholder_name }
+                        },
+                        {
+                            new Entities.Requests.Request.keyStringValuePair() { type = "keyIntValuePair", key = "ExpiryMonth", value = commDooEnroll.enrollment_check.transaction.cred_card_data.expiration_month.ToString() }
+                        },
+                        {
+                            new Entities.Requests.Request.keyStringValuePair() { type = "keyIntValuePair", key = "ExpiryYear", value = commDooEnroll.enrollment_check.transaction.cred_card_data.expiration_year.ToString() }
+                        },
+                    }
+                };
+            }
+
+            if(commDooEnroll.enrollment_check.transaction.customer_data != null) {
+                ret.userData = new Entities.Requests.Request.UserData() {
                     address = new Entities.Requests.Request.UserData.Address() {
                         city = commDooEnroll.enrollment_check.transaction.customer_data.city,
                         countryCode2 = Countries.countryAlpha2String(commDooEnroll.enrollment_check.transaction.customer_data.country),
@@ -245,29 +279,6 @@ namespace Fibonatix.CommDoo.Kalixa
                     languageCode = "EN",
                     lastname = commDooEnroll.enrollment_check.transaction.customer_data.lastname,
                     username = commDooEnroll.enrollment_check.transaction.customer_data.firstname + " " + commDooEnroll.enrollment_check.transaction.customer_data.lastname,
-                },
-                userIP = commDooEnroll.enrollment_check.transaction.customer_data.ipaddress,
-            };
-
-            if (commDooEnroll.enrollment_check.transaction.cred_card_data != null) {
-                ret.paymentAccount = new Entities.Requests.EnrollmentCheckRequest.PaymentAccount() {
-                    specificPaymentAccountData = new Entities.Requests.Request.dataList() {
-                        {
-                            new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "CardNumber", value = commDooEnroll.enrollment_check.transaction.cred_card_data.credit_card_number }
-                        },
-                        {
-                            new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "CardVerificationCode", value = commDooEnroll.enrollment_check.transaction.cred_card_data.cvv }
-                        },
-                        {
-                            new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "HolderName", value = commDooEnroll.enrollment_check.transaction.cred_card_data.cardholder_name }
-                        },
-                        {
-                            new Entities.Requests.Request.keyStringValuePair() { type = "keyIntValuePair", key = "ExpiryMonth", value = commDooEnroll.enrollment_check.transaction.cred_card_data.expiration_month.ToString() }
-                        },
-                        {
-                            new Entities.Requests.Request.keyStringValuePair() { type = "keyIntValuePair", key = "ExpiryYear", value = commDooEnroll.enrollment_check.transaction.cred_card_data.expuration_year.ToString() }
-                        },
-                    }
                 };
             }
 

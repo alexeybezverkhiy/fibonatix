@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Fibonatix.CommDoo.Test
 {
-    class KalixaTests
+    class BorgunTests
     {
         string reference_id = "0000-0000";
         string amount = "133";
@@ -15,56 +15,68 @@ namespace Fibonatix.CommDoo.Test
                 "<Configurations>" +
                 "<Configuration>" +
                 "<Name>login</Name>" +
-                "<Value>PSFibonatixSystemUser</Value>" +
+                "<Value>fibonatix</Value>" +
                 "</Configuration>" +
                 "<Configuration>" +
                 "<Name>password</Name>" +
-                "<Value>ijdEjd@Jferfhdg</Value>" +
+                "<Value>ark.138</Value>" +
+                "</Configuration>" +
+                "<Configuration>" +
+                "<Name>MerchantContractNumber</Name>" +
+                "<Value>9256684</Value>" +
+                "</Configuration>" +
+                "<Configuration>" +
+                "<Name>Processor</Name>" +
+                "<Value>247</Value>" +
+                "</Configuration>" +
+                "<Configuration>" +
+                "<Name>MerchantId</Name>" +
+                "<Value>247</Value>" +
+                "</Configuration>" +
+                "<Configuration>" +
+                "<Name>TerminalN3DS</Name>" +
+                "<Value>1</Value>" +
+                "</Configuration>" +
+                "<Configuration>" +
+                "<Name>Terminal3DS</Name>" +
+                "<Value>2</Value>" +
+                "</Configuration>" +
+                "<Configuration>" +
+                "<Name>TerminalRecurrent</Name>" +
+                "<Value>3</Value>" +
                 "</Configuration>" +
                 "<Configuration>" +
                 "<Name>acquirer</Name>" +
-                "<Value>kalixa</Value>" +
+                "<Value>Borgun</Value>" +
                 "</Configuration>" +
                 "<Configuration>" +
                 "<Name>testmode</Name>" +
                 "<Value>true</Value>" +
-                "</Configuration>" +
-                "<Configuration>" +
-                "<Name>merchantid</Name>" +
-                "<Value>Fibonatix</Value>" +
-                "</Configuration>" +
-                "<Configuration>" +
-                "<Name>shopid</Name>" +
-                "<Value>Fibonatix</Value>" +
                 "</Configuration>" +
                 "</Configurations>";
 
 
         internal static class CardsNumbers
         {
-            public const string VisaSuccessfulTransaction = "4200000000000000";
+            public const string VisaSuccessfulTransaction = "5587402000012011"; // 4222222222222222
+            // public const string VisaSuccessfulTransaction = "6270670099999815"; // 4222222222222222
             public const string VisaDeclinedTransaction = "4111111111111111";
             public const string MasterCardSuccessfulTransaction = "5555555555554444";
             public const string MasterCardDeclinedTransaction = "5105105105105100";
-            public const string Visa3dSecureEnrolled = "4711100000000000";
+            public const string Visa3dSecureEnrolled = "4240051496047240";
         }
 
-        public const string VisaCard =
+        string VisaCard =
                 "<CreditCardData>" +
-                "<CVV>111</CVV>" +
-                "<ExpirationYear>2019</ExpirationYear>" +
-                "<ExpirationMonth>01</ExpirationMonth>" +
+                "<CVV>415</CVV>" +
+                "<ExpirationYear>18</ExpirationYear>" +
+                "<ExpirationMonth>09</ExpirationMonth>" +
                 "<CardHolderName>John Doe</CardHolderName>" +
                 "<CreditCardNumber>" + CardsNumbers.VisaSuccessfulTransaction + "</CreditCardNumber>" +
                 "<CreditCardType>Visa</CreditCardType>" +
                 "</CreditCardData>";
 
-        public const string VisaCardSimple =
-                "<CreditCardData>" +
-                "<CreditCardType>Visa</CreditCardType>" +
-                "</CreditCardData>";
-
-        public const string VisaCard3D =
+        string VisaCard3D =
                 "<CreditCardData>" +
                 "<CVV>111</CVV>" +
                 "<ExpirationYear>2019</ExpirationYear>" +
@@ -75,7 +87,21 @@ namespace Fibonatix.CommDoo.Test
                 "</CreditCardData>";
 
 
-        public Responses.PreauthResponse PreauthTest() {
+        static string datePatt = @"yyMMddHHmmss";
+        public string getCurrentDateAndTime() {
+            var utc = DateTime.Now.ToUniversalTime();
+            return utc.ToString(datePatt);
+        }
+
+        public string getRRN() {
+            return "FIBO" + String.Format("{0,8:D8}", ((UInt64)DateTime.Now.ToBinary() ) % 100000000);
+        }
+
+
+        public Responses.PreauthResponse PreauthTest(string RRN = null, string dt = null) {
+
+            string datetime = dt != null ? dt : getCurrentDateAndTime();
+            string rrn = RRN != null ? RRN : getRRN();
 
             string xml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -87,7 +113,9 @@ namespace Fibonatix.CommDoo.Test
                 "<Amount>" + amount + "</Amount>" +
                 "<Currency>EUR</Currency>" +
                 "<Usage>Usage Test</Usage>" +
-                VisaCard +
+                "<RRN>" + rrn + "</RRN>" +
+                "<DateAndTime>" + datetime + "</DateAndTime>" +
+                VisaCard + 
                 "<CustomerData>" +
                 "<Firstname>John</Firstname>" +
                 "<Lastname>Doe</Lastname>" +
@@ -113,7 +141,55 @@ namespace Fibonatix.CommDoo.Test
             return res;
         }
 
-        public Responses.CaptureResponse CaptureTest(string providerID = null, string captureType = "FULL") {
+        public Responses.PreauthResponse PreauthAfterEnrollTest(string MD, string PaRes) {
+
+            string xml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                "<Request>" +
+                "<Preauthorization>" +
+                configuration +
+                "<Transaction>" +
+                "<ReferenceID>" + reference_id + "-PREA-" + String.Format("{0,8:X8}", DateTime.Now.ToBinary()) + "</ReferenceID>" +
+                "<Amount>" + amount + "</Amount>" +
+                "<Currency>EUR</Currency>" +
+                "<Usage>Usage Test</Usage>" +
+                VisaCard +
+                "<ThreeDSecure>" +
+                "<PARes>" + PaRes + "</PARes>" +
+                "<MD>" + MD + "</MD>" +
+                "</ThreeDSecure>" +
+                "<CustomerData>" +
+                "<Firstname>John</Firstname>" +
+                "<Lastname>Doe</Lastname>" +
+                "<Street>Trump bld. 1</Street>" +
+                "<PostalCode>10000</PostalCode>" +
+                "<City>New York</City>" +
+                "<Country>USA</Country>" +
+                "<State>NY</State>" +
+                "<Email>john.doe@trump.com</Email>" +
+                "<Phone>+18001234567</Phone>" +
+                "<IPAddress>8.8.8.8</IPAddress>" +
+                "</CustomerData>" +
+                "</Transaction>" +
+                "</Preauthorization>" +
+                "</Request>";
+
+            Requests.PreauthRequest request = Requests.PreauthRequest.DeserializeFromString(xml);
+            var conn = ConnectorFactory.Create(request);
+            var res = conn.Preauthorize(request);
+
+            Console.WriteLine("Preauthorize request: {0}", xml);
+            Console.WriteLine("Preauthorize response: {0}", res.getXml());
+            return res;
+        }
+
+        public Responses.CaptureResponse CaptureTest(Responses.PreauthResponse response = null) {
+            
+            string datetime = response != null ? response.preAuth.transaction.processing_status.DateAndTime : getCurrentDateAndTime();
+            string rrn = response != null ? response.preAuth.transaction.processing_status.RRN : getRRN();
+            string terminal = response != null ? response.preAuth.transaction.processing_status.TerminalID : "1";
+            string providerID = response != null ? response.preAuth.transaction.processing_status.ProviderTransactionID : null;
+            string authCode = response != null ? response.preAuth.transaction.processing_status.AuthCode : null;
 
             string xml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -123,10 +199,13 @@ namespace Fibonatix.CommDoo.Test
                 "<Transaction>" +
                 "<ReferenceID>" + reference_id + "-CAPT-" + String.Format("{0,8:X8}", DateTime.Now.ToBinary()) + "</ReferenceID>" +
                 "<ProviderTransactionID>" + (providerID != null ? providerID : (reference_id + "-" + String.Format("{0,8:X8}", DateTime.Now.ToBinary()))) + "</ProviderTransactionID>" +
+                "<AuthCode>" + (authCode != null ? authCode : (reference_id + "-" + String.Format("{0,8:X8}", DateTime.Now.ToBinary()))) + "</AuthCode>" +
                 "<Amount>" + amount + "</Amount>" +
                 "<Currency>EUR</Currency>" +
                 "<Usage>Capture test</Usage>" +
-                "<CaptureType>" + captureType + "</CaptureType>" +
+                "<RRN>" + rrn + "</RRN>" +
+                "<DateAndTime>" + datetime + "</DateAndTime>" +
+                "<TerminalID>" + terminal + "</TerminalID>" +
                 "</Transaction>" +
                 "</Capture>" +
                 "</Request>";
@@ -143,15 +222,13 @@ namespace Fibonatix.CommDoo.Test
         public void PreauthPlusCaptureTest() {
 
             var preRes = PreauthTest();
-            var capRes = CaptureTest(preRes.preAuth.transaction.processing_status.ProviderTransactionID);
-        }
-        public void PreauthPlusPartialCaptureTest() {
-
-            var preRes = PreauthTest();
-            var capRes = CaptureTest(preRes.preAuth.transaction.processing_status.ProviderTransactionID, "PARTIAL");
+            var capRes = CaptureTest(preRes);
         }
 
-        public Responses.PurchaseResponse PurchaseTest() {
+        public Responses.PurchaseResponse PurchaseTest(string RRN = null, string dt = null) {
+
+            string datetime = dt != null ? dt : getCurrentDateAndTime();
+            string rrn = RRN != null ? RRN : getRRN();
 
             string xml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -163,6 +240,8 @@ namespace Fibonatix.CommDoo.Test
                 "<Amount>" + amount + "</Amount>" +
                 "<Currency>EUR</Currency>" +
                 "<Usage>Usage Test</Usage>" +
+                "<RRN>" + rrn + "</RRN>" +
+                "<DateAndTime>" + datetime + "</DateAndTime>" +
                 VisaCard +
                 "<CustomerData>" +
                 "<Firstname>John</Firstname>" +
@@ -190,7 +269,7 @@ namespace Fibonatix.CommDoo.Test
             return res;
         }
 
-        public Responses.ReversalResponse ReversalTest(string providerID = null) {
+        public Responses.ReversalResponse ReversalTest(Responses.PreauthResponse response = null) {
 
             string xml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -199,10 +278,13 @@ namespace Fibonatix.CommDoo.Test
                 configuration +
                 "<Transaction>" +
                 "<ReferenceID>" + reference_id + "-VOID-" + String.Format("{0,8:X8}", DateTime.Now.ToBinary()) + "</ReferenceID>" +
-                "<ProviderTransactionID>" + (providerID != null ? providerID : (reference_id + "-" + String.Format("{0,8:X8}", DateTime.Now.ToBinary()))) + "</ProviderTransactionID>" +
+                "<ProviderTransactionID>" + (response != null ? response.preAuth.transaction.processing_status.ProviderTransactionID : (reference_id + "-" + String.Format("{0,8:X8}", DateTime.Now.ToBinary()))) + "</ProviderTransactionID>" +
                 "<Amount>" + amount + "</Amount>" +
                 "<Currency>EUR</Currency>" +
-                "<Usage>Capture test (unexisting ReferenceID)</Usage>" +
+                "<Usage>Reversal test</Usage>" +
+                "<RRN>" + (response != null ? response.preAuth.transaction.processing_status.RRN : "") + "</RRN>" +
+                "<DateAndTime>" + (response != null ? response.preAuth.transaction.processing_status.DateAndTime : "") + "</DateAndTime>" +
+                "<TerminalID>" + (response != null ? response.preAuth.transaction.processing_status.TerminalID : "") + "</TerminalID>" +
                 "</Transaction>" +
                 "</Reversal>" +
                 "</Request>";
@@ -217,7 +299,7 @@ namespace Fibonatix.CommDoo.Test
             return res;
         }
 
-        public Responses.RefundResponse RefundTest(string providerID = null) {
+        public Responses.RefundResponse RefundTest(Responses.PurchaseResponse response) {
 
             string xml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -226,11 +308,13 @@ namespace Fibonatix.CommDoo.Test
                 configuration +
                 "<Transaction>" +
                 "<ReferenceID>" + reference_id + "-RFND-" + String.Format("{0,8:X8}", DateTime.Now.ToBinary()) + "</ReferenceID>" +
-                "<ProviderTransactionID>" + (providerID != null ? providerID : (reference_id + "-" + String.Format("{0,8:X8}", DateTime.Now.ToBinary()))) + "</ProviderTransactionID>" +
+                "<ProviderTransactionID>" + (response != null ? response.purchase.transaction.processing_status.ProviderTransactionID : (reference_id + "-" + String.Format("{0,8:X8}", DateTime.Now.ToBinary()))) + "</ProviderTransactionID>" +
                 "<Amount>" + amount + "</Amount>" +
                 "<Currency>EUR</Currency>" +
-                "<Usage>Capture test (unexisting ReferenceID)</Usage>" +
-                VisaCardSimple +
+                "<Usage>Refuns test</Usage>" +
+                "<RRN>" + (response != null ? response.purchase.transaction.processing_status.RRN : "") + "</RRN>" +
+                "<DateAndTime>" + (response != null ? response.purchase.transaction.processing_status.DateAndTime : "") + "</DateAndTime>" +
+                "<TerminalID>" + (response != null ? response.purchase.transaction.processing_status.TerminalID : "") + "</TerminalID>" +
                 "</Transaction>" +
                 "</Refund>" +
                 "</Request>";
@@ -247,15 +331,18 @@ namespace Fibonatix.CommDoo.Test
 
         public void PreauthPlusReversalTest() {
             var preRes = PreauthTest();
-            var revRes = ReversalTest(preRes.preAuth.transaction.processing_status.ProviderTransactionID);
+            var revRes = ReversalTest(preRes);
         }
         public void PurchasePlusRefundTest() {
             var purchRes = PurchaseTest();
-            var refundRes = RefundTest(purchRes.purchase.transaction.processing_status.ProviderTransactionID);
+            var refundRes = RefundTest(purchRes);
         }
 
+        public Responses.PreauthResponse PreauthRecurrenceTest(string recc = "SINGLE", Responses.PreauthResponse reponse = null) {
 
-        public Responses.PreauthResponse PreauthRecurrenceTest(string recc = "SINGLE", string credit_card_alias = "", string card_data = KalixaTests.VisaCard) {
+            string dt = reponse != null ? reponse.preAuth.transaction.processing_status.DateAndTime : getCurrentDateAndTime();
+            string RRN = reponse != null ? reponse.preAuth.transaction.processing_status.RRN : getRRN();
+            string providerID = ((recc == "REPEATED") ? reponse.preAuth.transaction.processing_status.ProviderTransactionID : "");
 
             string xml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -264,14 +351,17 @@ namespace Fibonatix.CommDoo.Test
                 configuration +
                 "<Transaction>" +
                 "<ReferenceID>" + reference_id + "-RPREA-" + String.Format("{0,8:X8}", DateTime.Now.ToBinary()) + "</ReferenceID>" +
-                credit_card_alias +
+                "<ProviderTransactionID>" + (providerID != null ? providerID : (reference_id + "-" + String.Format("{0,8:X8}", DateTime.Now.ToBinary()))) + "</ProviderTransactionID>" +
                 "<Amount>" + amount + "</Amount>" +
                 "<Currency>EUR</Currency>" +
                 "<Usage>Usage Test</Usage>" +
+                "<RRN>" + RRN + "</RRN>" +
+                "<DateAndTime>" + dt + "</DateAndTime>" +
                 "<RecurringTransaction>" +
                 "<Type>" + recc + "</Type>" +
                 "</RecurringTransaction>" +
-                card_data +
+                ((recc != "REPEATED") ? VisaCard : ("<CreditCardAlias>" + (reponse != null ? reponse.preAuth.transaction.processing_status.CreditCardAlias : "") + "</CreditCardAlias>")) +
+                ((recc != "REPEATED") ? (
                 "<CustomerData>" +
                 "<Firstname>John</Firstname>" +
                 "<Lastname>Doe</Lastname>" +
@@ -283,7 +373,7 @@ namespace Fibonatix.CommDoo.Test
                 "<Email>john.doe@trump.com</Email>" +
                 "<Phone>+18001234567</Phone>" +
                 "<IPAddress>8.8.8.8</IPAddress>" +
-                "</CustomerData>" +
+                "</CustomerData>") : "" ) +
                 "</Transaction>" +
                 "</Preauthorization>" +
                 "</Request>";
@@ -297,7 +387,11 @@ namespace Fibonatix.CommDoo.Test
             return res;
         }
 
-        public Responses.PurchaseResponse PurchaseRecurrenceTest(string recc = "SINGLE", string providerID = null) {
+        public Responses.PurchaseResponse PurchaseRecurrenceTest(string recc = "SINGLE", Responses.PurchaseResponse reponse = null) {
+
+            string dt = reponse != null ? reponse.purchase.transaction.processing_status.DateAndTime : getCurrentDateAndTime();
+            string RRN = reponse != null ? reponse.purchase.transaction.processing_status.RRN : getRRN();
+            string providerID = ((recc == "REPEATED") ? reponse.purchase.transaction.processing_status.ProviderTransactionID : "");
 
             string xml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -310,10 +404,13 @@ namespace Fibonatix.CommDoo.Test
                 "<Amount>" + amount + "</Amount>" +
                 "<Currency>EUR</Currency>" +
                 "<Usage>Usage Test</Usage>" +
+                "<RRN>" + RRN + "</RRN>" +
+                "<DateAndTime>" + dt + "</DateAndTime>" +
                 "<RecurringTransaction>" +
                 "<Type>" + recc + "</Type>" +
                 "</RecurringTransaction>" +
-                VisaCard +
+                ((recc != "REPEATED") ? VisaCard : ("<CreditCardAlias>" + (reponse != null ? reponse.purchase.transaction.processing_status.CreditCardAlias : "") + "</CreditCardAlias>")) +
+                ((recc != "REPEATED") ? (
                 "<CustomerData>" +
                 "<Firstname>John</Firstname>" +
                 "<Lastname>Doe</Lastname>" +
@@ -325,43 +422,10 @@ namespace Fibonatix.CommDoo.Test
                 "<Email>john.doe@trump.com</Email>" +
                 "<Phone>+18001234567</Phone>" +
                 "<IPAddress>8.8.8.8</IPAddress>" +
-                "</CustomerData>" +
+                "</CustomerData>") : "") +
                 "</Transaction>" +
                 "</Purchase>" +
                 "</Request>";
-
-            xml =
-"<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-"<Request>" +
-"<Purchase>" +
-"<Configurations>" +
-"<Configuration><Name>acquirer</Name><Value>Kalixa</Value></Configuration>" +
-"<Configuration><Name>merchantid</Name><Value>Fibonatix</Value></Configuration>" +
-"<Configuration><Name>password</Name><Value>ijdEjd@Jferfhdg</Value></Configuration>" +
-"<Configuration><Name>testmode</Name><Value>true</Value></Configuration>" +
-"<Configuration><Name>login</Name><Value>PSFibonatixSystemUser</Value></Configuration>" +
-"<Configuration><Name>shopid</Name><Value>Fibonatix</Value></Configuration>" +
-"</Configurations>" +
-"<Transaction>" +
-"<ReferenceID>" + reference_id + "-RPRCH-" + String.Format("{0,8:X8}", DateTime.Now.ToBinary()) + "</ReferenceID>" +
-"<ProviderTransactionID>" + (providerID != null ? providerID : (reference_id + "-" + String.Format("{0,8:X8}", DateTime.Now.ToBinary()))) + "</ProviderTransactionID>" +
-"<CreditCardAlias>4201081114</CreditCardAlias>" +
-"<Amount>8400</Amount>" +
-"<Currency>EUR</Currency>" +
-"<Usage>Testkauf</Usage>" +
-"<RecurringTransaction>" +
-"<Type>REPEATED</Type>" +
-"</RecurringTransaction>" +
-"<CreditCardData>" +
-"<CreditCardType>Visa</CreditCardType>" +
-"</CreditCardData>" +
-"<CustomerData>" +
-"<IPAddress>127.0.0.1</IPAddress>" +
-"</CustomerData>" +
-"</Transaction>" +
-"</Purchase>" +
-"</Request>";
-
 
             Requests.PurchaseRequest request = Requests.PurchaseRequest.DeserializeFromString(xml);
             var conn = ConnectorFactory.Create(request);
@@ -411,7 +475,6 @@ namespace Fibonatix.CommDoo.Test
 
             return res;
         }
-
 
         public Responses.Preauth3DResponse Preauth3DTest() {
 
@@ -608,7 +671,8 @@ namespace Fibonatix.CommDoo.Test
                 configuration +
                 "<Transaction>" +
                 "<ReferenceID>0000-0000-PRCH-88D44E6CEF3D0FAF</ReferenceID>" +
-                "<ProviderTransactionID>33da9e79-7750-4ffc-a20d-f7815f8fff90</ProviderTransactionID>" +
+                "<ProviderTransactionID>140</ProviderTransactionID>" +
+                "<RRN>FIBO00001033</RRN>" +
                 "</Transaction>" +
                 "</Reconcile>" +
                 "</Request>";
@@ -624,25 +688,23 @@ namespace Fibonatix.CommDoo.Test
         }
 
 
-
         public void FullTests() {
             // PreauthTest();               // ACK
             // CaptureTest();               // NOK
-            // PreauthPlusCaptureTest();    // ACK + ACK
-            // PreauthPlusPartialCaptureTest();    // ACK + NOK
-            // PurchaseTest();              // ACK
+            PreauthPlusCaptureTest();    // ACK + ACK
+            PurchaseTest();              // ACK
             // ReversalTest();              // NOK
             // RefundTest();                // NOK
-            // PreauthPlusReversalTest();
-            // PurchasePlusRefundTest();    // ACK + ACK
+            PreauthPlusReversalTest();   // ACK + ACK
+            PurchasePlusRefundTest();    // ACK + ACK
 
             // PreauthRecurrenceTest("SINGLE");        // ACK
-            // PreauthRecurrenceTest("INITIAL");       // NOK
-            // PreauthRecurrenceTest("REPEATED", "<CreditCardAlias>1776536195</CreditCardAlias>", "");      // NOK
+            // var r = PreauthRecurrenceTest("INITIAL");       // ACK
+            // PreauthRecurrenceTest("REPEATED", r);      // ACK
 
-            PurchaseRecurrenceTest("SINGLE");               // ACK
-            // var r = PurchaseRecurrenceTest("INITIAL");      // NOK
-            // PurchaseRecurrenceTest("REPEATED", r.purchase.transaction.processing_status.ProviderTransactionID);      // NOL
+            // PurchaseRecurrenceTest("SINGLE");               // ACK
+            // var r = PurchaseRecurrenceTest("INITIAL");      // ACK
+            // PurchaseRecurrenceTest("REPEATED", r);      // ACK
 
             // EnrollmentCheckTest();   // ACK
             // Preauth3DTest();         // NOK
@@ -650,6 +712,9 @@ namespace Fibonatix.CommDoo.Test
             // PurchaseRecurrence3DTest("SINGLE");             // NOK
             // var r = PurchaseRecurrence3DTest("INITIAL");    // NOK
             // PurchaseRecurrence3DTest("REPEATED", r.purchase3D.transaction.processing_status.ProviderTransactionID);   // NOK
+
+            // var r = EnrollmentCheckTest();   // ACK
+            // PreauthAfterEnrollTest(r.enrolment_check.transaction.secure3D.md, "success");         // NOK
 
             // NotificationProcessing();   // NOK
             // EvaluateProviderResponse(); // NOK

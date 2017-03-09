@@ -18,7 +18,7 @@ namespace Fibonatix.CommDoo
                             FunctionResult = "NOK",
                             error = new PreauthResponse.Transaction.ProcessingStatus.Error() {
                                 type = "PROVIDER", // "DATA"
-                                number = (int)120,
+                                number = "120",
                                 message = "Not Supported Acquier",
                             }
                         }
@@ -35,7 +35,7 @@ namespace Fibonatix.CommDoo
                             FunctionResult = "NOK",
                             error = new CaptureResponse.Transaction.ProcessingStatus.Error() {
                                 type = "PROVIDER", // "DATA"
-                                number = (int)120,
+                                number = "120",
                                 message = "Not Supported Acquier",
                             }
                         }
@@ -52,7 +52,7 @@ namespace Fibonatix.CommDoo
                             FunctionResult = "NOK",
                             error = new PurchaseResponse.Transaction.ProcessingStatus.Error() {
                                 type = "PROVIDER",
-                                number = (int)120,
+                                number = "120",
                                 message = "Not Supported Acquier",
                             }
                         }
@@ -69,7 +69,7 @@ namespace Fibonatix.CommDoo
                             FunctionResult = "NOK",
                             error = new RefundResponse.Transaction.ProcessingStatus.Error() {
                                 type = "PROVIDER",
-                                number = (int)120,
+                                number = "120",
                                 message = "Not Supported Acquier",
                             }
                         }
@@ -86,7 +86,7 @@ namespace Fibonatix.CommDoo
                             FunctionResult = "NOK",
                             error = new ReversalResponse.Transaction.ProcessingStatus.Error() {
                                 type = "PROVIDER",
-                                number = (int)120,
+                                number = "120",
                                 message = "Not Supported Acquier",
                             }
                         }
@@ -103,7 +103,7 @@ namespace Fibonatix.CommDoo
                             FunctionResult = "NOK",
                             error = new EnrollmentCheck3DResponse.Transaction.ProcessingStatus.Error() {
                                 type = "PROVIDER",
-                                number = (int)120,
+                                number = "120",
                                 message = "Not Supported Acquier",
                             }
                         }
@@ -120,7 +120,7 @@ namespace Fibonatix.CommDoo
                             FunctionResult = "NOK",
                             error = new Preauth3DResponse.Transaction.ProcessingStatus.Error() {
                                 type = "PROVIDER",
-                                number = (int)120,
+                                number = "120",
                                 message = "Not Supported Acquier",
                             }
                         }
@@ -137,7 +137,7 @@ namespace Fibonatix.CommDoo
                             FunctionResult = "NOK",
                             error = new Purchase3DResponse.Transaction.ProcessingStatus.Error() {
                                 type = "PROVIDER",
-                                number = (int)120,
+                                number = "120",
                                 message = "Not Supported Acquier",
                             }
                         }
@@ -156,7 +156,7 @@ namespace Fibonatix.CommDoo
                         },
                         error = new NotificationProcessingResponse.NotificationProcessingSection.Transaction.Error() {
                             type = "PROVIDER",
-                            number = (int)120,
+                            number = "120",
                             message = "Not Supported Acquier",
                         },
                     },
@@ -176,7 +176,7 @@ namespace Fibonatix.CommDoo
                         },
                         error = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction.Error() {
                             type = "PROVIDER",
-                            number = (int)120,
+                            number = "120",
                             message = "Not Supported Acquier",
                         },
                     },
@@ -193,7 +193,7 @@ namespace Fibonatix.CommDoo
                             FunctionResult = "NOK",
                             error = new SingleReconcileResponse.Transaction.ProcessingStatus.Error() {
                                 type = "PROVIDER",
-                                number = (int)120,
+                                number = "120",
                                 message = "Not Supported Acquier",
                             }
                         }

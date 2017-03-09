@@ -21,6 +21,7 @@ namespace Fibonatix.CommDoo.Requests
         Genesis         = 1,
         Kalixa          = 2,
         ProcessingCom   = 3,
+        Borgun          = 4,
     }
 
     [Serializable()]
@@ -65,6 +66,8 @@ namespace Fibonatix.CommDoo.Requests
                         String.Equals(f.value, "Processing.Com", StringComparison.OrdinalIgnoreCase) ||
                         String.Equals(f.value, "ProcessingCom", StringComparison.OrdinalIgnoreCase))
                         return AcquirerType.ProcessingCom;
+                    else if (String.Equals(f.value, "Borgun", StringComparison.OrdinalIgnoreCase))
+                        return AcquirerType.Borgun;
                     else
                         return AcquirerType.Unknown;
                 } else
@@ -111,7 +114,7 @@ namespace Fibonatix.CommDoo.Requests
             [XmlElement(ElementName = "CVV")]
             public string cvv { get; set; }
             [XmlElement(ElementName = "ExpirationYear")]
-            public int expuration_year { get; set; }
+            public int expiration_year { get; set; }
             [XmlElement(ElementName = "ExpirationMonth")]
             public int expiration_month { get; set; }
             [XmlElement(ElementName = "CardHolderName")]
@@ -130,8 +133,17 @@ namespace Fibonatix.CommDoo.Requests
             public string term_url { get; set; }
             [XmlElement(ElementName = "AcsUrl")]
             public string acs_url { get; set; }
-            [XmlElement(ElementName = "EnrollmentRes")]
-            public string enrolment_res { get; set; }
+            [XmlElement(ElementName = "EnrollmentStatus")]
+            public string enrolment_status { get; set; }
+
+            [XmlElement(ElementName = "SecurityLevelInd")]
+            public string security_level { get; set; }
+            [XmlElement(ElementName = "UCAF")]
+            public string ucaf { get; set; }
+            [XmlElement(ElementName = "CAVV")]
+            public string cavv { get; set; }
+            [XmlElement(ElementName = "XID")]
+            public string xid { get; set; }
         }
 
         public class Communication3D

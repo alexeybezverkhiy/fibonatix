@@ -47,13 +47,21 @@ namespace Fibonatix.CommDoo.Requests
                 public string credit_card_alias { get; set; }
                 [XmlElement(ElementName = "Amount")]
                 public decimal amount { get; set; }
-                [Required]
                 [XmlElement(ElementName = "Currency")]
                 public string currency { get; set; }
                 [XmlElement(ElementName = "Usage")]
                 public string usage { get; set; }
                 [XmlElement(ElementName = "RefundType")]
                 public string refund_type { get; set; }
+
+                // Three fields only for Borgun - RRN, DateAndTime and TerminalID
+                [XmlElement(ElementName = "RRN")]
+                public string rrn { get; set; }
+                [XmlElement(ElementName = "DateAndTime")]
+                public string datetime { get; set; }
+                [XmlElement(ElementName = "TerminalID")]
+                public string terminal { get; set; }
+
                 [XmlElement(ElementName = "CreditCardData")]
                 public CreditCardData cred_card_data { get; set; }
             }

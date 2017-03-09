@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="GenesisTests.cs" />
     <Compile Include="KalixaTests.cs" />
+    <Compile Include="BorgunTests.cs" />
     <Compile Include="PComTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

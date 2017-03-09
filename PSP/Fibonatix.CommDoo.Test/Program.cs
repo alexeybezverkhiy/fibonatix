@@ -31,8 +31,9 @@ namespace Genesis.Net.Test
             Fibonatix.CommDoo.Test.GenesisTests genesis = new Fibonatix.CommDoo.Test.GenesisTests();
             Fibonatix.CommDoo.Test.KalixaTests kalixa = new Fibonatix.CommDoo.Test.KalixaTests();
             Fibonatix.CommDoo.Test.PComTests pcom = new Fibonatix.CommDoo.Test.PComTests();
+            Fibonatix.CommDoo.Test.BorgunTests borgun = new Fibonatix.CommDoo.Test.BorgunTests();
 
-            kalixa.FullTests();
+            borgun.FullTests();
 
 
             Console.ReadKey();
