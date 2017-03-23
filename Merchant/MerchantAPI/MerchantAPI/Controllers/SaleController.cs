@@ -34,7 +34,7 @@ namespace MerchantAPI.Controllers
             SaleResponseModel err = null;
             ServiceTransitionResult result = null;
 
-            string controlKey = WebApiConfig.Settings.MerchantControlKeys["" + endpointId];
+            string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
             if (string.IsNullOrEmpty(controlKey))
             {
                 err = new SaleResponseModel(model.client_orderid);
@@ -76,18 +76,23 @@ namespace MerchantAPI.Controllers
             [FromUri] int endpointId,
             [FromUri] SaleSuccessPaymentModel model)
         {
+            if (!CommDooFrontendFactory.SuccessHashIsValid(endpointId, model))
+            {
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+
             if (model.transactionid != null)
             {
                 TransactionsDataStorage.UpdateTransaction(model.fibonatixID, model.transactionid,
                     TransactionState.Finished, TransactionStatus.Approved);
-                }
+            }
             else
             {
-                TransactionsDataStorage.UpdateTransaction(model.fibonatixID, 
+                TransactionsDataStorage.UpdateTransaction(model.fibonatixID,
                     TransactionState.Finished, TransactionStatus.Approved);
             }
 
-            var result = new ServiceTransitionResult(HttpStatusCode.Moved, model.customerredirecturl);
+            var result = new ServiceTransitionResult(HttpStatusCode.Redirect, model.customerredirecturl);
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }
@@ -98,9 +103,14 @@ namespace MerchantAPI.Controllers
             [FromUri] int endpointId,
             [FromUri] SaleFailurePaymentModel model)
         {
-            TransactionsDataStorage.UpdateTransaction(model.fibonatixID, 
+            if (!CommDooFrontendFactory.FailureHashIsValid(endpointId, model))
+            {
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+
+            TransactionsDataStorage.UpdateTransaction(model.fibonatixID,
                 TransactionState.Finished, TransactionStatus.Declined);
-            var result = new ServiceTransitionResult(HttpStatusCode.Moved, model.customerredirecturl);
+            var result = new ServiceTransitionResult(HttpStatusCode.Redirect, model.customerredirecturl);
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }

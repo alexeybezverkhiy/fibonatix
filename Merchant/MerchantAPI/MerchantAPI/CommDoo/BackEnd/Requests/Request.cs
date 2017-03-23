@@ -17,9 +17,6 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
     {
         static internal string timestampPattern = @"ddMMyyyyHHmmss";
 
-        static internal string sharedSecret = "test";
-        static internal string serviceURL = "https://service.commpay.net/server2server/payment/transaction.asmx";
-
         public static string GetWesternEuropeDateTime() {
             TimeZoneInfo cstZone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time" /* "Central European Standard Time" */);
             DateTime westernEurope = TimeZoneInfo.ConvertTimeFromUtc(DateTime.Now.ToUniversalTime(), cstZone);
@@ -43,6 +40,8 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
         {
             [XmlElement(ElementName = "ClientID")]
             public string ClientID { get; set; }
+            [XmlIgnore]
+            public string SharedSecret { get; set; }
         }
         public class SecurityData
         {

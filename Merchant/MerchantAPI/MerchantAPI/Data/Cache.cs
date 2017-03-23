@@ -7,44 +7,50 @@ namespace MerchantAPI.Data
 {
     public class Cache
     {
-        
-        public static void TestingPutRedirectUrl(string merchant_orderid, string redirect_url) {
-            try {
-                HttpContext.Current.Cache.Insert("redirect-url:" + merchant_orderid, redirect_url, null,
+        public static void setRedirectUrlForRequest(string transactionId, string redirect_url)
+        {
+            try
+            {
+                HttpContext.Current.Cache.Insert("redirect_url:" + transactionId, redirect_url, null,
                     System.Web.Caching.Cache.NoAbsoluteExpiration,
                     WebApiConfig.SettingsFactory.CreateCacheSlidingExpiration());
-            } catch {
+            }
+            catch
+            {
             }
         }
-        /*
-        public static string getRedirectUrlForRequest(string merchant_orderid) {
+
+        public static string getRedirectUrlForRequest(string transactionId)
+        {
             string redirectURL = null;
-            try {
-                redirectURL = HttpContext.Current.Cache.Get("redirect_url:" + merchant_orderid).ToString();
-            } catch {
+            try
+            {
+                redirectURL = HttpContext.Current.Cache.Get("redirect_url:" + transactionId).ToString();
+            }
+            catch
+            {
             }
             return redirectURL;
         }
-        */
 
-            /*
-        public static void setSaleRequestData(string merchant_orderid, Models.SaleRequestModel model) {
-            try {
-                HttpContext.Current.Cache.Insert("sale_data:" + merchant_orderid, model, null,
-                    System.Web.Caching.Cache.NoAbsoluteExpiration,
-                    WebApiConfig.SettingsFactory.CreateCacheSlidingExpiration());
-            } catch {
-            }
+        /*
+    public static void setSaleRequestData(string merchant_orderid, Models.SaleRequestModel model) {
+        try {
+            HttpContext.Current.Cache.Insert("sale_data:" + merchant_orderid, model, null,
+                System.Web.Caching.Cache.NoAbsoluteExpiration,
+                WebApiConfig.SettingsFactory.CreateCacheSlidingExpiration());
+        } catch {
         }
-        public static Models.SaleRequestModel getSaleRequestData(string merchant_orderid) {
-            Models.SaleRequestModel data = null;
-            try {
-                data = (Models.SaleRequestModel)HttpContext.Current.Cache.Get("sale_data:" + merchant_orderid);
-            } catch {
-            }
-            return data;
+    }
+    public static Models.SaleRequestModel getSaleRequestData(string merchant_orderid) {
+        Models.SaleRequestModel data = null;
+        try {
+            data = (Models.SaleRequestModel)HttpContext.Current.Cache.Get("sale_data:" + merchant_orderid);
+        } catch {
         }
-        */
+        return data;
+    }
+    */
         /*
         public static void setPreAuthRequestData(string merchant_orderid, Models.PreAuthRequestModel model) {
             try {
@@ -82,22 +88,57 @@ namespace MerchantAPI.Data
         }
         */
 
-        public static void setBackendResponseData(string transactionid, CommDoo.BackEnd.Responses.Response reponse) {
-            try {
+        public static void setBackendResponseData(string transactionid, CommDoo.BackEnd.Responses.Response reponse)
+        {
+            try
+            {
                 HttpContext.Current.Cache.Insert("backend_response:" + transactionid, reponse, null,
                     System.Web.Caching.Cache.NoAbsoluteExpiration,
                     WebApiConfig.SettingsFactory.CreateCacheSlidingExpiration());
-            } catch {
+            }
+            catch
+            {
             }
         }
-        public static CommDoo.BackEnd.Responses.Response getBackendResponseData(string transactionid) {
+
+        public static CommDoo.BackEnd.Responses.Response getBackendResponseData(string transactionid)
+        {
             CommDoo.BackEnd.Responses.Response data = null;
-            try {
+            try
+            {
                 data = (CommDoo.BackEnd.Responses.Response)HttpContext.Current.Cache.Get("backend_response:" + transactionid);
-            } catch {
+            }
+            catch
+            {
             }
             return data;
         }
 
+        public static void SetConfiguration(int endpointId, App_Start.MerchantConfig config)
+        {
+            try
+            {
+                HttpContext.Current.Cache.Insert("configuration:" + endpointId, config, null,
+                    System.Web.Caching.Cache.NoAbsoluteExpiration,
+                    WebApiConfig.SettingsFactory.CreateConfigurationExpirationTimeSpan());
+            }
+            catch
+            {
+            }
+        }
+
+        public static App_Start.MerchantConfig GetConfiguration(int endpointId)
+        {
+            App_Start.MerchantConfig config = null;
+            try
+            {
+                config = (App_Start.MerchantConfig)HttpContext.Current.Cache.Get("configuration:" + endpointId);
+            }
+            catch
+            {
+            }
+
+            return config;
+        }
     }
 }

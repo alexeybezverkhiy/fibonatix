@@ -180,7 +180,7 @@ namespace MerchantAPI.Models
     public class SaleBasePaymentModel
     {
         [Required]
-        public long clientid { get; set; }
+        public string clientid { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -190,7 +190,7 @@ namespace MerchantAPI.Models
         public string additionaldata { get; set; }
 
         [Required]
-        public long timestamp { get; set; }
+        public string timestamp { get; set; }
 
         [Required]
         [StringLength(40)]
@@ -225,7 +225,7 @@ namespace MerchantAPI.Models
         [Required]
         public string transactionid { get; set; }
 
-        public long subscriptionid { get; set; }
+        public string subscriptionid { get; set; }
 
         [Required]
         public long amount { get; set; }
@@ -238,7 +238,7 @@ namespace MerchantAPI.Models
         [StringLength(512)]
         public string paymentmethod { get; set; }
 
-        public long customerid { get; set; }
+        public string customerid { get; set; }
 
         [Required]
         [StringLength(50)]

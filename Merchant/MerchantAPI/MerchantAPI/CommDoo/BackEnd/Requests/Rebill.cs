@@ -26,7 +26,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
         public PurchaseData Purchase { get; set; }
 
         public override string executeRequest() {
-            string requestURL = serviceURL + "/Rebill";
+            string requestURL = WebApiConfig.Settings.BackendServiceUrl + "/Rebill";
             return sendRequest(requestURL);
         }
 
@@ -130,7 +130,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
                         }
                     }
                 }
-                strToHashCal += sharedSecret;
+                strToHashCal += Client.SharedSecret;
                 strHash = sha1(strToHashCal);
             } catch {
                 strHash = null;

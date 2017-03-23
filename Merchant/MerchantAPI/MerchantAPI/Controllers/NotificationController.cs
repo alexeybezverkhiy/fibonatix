@@ -29,7 +29,7 @@ namespace MerchantAPI.Controllers
             ServiceTransitionResult result;
             model.customernotifyurl = model2.customernotifyurl;
             model.fibonatixID = model2.fibonatixID;
-            if (model.IsHashValid(WebApiConfig.Settings.SharedSecret))
+            if (model.IsHashValid(WebApiConfig.Settings.GetSharedSecret(endpointId)))
             {
                 result = _service.Notified(endpointId, model);
             }

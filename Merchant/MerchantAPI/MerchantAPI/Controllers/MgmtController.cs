@@ -29,14 +29,16 @@ namespace MerchantAPI.Controllers
             {
                 ApplicationMode = WebApiConfig.Settings.ApplicationMode.ToString(),
                 Version = WebApiConfig.Settings.Version,
-                ClientId = WebApiConfig.Settings.ClientId,
-                SharedSecret = "<invisibly>",
                 PaymentKey = WebApiConfig.Settings.PaymentKey,
                 PublicServerName = WebApiConfig.Settings.PublicServerName,
                 PaymentASPXEndpoint = WebApiConfig.Settings.PaymentASPXEndpoint,
+                BackendServiceUrl = WebApiConfig.Settings.BackendServiceUrl,
+                ConfigurationServiceUrl = WebApiConfig.Settings.ConfigurationServiceUrl,
                 CacheSlidingExpirationSeconds = WebApiConfig.Settings.CacheSlidingExpirationSeconds,
                 CacheSlidingExpirationTimeSpan = WebApiConfig.SettingsFactory.CreateCacheSlidingExpiration(),
-                MerchantControlKeys = $"Collection has {WebApiConfig.Settings.MerchantControlKeys.Count} pair(s)",
+                ConfigurationsLoaded = $"Collection has {WebApiConfig.Settings.ConfigurationsLoaded} config(s)",
+                ConfigurationExpirationSeconds = WebApiConfig.Settings.ConfigurationExpirationSeconds,
+                ConfigurationExpirationTimeSpan = WebApiConfig.SettingsFactory.CreateConfigurationExpirationTimeSpan(),
             };
             return settings;
         }
@@ -55,7 +57,8 @@ namespace MerchantAPI.Controllers
             int i = 0;
             foreach (DictionaryEntry entry in HttpContext.Current.Cache)
             {
-                cache[i++] = new CacheData(entry.Key.ToString(), entry.Value.ToString());
+//                cache[i++] = new CacheData(entry.Key.ToString(), entry.Value.ToString());
+                cache[i++] = new CacheData(entry.Key.ToString(), "<hidden>"); // may contain cvv, credit card card number, merchant control key, etc.
             }
             return cache;
         }
@@ -85,13 +88,25 @@ namespace MerchantAPI.Controllers
         public string PaymentASPXEndpoint { get; set; }
 
         [DataMember]
+        public string BackendServiceUrl { get; set; }
+
+        [DataMember]
+        public string ConfigurationServiceUrl { get; set; }
+
+        [DataMember]
         public int CacheSlidingExpirationSeconds { get; set; }
 
         [DataMember]
         public TimeSpan CacheSlidingExpirationTimeSpan { get; set; }
 
         [DataMember]
-        public string MerchantControlKeys { get; set; }
+        public string ConfigurationsLoaded { get; set; }
+
+        [DataMember]
+        public int ConfigurationExpirationSeconds { get; set; }
+
+        [DataMember]
+        public TimeSpan ConfigurationExpirationTimeSpan { get; set; }
     }
 
     public class CacheData

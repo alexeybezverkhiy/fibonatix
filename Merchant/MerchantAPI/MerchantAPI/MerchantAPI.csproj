@@ -187,6 +187,9 @@
     <Compile Include="CommDoo\BackEnd\Requests\ReserveAmount.cs" />
     <Compile Include="CommDoo\BackEnd\Requests\Start.cs" />
     <Compile Include="CommDoo\BackEnd\Responses\Response.cs" />
+    <Compile Include="CommDoo\Configuration\Requests\Query.cs" />
+    <Compile Include="CommDoo\Configuration\Requests\Request.cs" />
+    <Compile Include="CommDoo\Configuration\Responses\Response.cs" />
     <Compile Include="Connectors\CommDooFrontendConnector.cs" />
     <Compile Include="Controllers\AccountVerificationController.cs" />
     <Compile Include="Controllers\Factories\SerializerFactory.cs" />
@@ -221,10 +224,6 @@
     <Compile Include="Migrations\201702281028204_ExpandTransaction.Designer.cs">
       <DependentUpon>201702281028204_ExpandTransaction.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201703091732405_ChangeIndexes.cs" />
-    <Compile Include="Migrations\201703091732405_ChangeIndexes.Designer.cs">
-      <DependentUpon>201703091732405_ChangeIndexes.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\CallbackModels.cs" />
     <Compile Include="Models\NotificationRequestModel.cs" />
@@ -253,7 +252,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AccountVerificationService.cs" />
     <Compile Include="Services\CallbackDeliveryService.cs" />
-    <Compile Include="Services\Exceptions\TransactionNotFoundException.cs" />
     <Compile Include="Services\NotificationService.cs" />
     <Compile Include="Services\VoidService.cs" />
     <Compile Include="Services\ReturnService.cs" />
@@ -269,12 +267,15 @@
     </Content>
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
     </None>
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -299,9 +300,6 @@
     <EmbeddedResource Include="Migrations\201702281028204_ExpandTransaction.resx">
       <DependentUpon>201702281028204_ExpandTransaction.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201703091732405_ChangeIndexes.resx">
-      <DependentUpon>201703091732405_ChangeIndexes.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -318,7 +316,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>52380</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:52380/</IISUrl>
+          <IISUrl>http://localhost:8060/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

@@ -40,7 +40,7 @@ namespace MerchantAPI.Services
                 Transaction preAuthTransactionData = TransactionsDataStorage
                     .FindByTransactionIdAndType(model.orderid, TransactionType.Preauth);
                 CommDoo.BackEnd.Requests.CaptureReservedAmountRequest request = CommDoo.BackEnd.Requests.CaptureReservedAmountRequest
-                    .createRequestByModel(model, preAuthTransactionData.ProcessingTransactionId);
+                    .createRequestByModel(model, endpointId, preAuthTransactionData.ProcessingTransactionId);
                 string commdooResponse = request.executeRequest();
                 CommDoo.BackEnd.Responses.Response xmlResponse = CommDoo.BackEnd.Responses.Response
                     .DeserializeFromString(commdooResponse);

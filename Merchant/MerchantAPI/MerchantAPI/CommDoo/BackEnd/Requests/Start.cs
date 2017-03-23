@@ -28,7 +28,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
         public PurchaseData Purchase { get; set; }
 
         public override string executeRequest() {
-            string requestURL = serviceURL + "/Start";
+            string requestURL = WebApiConfig.Settings.BackendServiceUrl + "/Start";
             return sendRequest(requestURL);
         }
 
@@ -152,7 +152,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
                         }
                     }
                 }
-                strToHashCal += sharedSecret;
+                strToHashCal += Client.SharedSecret;
                 strHash = sha1(strToHashCal);
             } catch {
                 strHash = null;

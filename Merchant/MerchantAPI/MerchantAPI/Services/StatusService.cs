@@ -88,7 +88,7 @@ namespace MerchantAPI.Services
             NameValueCollection response = new NameValueCollection();
 
             NameValueCollection sale_model = ControllerHelper.DeserializeHttpParameters(transactionData.ReferenceQuery);
-            string redirectURL = transactionData.RedirectUri;
+            string redirectURL = Cache.getRedirectUrlForRequest(transactionData.TransactionId);
 
             switch (transactionData.State) {
                 case TransactionState.Started:
@@ -249,7 +249,7 @@ namespace MerchantAPI.Services
             NameValueCollection response = new NameValueCollection();
 
             NameValueCollection preauth_model = ControllerHelper.DeserializeHttpParameters(transactionData.ReferenceQuery);
-            string redirectURL = transactionData.RedirectUri;
+            string redirectURL = Cache.getRedirectUrlForRequest(transactionData.TransactionId);
 
             switch (transactionData.State) {
                 case TransactionState.Started:

@@ -112,7 +112,7 @@ namespace MerchantAPI.Services
             }
             NameValueCollection originalRequest = ControllerHelper.DeserializeHttpParameters(transaction.ReferenceQuery);
 
-            string controlKey = WebApiConfig.Settings.MerchantControlKeys["" + endpointId];
+            string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
             string[] splittedTargetUrl = merchantServerCallbackUrl.Split('?');
 
             CallbackRequestModel callback = new CallbackRequestModel(controlKey, 
@@ -166,7 +166,7 @@ namespace MerchantAPI.Services
                 }
                 else
                 {
-                    MerchantCallbackStorage.UpdateMerchantCallback(callbackEntity, CallbackState.Repeating, 
+                    MerchantCallbackStorage.UpdateMerchantCallback(callbackEntity, CallbackState.Repeating,
                         $"Repeating due to HTTP status [{((HttpWebResponse)webResponse).StatusCode}] of request to Merchant site");
                 }
             }

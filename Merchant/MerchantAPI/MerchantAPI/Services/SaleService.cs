@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Web;
-using MerchantAPI.App_Start;
 using MerchantAPI.Connectors;
 using MerchantAPI.Controllers.Factories;
 using MerchantAPI.Data;
@@ -43,20 +42,16 @@ namespace MerchantAPI.Services
 
                 transactionData.State = TransactionState.Started;
                 transactionData.Status = TransactionStatus.Undefined;
-                transactionData.RedirectUri = parameters.ToString();
+                //transactionData.RedirectUri = parameters.ToString(); // don't save the url in DB, as it may contain cvv and credit card number
                 transactionData.ReferenceQuery = ControllerHelper.SerializeHttpParameters(referenceQuery);
 
                 TransactionsDataStorage.Store(transactionData);
-                if (WebApiConfig.Settings.ApplicationMode == ApplicationMode.TESTING)
-                {
-                    Cache.TestingPutRedirectUrl(transactionData.MerchantTransactionId, parameters.ToString());
-                }
 
                 // abv: cache version
                 // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo
                 //TransactionsDataStorage.UpdateTransaction(transactionData.TransactionId, 
                 //    TransactionState.Started, TransactionStatus.Undefined);
-                //Cache.setRedirectUrlForRequest(transactionData.TransactionId, redirectToCommDoo);
+                Cache.setRedirectUrlForRequest(transactionData.TransactionId, parameters.ToString());
                 //Cache.setSaleRequestData(transactionData.TransactionId, model);
 
                 string response = "type=async-response" + "\n" +

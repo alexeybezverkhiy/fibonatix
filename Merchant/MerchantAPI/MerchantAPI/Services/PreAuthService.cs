@@ -44,7 +44,7 @@ namespace MerchantAPI.Services
 
                 transactionData.State = TransactionState.Started;
                 transactionData.Status = TransactionStatus.Undefined;
-                transactionData.RedirectUri = parameters.ToString();
+                //transactionData.RedirectUri = parameters.ToString(); // don't save the url in DB, as it may contain cvv and credit card number
                 transactionData.ReferenceQuery = ControllerHelper.SerializeHttpParameters(referenceQuery);
 
                 TransactionsDataStorage.Store(transactionData);
@@ -53,7 +53,7 @@ namespace MerchantAPI.Services
                 // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo
                 //TransactionsDataStorage.UpdateTransaction(transactionData.TransactionId, 
                 //    TransactionState.Started, TransactionStatus.Undefined);
-                //Cache.setRedirectUrlForRequest(transactionData.TransactionId, redirectToCommDoo);
+                Cache.setRedirectUrlForRequest(transactionData.TransactionId, parameters.ToString());
                 //Cache.setPreAuthRequestData(transactionData.TransactionId, model);
 
                 string response = "type=async-response" +

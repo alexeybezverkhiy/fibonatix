@@ -29,7 +29,7 @@ namespace MerchantAPI.Controllers
             PreAuthResponseModel err = null;
             ServiceTransitionResult result = null;
 
-            string controlKey = WebApiConfig.Settings.MerchantControlKeys["" + endpointId];
+            string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
             if (string.IsNullOrEmpty(controlKey))
             {
                 err = new PreAuthResponseModel(model.client_orderid);
@@ -76,12 +76,12 @@ namespace MerchantAPI.Controllers
             }
             else
             {
-                TransactionsDataStorage.UpdateTransactionState(model.fibonatixID, 
+                TransactionsDataStorage.UpdateTransactionState(model.fibonatixID,
                     TransactionState.Finished);
             }
             TransactionsDataStorage.UpdateTransactionStatus(model.fibonatixID, TransactionStatus.Approved);
 
-            var result = new ServiceTransitionResult(HttpStatusCode.Moved, model.customerredirecturl);
+            var result = new ServiceTransitionResult(HttpStatusCode.Redirect, model.customerredirecturl);
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }
@@ -91,9 +91,9 @@ namespace MerchantAPI.Controllers
         public HttpResponseMessage FailurePostback(
             [FromUri] int endpointId,
             [FromUri] PreAuthFailurePaymentModel model) {
-            TransactionsDataStorage.UpdateTransaction(model.fibonatixID, 
+            TransactionsDataStorage.UpdateTransaction(model.fibonatixID,
                 TransactionState.Finished, TransactionStatus.Declined);
-            var result = new ServiceTransitionResult(HttpStatusCode.Moved, model.customerredirecturl);
+            var result = new ServiceTransitionResult(HttpStatusCode.Redirect, model.customerredirecturl);
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }

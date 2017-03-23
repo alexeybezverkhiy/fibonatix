@@ -20,7 +20,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
         public PaymentData Payment { get; set; }
 
         public override string executeRequest() {
-            string requestURL = serviceURL + "/Query";
+            string requestURL = WebApiConfig.Settings.BackendServiceUrl + "/Query";
             return sendRequest(requestURL);
         }
 
@@ -37,7 +37,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
                 strToHashCal += Client.ClientID;
                 strToHashCal += Security.Timestamp;
                 strToHashCal += Payment.TransactionID;
-                strToHashCal += sharedSecret;
+                strToHashCal += Client.SharedSecret;
                 strHash = sha1(strToHashCal);
             } catch {
                 strHash = null;

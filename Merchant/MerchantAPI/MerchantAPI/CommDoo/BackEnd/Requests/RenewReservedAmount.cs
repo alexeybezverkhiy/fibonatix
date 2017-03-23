@@ -14,7 +14,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
     public class RenewReservedAmountRequest : CaptureReservedAmountRequest
     {
         public override string executeRequest() {
-            string requestURL = serviceURL + "/CaptureReservedAmount";
+            string requestURL = WebApiConfig.Settings.BackendServiceUrl + "/CaptureReservedAmount";
             return sendRequest(requestURL);
         }
     }

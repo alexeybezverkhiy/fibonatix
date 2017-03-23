@@ -30,34 +30,43 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
         [XmlElement(ElementName = "Purchase")]
         public PurchaseData Purchase { get; set; }
 
-        public static CaptureReservedAmountRequest createRequestByModel(CaptureRequestModel model, string commDooReferencedTransactionID) {
-            CaptureReservedAmountRequest request = new CaptureReservedAmountRequest() {
-                Client = new ClientData() {
-                    ClientID = "99999999",
+        public static CaptureReservedAmountRequest createRequestByModel(CaptureRequestModel model, int endpointId, string commDooReferencedTransactionID)
+        {
+            CaptureReservedAmountRequest request = new CaptureReservedAmountRequest()
+            {
+                Client = new ClientData()
+                {
+                    ClientID = WebApiConfig.Settings.GetClientID(endpointId),
+                    SharedSecret = WebApiConfig.Settings.GetSharedSecret(endpointId),
                 },
-                Payment = new PaymentData() {
+                Payment = new PaymentData()
+                {
                     Amount = CurrencyConverter.MajorAmountToMinor(model.amount, model.currency),
                     // Currency = model.currency,
                     ReferenceID = model.client_orderid + "-" + DateTime.Now.ToString("yyyyMMddHHmmss.fff"),
-                    RelatedInformation = new RelatedInformationData() {
+                    RelatedInformation = new RelatedInformationData()
+                    {
                         ReferencedTransactionID = commDooReferencedTransactionID,
-                    },                    
+                    },
                 },
             };
             return request;
         }
 
-        public override string executeRequest() {
-            string requestURL = serviceURL + "/CaptureReservedAmount";
+        public override string executeRequest()
+        {
+            string requestURL = WebApiConfig.Settings.BackendServiceUrl + "/CaptureReservedAmount";
             return sendRequest(requestURL);
         }
 
-        public override string calculateHash() {
+        public override string calculateHash()
+        {
 
             string strToHashCal = "";
             string strHash = null;
 
-            try {
+            try
+            {
                 if (Security == null) Security = new SecurityData();
 
                 Security.Timestamp = GetWesternEuropeDateTime();
@@ -71,17 +80,22 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
                     strToHashCal += "ReferencedTransactionID" + Payment.RelatedInformation.ReferencedTransactionID;
                 if (Notification != null)
                     strToHashCal += Notification.NotificationURL;
-                if (Purchase != null) {
-                    if (Purchase.Delivery != null) {
-                        if (Purchase.Delivery != null) {
-                            if (Purchase.Delivery.Person != null) {
+                if (Purchase != null)
+                {
+                    if (Purchase.Delivery != null)
+                    {
+                        if (Purchase.Delivery != null)
+                        {
+                            if (Purchase.Delivery.Person != null)
+                            {
                                 strToHashCal += Purchase.Delivery.Person.CompanyName;
                                 strToHashCal += Purchase.Delivery.Person.FirstName;
                                 strToHashCal += Purchase.Delivery.Person.LastName;
                                 strToHashCal += Purchase.Delivery.Person.Salutation;
                                 strToHashCal += Purchase.Delivery.Person.Title;
                             }
-                            if (Purchase.Delivery.Address != null) {
+                            if (Purchase.Delivery.Address != null)
+                            {
                                 strToHashCal += Purchase.Delivery.Address.Street;
                                 strToHashCal += Purchase.Delivery.Address.HouseNumber;
                                 strToHashCal += Purchase.Delivery.Address.PostalCode;
@@ -93,8 +107,10 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
                             }
                         }
                     }
-                    if (Purchase.Items != null) {
-                        foreach( ItemData item in Purchase.Items) {
+                    if (Purchase.Items != null)
+                    {
+                        foreach (ItemData item in Purchase.Items)
+                        {
                             strToHashCal += item.ID;
                             strToHashCal += item.Name;
                             strToHashCal += item.Description;
@@ -105,9 +121,11 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
                         }
                     }
                 }
-                strToHashCal += sharedSecret;
-                strHash = sha1(strToHashCal);                
-            } catch {
+                strToHashCal += Client.SharedSecret;
+                strHash = sha1(strToHashCal);
+            }
+            catch
+            {
                 strHash = null;
             }
             Security.Hash = strHash;

@@ -24,8 +24,8 @@ namespace MerchantAPI.Controllers.Factories
         {
             NameValueCollection data = CreatePaymentParams(model, fibonatixID, endpointGroupId);
             data.Add("relatedinformation-endpointgroupid", "" + endpointGroupId);
-            data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data, 
-                WebApiConfig.Settings.SharedSecret));
+            data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
+                WebApiConfig.Settings.GetSharedSecret(endpointGroupId)));
             return data;
         }
 
@@ -37,19 +37,19 @@ namespace MerchantAPI.Controllers.Factories
             NameValueCollection data = CreatePaymentParams(model, fibonatixID, endpointId);
             data.Add("relatedinformation-endpointid", "" + endpointId);
             data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
-                WebApiConfig.Settings.SharedSecret));
+                WebApiConfig.Settings.GetSharedSecret(endpointId)));
             return data;
         }
 
         private static NameValueCollection CreatePaymentParams(
-            SaleRequestModel model, 
+            SaleRequestModel model,
             string fibonatixID,
             int endpointId)
         {
             DateTime now = DateTime.Now;
             NameValueCollection data = new NameValueCollection
             {
-                {"clientid", WebApiConfig.Settings.ClientId},
+                {"clientid", WebApiConfig.Settings.GetClientID(endpointId)},
                 {"payment", WebApiConfig.Settings.PaymentKey},
                 {"referenceid", model.client_orderid + "-" + now.ToString("yyyyMMddHHmmss.fff")},
                 {"orderid", model.client_orderid},
@@ -86,30 +86,33 @@ namespace MerchantAPI.Controllers.Factories
         public static NameValueCollection CreateMultyCurrencyPaymentParams(
             int endpointGroupId,
             PreAuthRequestModel model,
-            string fibonatixID) {
+            string fibonatixID)
+        {
             NameValueCollection data = CreatePaymentParams(model, fibonatixID, endpointGroupId);
             data.Add("relatedinformation-endpointgroupid", "" + endpointGroupId);
             data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
-                WebApiConfig.Settings.SharedSecret));
+                WebApiConfig.Settings.GetSharedSecret(endpointGroupId)));
             return data;
         }
 
         public static NameValueCollection CreateSingleCurrencyPaymentParams(
             int endpointId,
             PreAuthRequestModel model,
-            string fibonatixID) {
+            string fibonatixID)
+        {
             NameValueCollection data = CreatePaymentParams(model, fibonatixID, endpointId);
             data.Add("relatedinformation-endpointid", "" + endpointId);
             data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENSE, data,
-                WebApiConfig.Settings.SharedSecret));
+                WebApiConfig.Settings.GetSharedSecret(endpointId)));
             return data;
         }
 
-        private static NameValueCollection CreatePaymentParams(PreAuthRequestModel model, string fibonatixID, int endpointId) {
+        private static NameValueCollection CreatePaymentParams(PreAuthRequestModel model, string fibonatixID, int endpointId)
+        {
             DateTime now = DateTime.Now;
             NameValueCollection data = new NameValueCollection
             {
-                {"clientid", WebApiConfig.Settings.ClientId},
+                {"clientid", WebApiConfig.Settings.GetClientID(endpointId)},
                 {"payment", WebApiConfig.Settings.PaymentKey},
                 {"paymentmode", "reservation" },
                 {"referenceid", model.client_orderid + "-" + now.ToString("yyyyMMddHHmmss.fff")},
@@ -153,7 +156,8 @@ namespace MerchantAPI.Controllers.Factories
             return $"?customerredirecturl={HttpUtility.UrlEncode(url)}&fibonatixID={id}";
         }
 
-        public static string ResolveInternalUrl(string extraPath) {
+        public static string ResolveInternalUrl(string extraPath)
+        {
             return
                 $"{HttpContext.Current.Request.Url.Scheme}://" +
                 $"{/*"localhost"*/ WebApiConfig.Settings.PublicServerName}:{HttpContext.Current.Request.Url.Port}" +
@@ -161,12 +165,78 @@ namespace MerchantAPI.Controllers.Factories
                 $"{extraPath}";
         }
 
-        public static string ResolveInternalNotificationUrl(int endpointId, string extraPath) {
-            return 
-                $"{HttpContext.Current.Request.Url.Scheme}://" + 
+        public static string ResolveInternalNotificationUrl(int endpointId, string extraPath)
+        {
+            return
+                $"{HttpContext.Current.Request.Url.Scheme}://" +
                 $"{WebApiConfig.Settings.PublicServerName}:{HttpContext.Current.Request.Url.Port}" +
                 $"/paynet/api/v2/notification/{endpointId}" +
                 $"{extraPath}";
+        }
+
+        public static bool SuccessHashIsValid(int endpointId, SaleSuccessPaymentModel model)
+        {
+            if (model == null ||
+                string.IsNullOrEmpty(model.clientid) ||
+                string.IsNullOrEmpty(model.transactionid) ||
+                string.IsNullOrEmpty(model.referenceid) ||
+                model.amount < 0 ||
+                string.IsNullOrEmpty(model.currency) ||
+                string.IsNullOrEmpty(model.paymentmethod) ||
+                string.IsNullOrEmpty(model.transactionstatus) ||
+                string.IsNullOrEmpty(model.timestamp) ||
+                string.IsNullOrEmpty(model.hash))
+            {
+                return false;
+            }
+
+            NameValueCollection data = new NameValueCollection
+            {
+                {"clientid", model.clientid.ToString()},
+                {"transactionid", model.transactionid},
+                {"referenceid", model.referenceid},
+                {"subscriptionid", string.IsNullOrEmpty(model.subscriptionid) ? string.Empty : model.subscriptionid},
+                {"amount", model.amount.ToString()},
+                {"currency", model.currency},
+                {"paymentmethod", model.paymentmethod},
+                {"customerid", string.IsNullOrEmpty(model.customerid) ? string.Empty : model.customerid},
+                {"transactionstatus", model.transactionstatus},
+                {"transactionstatusaddition", string.IsNullOrEmpty(model.transactionstatusaddition) ? string.Empty : model.transactionstatusaddition},
+                {"creditcardtype", string.IsNullOrEmpty(model.creditcardtype) ? string.Empty : model.creditcardtype},
+                {"providertransactionid", string.IsNullOrEmpty(model.providertransactionid) ? string.Empty : model.providertransactionid},
+                {"additionaldata", string.IsNullOrEmpty(model.additionaldata) ? string.Empty : model.additionaldata},
+                {"timestamp", model.timestamp.ToString()},
+            };
+
+            string calculatedHash = HashHelper.CalculateHash(SUCC_HASH_KEY_SEQUENSE, data, WebApiConfig.Settings.GetSharedSecret(endpointId));
+            return model.hash.Trim().ToLowerInvariant() == calculatedHash.Trim().ToLowerInvariant();
+        }
+
+        public static bool FailureHashIsValid(int endpointId, SaleFailurePaymentModel model)
+        {
+            if (model == null ||
+                string.IsNullOrEmpty(model.clientid) ||
+                string.IsNullOrEmpty(model.referenceid) ||
+                string.IsNullOrEmpty(model.errornumber) ||
+                string.IsNullOrEmpty(model.errortext) ||
+                string.IsNullOrEmpty(model.timestamp) ||
+                string.IsNullOrEmpty(model.hash))
+            {
+                return false;
+            }
+
+            NameValueCollection data = new NameValueCollection
+            {
+                {"clientid", model.clientid.ToString()},
+                {"referenceid", model.referenceid},
+                {"errornumber", model.errornumber},
+                {"errortext", model.errortext},
+                {"additionaldata", string.IsNullOrEmpty(model.additionaldata) ? string.Empty : model.additionaldata},
+                {"timestamp", model.timestamp.ToString()},
+            };
+
+            string calculatedHash = HashHelper.CalculateHash(FAIL_HASH_KEY_SEQUENSE, data, WebApiConfig.Settings.GetSharedSecret(endpointId));
+            return model.hash.Trim().ToLowerInvariant() == calculatedHash.Trim().ToLowerInvariant();
         }
 
         private static string[] PAYMENT_HASH_KEY_SEQUENSE =

@@ -28,7 +28,7 @@ namespace MerchantAPI.Controllers
             CaptureResponseModel err = null;
             ServiceTransitionResult result = null;
 
-            string controlKey = WebApiConfig.Settings.MerchantControlKeys["" + endpointId];
+            string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
             if (string.IsNullOrEmpty(controlKey))
             {
                 err = new CaptureResponseModel(model.client_orderid);
