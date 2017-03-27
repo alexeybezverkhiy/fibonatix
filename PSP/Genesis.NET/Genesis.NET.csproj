@@ -23,7 +23,7 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
     <DocumentationFile>bin\Debug\Genesis.Net.XML</DocumentationFile>
-    <IntermediateOutputPath>C:\Users\ALEXAN~1\AppData\Local\Temp\vs1721.tmp\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\ALEXAN~1\AppData\Local\Temp\vsB274.tmp\Debug\</IntermediateOutputPath>
     <NoWarn>1591,1570,0108</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -35,7 +35,7 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
     <DocumentationFile>bin\Release\Genesis.Net.XML</DocumentationFile>
-    <IntermediateOutputPath>C:\Users\ALEXAN~1\AppData\Local\Temp\vs1721.tmp\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\ALEXAN~1\AppData\Local\Temp\vsB274.tmp\Release\</IntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CopaceticSoftware.pMixins">

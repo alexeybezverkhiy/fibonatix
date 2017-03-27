@@ -429,9 +429,9 @@ namespace Fibonatix.CommDoo.Test
                 "<Type>SINGLE</Type>" +
                 "</RecurringTransaction>" +
                 "<Communication>" +
-                "<NotificationURL>https://mynotification.com/notification.aspx/processid=12&amp;processkey=AB</NotificationURL>" +
-                "<SuccessURL>https://mynotification.com/success.aspx/processid=12&amp;processkey=AB</SuccessURL>" +
-                "<FailURL>https://mynotification.com/fail.aspx/processid=12&amp;processkey=AB</FailURL>" +
+                "<NotificationURL>http://mynotification.com/notification.aspx/processid=12&amp;processkey=AB</NotificationURL>" +
+                "<SuccessURL>http://mynotification.com/success.aspx/processid=12&amp;processkey=AB</SuccessURL>" +
+                "<FailURL>http://mynotification.com/fail.aspx/processid=12&amp;processkey=AB</FailURL>" +
                 "</Communication>" +
                 VisaCard3D +
                 "<CustomerData>" +
@@ -640,12 +640,12 @@ namespace Fibonatix.CommDoo.Test
             // PreauthRecurrenceTest("INITIAL");       // NOK
             // PreauthRecurrenceTest("REPEATED", "<CreditCardAlias>1776536195</CreditCardAlias>", "");      // NOK
 
-            PurchaseRecurrenceTest("SINGLE");               // ACK
+            // PurchaseRecurrenceTest("SINGLE");               // ACK
             // var r = PurchaseRecurrenceTest("INITIAL");      // NOK
             // PurchaseRecurrenceTest("REPEATED", r.purchase.transaction.processing_status.ProviderTransactionID);      // NOL
 
             // EnrollmentCheckTest();   // ACK
-            // Preauth3DTest();         // NOK
+            Preauth3DTest();         // NOK
             // Purchase3DTest();        // NOK
             // PurchaseRecurrence3DTest("SINGLE");             // NOK
             // var r = PurchaseRecurrence3DTest("INITIAL");    // NOK

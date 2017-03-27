@@ -14,6 +14,10 @@ namespace Fibonatix.CommDoo.Kalixa.Entities.Response
     [XmlInclude(typeof(paymentWithPaymentAccount))]
     public class Preauth3DResponse : Response
     {
+        [Required]
+        [XmlElement(ElementName = "payment")]
+        public paymentWithPaymentAccount payment { get; set; }
+
         public static Preauth3DResponse DeserializeFromXmlDocument(XmlDocument doc) {
             XmlSerializer seri = new XmlSerializer(typeof(Preauth3DResponse));
 

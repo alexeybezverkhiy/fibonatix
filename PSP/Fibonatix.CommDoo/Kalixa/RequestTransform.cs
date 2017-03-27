@@ -25,11 +25,13 @@ namespace Fibonatix.CommDoo.Kalixa
             return ((UInt32)((email + firstname + lastname).GetHashCode())).ToString();
         }
 
-        private static string getUserID(string email, string firstname, string lastname, string credit_card_alias) {
+        private static string getUserID(Requests.Request.CustomerData customer, string credit_card_alias) {
             if (credit_card_alias != null)
                 return credit_card_alias;
+            else if (customer != null)
+                return ((UInt32)((customer.email + customer.firstname + customer.lastname).GetHashCode())).ToString();
             else
-                return ((UInt32)((email + firstname + lastname).GetHashCode())).ToString();
+                return null;
         }
 
         private static string getMerchantID(Fibonatix.CommDoo.Requests.Request req) {
@@ -85,7 +87,7 @@ namespace Fibonatix.CommDoo.Kalixa
                 merchantID = getMerchantID(commDooAuth),
                 shopID = getShopID(commDooAuth),
                 merchantTransactionID = commDooAuth.preAuth.transaction.reference_id,
-                paymentAccountID = getUserID(commDooAuth.preAuth.transaction.customer_data.email, commDooAuth.preAuth.transaction.customer_data.firstname, commDooAuth.preAuth.transaction.customer_data.lastname, commDooAuth.preAuth.transaction.credit_card_alias),
+                paymentAccountID = getUserID(commDooAuth.preAuth.transaction.customer_data, commDooAuth.preAuth.transaction.credit_card_alias),
                 paymentMethodID = getPreauthPaymentMethod(ccType),
                 specificPaymentData = new Entities.Requests.Request.dataList() {
                     {
@@ -95,8 +97,8 @@ namespace Fibonatix.CommDoo.Kalixa
                         new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "PaymentDescriptionLanguageCode", value = "en" }
                     },
                 },
-                userID = getUserID(commDooAuth.preAuth.transaction.customer_data.email, commDooAuth.preAuth.transaction.customer_data.firstname, commDooAuth.preAuth.transaction.customer_data.lastname, commDooAuth.preAuth.transaction.credit_card_alias),
-                userSessionID = getUserID(commDooAuth.preAuth.transaction.customer_data.email, commDooAuth.preAuth.transaction.customer_data.firstname, commDooAuth.preAuth.transaction.customer_data.lastname, commDooAuth.preAuth.transaction.credit_card_alias) + DateTime.Now.ToBinary().ToString(),
+                userID = getUserID(commDooAuth.preAuth.transaction.customer_data, commDooAuth.preAuth.transaction.credit_card_alias),
+                userSessionID = getUserID(commDooAuth.preAuth.transaction.customer_data, commDooAuth.preAuth.transaction.credit_card_alias) + DateTime.Now.ToBinary().ToString(),
                 userIP = commDooAuth.preAuth.transaction.customer_data.ipaddress,
             };
             if (commDooAuth.preAuth.transaction.cred_card_data != null) {
@@ -214,8 +216,7 @@ namespace Fibonatix.CommDoo.Kalixa
                 merchantID = getMerchantID(commDooEnroll),
                 shopID = getShopID(commDooEnroll),
                 merchantTransactionID = commDooEnroll.enrollment_check.transaction.reference_id,
-                paymentAccountID = getUserID(commDooEnroll.enrollment_check.transaction.customer_data.email, commDooEnroll.enrollment_check.transaction.customer_data.firstname,
-                        commDooEnroll.enrollment_check.transaction.customer_data.lastname, commDooEnroll.enrollment_check.transaction.credit_card_alias),
+                paymentAccountID = getUserID(commDooEnroll.enrollment_check.transaction.customer_data, commDooEnroll.enrollment_check.transaction.credit_card_alias),
                 paymentMethodID = getPreauthPaymentMethod(commDooEnroll.enrollment_check.transaction.cred_card_data.getCreditCardType()),
                 specificPaymentData = new Entities.Requests.Request.dataList() {
                     {
@@ -228,10 +229,8 @@ namespace Fibonatix.CommDoo.Kalixa
                         new Entities.Requests.Request.keyStringValuePair() { type = "keyBooleanValuePair", key = "IsThreeDSecureRequired", value = "true" }
                     },
                 },
-                userID = getUserID(commDooEnroll.enrollment_check.transaction.customer_data.email, commDooEnroll.enrollment_check.transaction.customer_data.firstname,
-                        commDooEnroll.enrollment_check.transaction.customer_data.lastname, commDooEnroll.enrollment_check.transaction.credit_card_alias),
-                userSessionID = getUserID(commDooEnroll.enrollment_check.transaction.customer_data.email, commDooEnroll.enrollment_check.transaction.customer_data.firstname,
-                        commDooEnroll.enrollment_check.transaction.customer_data.lastname, commDooEnroll.enrollment_check.transaction.credit_card_alias) + DateTime.Now.ToBinary().ToString(),
+                userID = getUserID(commDooEnroll.enrollment_check.transaction.customer_data, commDooEnroll.enrollment_check.transaction.credit_card_alias),
+                userSessionID = getUserID(commDooEnroll.enrollment_check.transaction.customer_data, commDooEnroll.enrollment_check.transaction.credit_card_alias) + DateTime.Now.ToBinary().ToString(),
                 userIP = commDooEnroll.enrollment_check.transaction.customer_data.ipaddress,
             };
 
@@ -286,11 +285,90 @@ namespace Fibonatix.CommDoo.Kalixa
         }
 
         public static Fibonatix.CommDoo.Kalixa.Entities.Requests.Preauth3DRequest getKalixaAuthorize3D(Fibonatix.CommDoo.Requests.Preauth3DRequest commDooAuth) { // exception
-            throw new System.ComponentModel.DataAnnotations.ValidationException("Kalixa aquirer doesn't support 'Preauthorize 3D' request").SetCode((int)ErrorCodes.InvalidTransactionTypeError);
-        }
 
-        public static Fibonatix.CommDoo.Kalixa.Entities.Requests.Purchase3DRequest getKalixaPurchase3D(Fibonatix.CommDoo.Requests.Purchase3DRequest commDooPurchase) { // exception
-            throw new System.ComponentModel.DataAnnotations.ValidationException("Kalixa aquirer doesn't support 'Purchase 3D' request").SetCode((int)ErrorCodes.InvalidTransactionTypeError);
+            commDooAuth.verification(); // exception
+
+            Fibonatix.CommDoo.Kalixa.Entities.Requests.Preauth3DRequest ret = new Fibonatix.CommDoo.Kalixa.Entities.Requests.Preauth3DRequest() {
+                amount = new Fibonatix.CommDoo.Kalixa.Entities.Requests.Request.Amount() {
+                    value = Convertors.MinorAmountToMajor((int)commDooAuth.preAuth3D.transaction.amount, Currencies.currencyCodeFromString(commDooAuth.preAuth3D.transaction.currency)).ToString(CultureInfo.InvariantCulture),
+                    currencyCode = commDooAuth.preAuth3D.transaction.currency
+                },
+                creationTypeID = "1",
+                merchantID = getMerchantID(commDooAuth),
+                shopID = getShopID(commDooAuth),
+                merchantTransactionID = commDooAuth.preAuth3D.transaction.reference_id,
+                paymentAccountID = getUserID(commDooAuth.preAuth3D.transaction.customer_data, commDooAuth.preAuth3D.transaction.credit_card_alias),
+                paymentMethodID = getPreauthPaymentMethod(commDooAuth.preAuth3D.transaction.cred_card_data.getCreditCardType()),
+                specificPaymentData = new Entities.Requests.Request.dataList() {
+                    {
+                        new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "PaymentDescription", value = commDooAuth.preAuth3D.transaction.usage }
+                    },
+                    {
+                        new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "PaymentDescriptionLanguageCode", value = "en" }
+                    },
+                    {
+                        new Entities.Requests.Request.keyStringValuePair() { type = "keyBooleanValuePair", key = "IsThreeDSecureRequired", value = "true" }
+                    },
+                    {
+                        new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "SuccessPageUrl", value = commDooAuth.preAuth3D.transaction.communication3D.success_url }
+                    },
+                    {
+                        new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "ErrorPageUrl", value = commDooAuth.preAuth3D.transaction.communication3D.fail_url }
+                    },
+                },
+                userID = getUserID(commDooAuth.preAuth3D.transaction.customer_data, commDooAuth.preAuth3D.transaction.credit_card_alias),
+                userSessionID = getUserID(commDooAuth.preAuth3D.transaction.customer_data, commDooAuth.preAuth3D.transaction.credit_card_alias) + DateTime.Now.ToBinary().ToString(),
+                userIP = commDooAuth.preAuth3D.transaction.customer_data.ipaddress,
+            };
+
+            if (commDooAuth.preAuth3D.transaction.cred_card_data != null) {
+                ret.paymentAccount = new Entities.Requests.Preauth3DRequest.PaymentAccount() {
+                    specificPaymentAccountData = new Entities.Requests.Request.dataList() {
+                        {
+                            new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "CardNumber", value = commDooAuth.preAuth3D.transaction.cred_card_data.credit_card_number }
+                        },
+                        {
+                            new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "CardVerificationCode", value = commDooAuth.preAuth3D.transaction.cred_card_data.cvv }
+                        },
+                        {
+                            new Entities.Requests.Request.keyStringValuePair() { type = "keyStringValuePair", key = "HolderName", value = commDooAuth.preAuth3D.transaction.cred_card_data.cardholder_name }
+                        },
+                        {
+                            new Entities.Requests.Request.keyStringValuePair() { type = "keyIntValuePair", key = "ExpiryMonth", value = commDooAuth.preAuth3D.transaction.cred_card_data.expiration_month.ToString() }
+                        },
+                        {
+                            new Entities.Requests.Request.keyStringValuePair() { type = "keyIntValuePair", key = "ExpiryYear", value = commDooAuth.preAuth3D.transaction.cred_card_data.expiration_year.ToString() }
+                        },
+                    }
+                };
+            }
+
+            if (commDooAuth.preAuth3D.transaction.customer_data != null) {
+                ret.userData = new Entities.Requests.Request.UserData() {
+                    address = new Entities.Requests.Request.UserData.Address() {
+                        city = commDooAuth.preAuth3D.transaction.customer_data.city,
+                        countryCode2 = Countries.countryAlpha2String(commDooAuth.preAuth3D.transaction.customer_data.country),
+                        // houseName = commDooAuth.preAuth.transaction.customer_data.street,
+                        //houseNumber = "12",
+                        //houseNumberExtension = "1B",
+                        postalCode = commDooAuth.preAuth3D.transaction.customer_data.postalcode,
+                        state = commDooAuth.preAuth3D.transaction.customer_data.state,
+                        street = commDooAuth.preAuth3D.transaction.customer_data.street,
+                        telephoneNumber = commDooAuth.preAuth3D.transaction.customer_data.phone,
+                    },
+                    currencyCode = commDooAuth.preAuth3D.transaction.currency,
+                    // dateOfBirth = "1950-01-01T00:00:00",
+                    email = commDooAuth.preAuth3D.transaction.customer_data.email,
+                    firstname = commDooAuth.preAuth3D.transaction.customer_data.firstname,
+                    // gender = "Female",
+                    // identificationNumber = "111",
+                    languageCode = "EN",
+                    lastname = commDooAuth.preAuth3D.transaction.customer_data.lastname,
+                    username = commDooAuth.preAuth3D.transaction.customer_data.firstname + " " + commDooAuth.preAuth3D.transaction.customer_data.lastname,
+                };
+            }
+
+            return ret;
         }
 
         public static Fibonatix.CommDoo.Kalixa.Entities.Requests.SingleReconcileRequest getKalixaSingleReconcile(Fibonatix.CommDoo.Requests.SingleReconcileRequest commDooReconcile) { // exception

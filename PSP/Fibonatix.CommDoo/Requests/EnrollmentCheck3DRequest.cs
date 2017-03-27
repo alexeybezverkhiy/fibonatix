@@ -49,6 +49,8 @@ namespace Fibonatix.CommDoo.Requests
                 public CreditCardData cred_card_data { get; set; }
                 [XmlElement(ElementName = "CustomerData")]
                 public CustomerData customer_data { get; set; }
+                [XmlElement(ElementName = "Communication")]
+                public Communication3D communication3D { get; set; }
             }
         }
 

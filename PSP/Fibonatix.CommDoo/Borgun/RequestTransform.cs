@@ -11,19 +11,21 @@ using System.Net;
 using System.Threading;
 using System.ComponentModel;
 using System.Web;
+using System.Security.Cryptography;
 
 namespace Fibonatix.CommDoo.Borgun
 {
     [System.ComponentModel.DataObject]
 
-    internal class RequestTransform
-    {
+    internal class RequestTransform {
         static internal string version = "1000";
         static internal string timestampPattern = @"yyMMddHHmmss";
 
+        /*
         static internal int sequental = 0;
         static DateTime dt = DateTime.Now.ToUniversalTime();
         private static Object thisLock = new Object();
+        */
 
         public static string GetCurrentDateTime() {
             return DateTime.Now.ToUniversalTime().ToString(timestampPattern);
@@ -62,6 +64,24 @@ namespace Fibonatix.CommDoo.Borgun
             return res;
         }
 
+        private static string PrepareXid(string orderID) {
+            // unique transaction identifier 20 byte value that has been base64 encoded giving 28 byte result
+            orderID = orderID.Substring(0, 20);
+            String Ret = new String('0', 20 - orderID.Length) + orderID;
+            return base64Encode(Ret);
+        }
+        public static string base64Encode(string data) {
+            try {
+                byte[] encData_byte = new byte[data.Length];
+                encData_byte = System.Text.Encoding.UTF8.GetBytes(data);
+                string encodedData = Convert.ToBase64String(encData_byte);
+                return encodedData;
+            } catch (Exception e) {
+                throw new Exception("Error in base64Encode" + e.Message, e);
+            }
+        }
+
+
         private static string getTerminalID(Fibonatix.CommDoo.Requests.Request req) {
             if (req.GetType() == typeof(Requests.PreauthRequest)) {
                 Requests.PreauthRequest preauth = (Requests.PreauthRequest)req;
@@ -73,8 +93,7 @@ namespace Fibonatix.CommDoo.Borgun
                     return req.getConfigValue("Terminal3DS") != null ? req.getConfigValue("Terminal3DS") : "2";
                 else
                     return req.getConfigValue("TerminalN3DS") != null ? req.getConfigValue("TerminalN3DS") : "1";
-            }
-            else if (req.GetType() == typeof(Requests.Preauth3DRequest)) {
+            } else if (req.GetType() == typeof(Requests.Preauth3DRequest)) {
                 Requests.Preauth3DRequest preauth3D = (Requests.Preauth3DRequest)req;
                 if (preauth3D.getRequestType() == Requests.RequestType.Repeated)
                     return req.getConfigValue("TerminalRecurrent") != null ? req.getConfigValue("TerminalRecurrent") : "3";
@@ -82,8 +101,7 @@ namespace Fibonatix.CommDoo.Borgun
                     return preauth3D.preAuth3D.transaction.terminal;
                 else
                     return req.getConfigValue("TerminalN3DS") != null ? req.getConfigValue("TerminalN3DS") : "1";
-            }
-            else if (req.GetType() == typeof(Requests.PurchaseRequest)) {
+            } else if (req.GetType() == typeof(Requests.PurchaseRequest)) {
                 Requests.PurchaseRequest purchase = (Requests.PurchaseRequest)req;
                 if (purchase.getRequestType() == Requests.RequestType.Repeated)
                     return req.getConfigValue("TerminalRecurrent") != null ? req.getConfigValue("TerminalRecurrent") : "3";
@@ -93,8 +111,7 @@ namespace Fibonatix.CommDoo.Borgun
                     return req.getConfigValue("Terminal3DS") != null ? req.getConfigValue("Terminal3DS") : "2";
                 else
                     return req.getConfigValue("TerminalN3DS") != null ? req.getConfigValue("TerminalN3DS") : "1";
-            }
-            else if (req.GetType() == typeof(Requests.Purchase3DRequest)) {
+            } else if (req.GetType() == typeof(Requests.Purchase3DRequest)) {
                 Requests.Purchase3DRequest purchase3D = (Requests.Purchase3DRequest)req;
                 if (purchase3D.getRequestType() == Requests.RequestType.Repeated)
                     return req.getConfigValue("TerminalRecurrent") != null ? req.getConfigValue("TerminalRecurrent") : "3";
@@ -102,16 +119,13 @@ namespace Fibonatix.CommDoo.Borgun
                     return purchase3D.purchase3D.transaction.terminal;
                 else
                     return req.getConfigValue("TerminalN3DS") != null ? req.getConfigValue("TerminalN3DS") : "1";
-            }
-            else if (req.GetType() == typeof(Requests.RefundRequest)) {
+            } else if (req.GetType() == typeof(Requests.RefundRequest)) {
                 Requests.RefundRequest refund = (Requests.RefundRequest)req;
                 return refund.refund.transaction.terminal;
-            }
-            else if (req.GetType() == typeof(Requests.ReversalRequest)) {
+            } else if (req.GetType() == typeof(Requests.ReversalRequest)) {
                 Requests.ReversalRequest reversal = (Requests.ReversalRequest)req;
                 return reversal.reversal.transaction.terminal;
-            }
-            else if (req.GetType() == typeof(Requests.SingleReconcileRequest)) {
+            } else if (req.GetType() == typeof(Requests.SingleReconcileRequest)) {
                 Requests.SingleReconcileRequest reconcile = (Requests.SingleReconcileRequest)req;
                 return reconcile.reconcile.transaction.terminal;
             }
@@ -119,18 +133,27 @@ namespace Fibonatix.CommDoo.Borgun
             return req.getConfigValue("TerminalN3DS") != null ? req.getConfigValue("TerminalN3DS") : "1";
         }
 
-        private static string getNumForRRN() {
-            lock (thisLock) {
-                DateTime curr = DateTime.Now.ToUniversalTime();
-                if (curr.Year != dt.Year || curr.Month != dt.Month || curr.Day != dt.Day || curr.Hour != dt.Hour || curr.Minute != dt.Minute) {
-                    dt = curr;
-                    sequental = 1;
-                }
-            }
-            int seq = Interlocked.Increment(ref sequental);
-            string ret = String.Format("F{0}{1}{2}{3:D2}{4:D2}{5:D4}", (char)(dt.Year - 2017 + 'A'), (char)(dt.Month + 'A' - 1), dt.Day < 15 ? (char)(dt.Day + 'A' - 1) : (char)(dt.Day + 'a' - 16),
-                dt.Hour, dt.Minute, sequental);
-            return ret;
+        private static char MinSecToChar(int n) {
+            if (n >= 0 && n < 28)
+                return (char)('A' + n);
+            else if (n >= 28 && n < 28 * 2)
+                return (char)('a' + n - 28);
+            else if (n >= 28 * 2 && n < 60)
+                return (char)('0' + n - 28 * 2);
+            else
+                return '_';
+        }
+
+        private static string getRRN(string origRRN) {
+            if (origRRN == null || origRRN == "") {
+
+                DateTime dt = DateTime.Now.ToUniversalTime();
+
+                string ret = String.Format("{0}{1}{2}{3}{4}{5}{6:D3}{7:D3}", (char)(dt.Year - 2017 + 'A'), (char)(dt.Month + 'A' - 1), dt.Day < 15 ? (char)(dt.Day + 'A' - 1) : (char)(dt.Day + 'a' - 16),
+                    (char)(dt.Hour + 'A'), MinSecToChar(dt.Minute), MinSecToChar(dt.Second), dt.Millisecond, dt.Ticks % 1000);
+                return ret;
+            } else
+                return origRRN;
         }
 
 
@@ -146,7 +169,7 @@ namespace Fibonatix.CommDoo.Borgun
                 TrAmount = commDooAuth.preAuth.transaction.amount.ToString(CultureInfo.InvariantCulture),
                 TrCurrency = Currencies.getCurrencyNumCode(Currencies.currencyCodeFromString(commDooAuth.preAuth.transaction.currency)),
                 DateAndTime = commDooAuth.preAuth.transaction.datetime != null ? commDooAuth.preAuth.transaction.datetime : GetCurrentDateTime(),
-                RRN = commDooAuth.preAuth.transaction.rrn != null ? commDooAuth.preAuth.transaction.rrn : getNumForRRN(),
+                RRN = getRRN(commDooAuth.preAuth.transaction.rrn),
             };
 
             if (commDooAuth.preAuth.transaction.cred_card_data != null) {
@@ -223,7 +246,7 @@ namespace Fibonatix.CommDoo.Borgun
                 TrAmount = commDooPurchase.purchase.transaction.amount.ToString(CultureInfo.InvariantCulture),
                 TrCurrency = Currencies.getCurrencyNumCode(Currencies.currencyCodeFromString(commDooPurchase.purchase.transaction.currency)),
                 DateAndTime = commDooPurchase.purchase.transaction.datetime != null ? commDooPurchase.purchase.transaction.datetime : GetCurrentDateTime(),
-                RRN = commDooPurchase.purchase.transaction.rrn != null ? commDooPurchase.purchase.transaction.rrn : getNumForRRN(),
+                RRN = getRRN(commDooPurchase.purchase.transaction.rrn),
                 PAN = virtualCard != null ? virtualCard : commDooPurchase.purchase.transaction.cred_card_data.credit_card_number,
             };
             
@@ -324,7 +347,7 @@ namespace Fibonatix.CommDoo.Borgun
                 Processor = getProcessor(commDooReconcile),
                 MerchantID = getMerchantID(commDooReconcile),
                 TerminalID = getTerminalID(commDooReconcile),
-                RRN = commDooReconcile.reconcile.transaction.rrn,                
+                RRN = commDooReconcile.reconcile.transaction.rrn,
             };
 
             Entities.Requests.SOAPTransactionInfoRequest soapResp = new Entities.Requests.SOAPTransactionInfoRequest() {
@@ -335,6 +358,45 @@ namespace Fibonatix.CommDoo.Borgun
                 }
             };
             return soapResp;
+        }
+
+        public static string composePostStringFor3DSMPI(Requests.EnrollmentCheck3DRequest request) {
+
+            System.Collections.Specialized.NameValueCollection Inputs = new System.Collections.Specialized.NameValueCollection();
+            Inputs.Add("version", "2.0");
+            Inputs.Add("cardType", "");
+            Inputs.Add("pan", request.enrollment_check.transaction.cred_card_data.credit_card_number);
+            Inputs.Add("expiry", String.Format("{0:D2}{1:D2}", request.enrollment_check.transaction.cred_card_data.expiration_year % 100, request.enrollment_check.transaction.cred_card_data.expiration_month));
+            Inputs.Add("deviceCategory", "0");
+            Inputs.Add("purchAmount", request.enrollment_check.transaction.amount.ToString(CultureInfo.InvariantCulture));
+            Inputs.Add("exponent", Currencies.getCurrencyExponent(Currencies.currencyCodeFromString(request.enrollment_check.transaction.currency)).ToString());
+            Inputs.Add("description", request.enrollment_check.transaction.usage);
+            Inputs.Add("currency", Currencies.getCurrencyNumCode(Currencies.currencyCodeFromString(request.enrollment_check.transaction.currency)));
+            Inputs.Add("merchantID", getMerchantContractNumber(request));
+            Inputs.Add("xid", PrepareXid(request.enrollment_check.transaction.reference_id));
+            Inputs.Add("okUrl", request.enrollment_check.transaction.communication3D.success_url);
+            Inputs.Add("failUrl", request.enrollment_check.transaction.communication3D.fail_url);
+            Inputs.Add("MD", base64Encode(request.enrollment_check.transaction.reference_id));
+
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            for (int i = 0; i < Inputs.Keys.Count; i++) {
+                sb.Append(Inputs[Inputs.Keys[i]] ?? "");
+            }
+            sb.Append(request.getConfigValue("secretcode"));
+            SHA1 sha = new SHA1Managed();
+            ASCIIEncoding ae = new ASCIIEncoding();
+            byte[] data = ae.GetBytes(sb.ToString());
+            byte[] digest = sha.ComputeHash(data);
+
+            Inputs.Add("digest", Convert.ToBase64String(digest) );
+            
+            sb = new System.Text.StringBuilder();
+            for (int i = 0; i < Inputs.Keys.Count; i++) {
+                sb.Append(Inputs.Keys[i] + "=" + HttpUtility.UrlEncode(Inputs[Inputs.Keys[i]] ?? ""));
+                if(i < Inputs.Keys.Count - 1)
+                    sb.Append("&");
+            }
+            return sb.ToString();
         }
         
 

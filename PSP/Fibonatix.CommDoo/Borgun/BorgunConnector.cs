@@ -8,6 +8,9 @@ using Genesis.Net.Errors;
 using Fibonatix.CommDoo.Requests;
 using Fibonatix.CommDoo.Responses;
 using System.Globalization;
+using System.Web;
+using System.Security.Cryptography;
+using Fibonatix.CommDoo.Helpers;
 
 namespace Fibonatix.CommDoo.Borgun
 {
@@ -107,7 +110,7 @@ namespace Fibonatix.CommDoo.Borgun
                             transaction = new PreauthResponse.Transaction() {
                                 reference_id = request.preAuth.transaction.reference_id,                                
                                 processing_status = new PreauthResponse.Transaction.ProcessingStatus() {
-                                    ProviderTransactionID = xmlResp.Transaction,
+                                    ProviderTransactionID = xmlResp.DateAndTime + "-" + xmlResp.TerminalID + "-" + xmlResp.Batch + "-" + xmlResp.Transaction,
                                     RRN = xmlResp.RRN,
                                     DateAndTime = xmlResp.DateAndTime,
                                     AuthCode = xmlResp.AuthCode,
@@ -175,7 +178,7 @@ namespace Fibonatix.CommDoo.Borgun
                             transaction = new CaptureResponse.Transaction() {
                                 reference_id = request.capture.transaction.reference_id,
                                 processing_status = new CaptureResponse.Transaction.ProcessingStatus() {
-                                    ProviderTransactionID = xmlResp.Transaction,
+                                    ProviderTransactionID = xmlResp.DateAndTime + "-" + xmlResp.TerminalID + "-" + xmlResp.Batch + "-" + xmlResp.Transaction,
                                     RRN = xmlResp.RRN,
                                     DateAndTime = xmlResp.DateAndTime,
                                     TerminalID = xmlResp.TerminalID,
@@ -249,7 +252,7 @@ namespace Fibonatix.CommDoo.Borgun
                             transaction = new PurchaseResponse.Transaction() {
                                 reference_id = request.purchase.transaction.reference_id,
                                 processing_status = new PurchaseResponse.Transaction.ProcessingStatus() {
-                                    ProviderTransactionID = xmlResp.Transaction,
+                                    ProviderTransactionID = xmlResp.DateAndTime + "-" + xmlResp.TerminalID + "-" + xmlResp.Batch + "-" + xmlResp.Transaction,
                                     RRN = xmlResp.RRN,
                                     DateAndTime = xmlResp.DateAndTime,
                                     TerminalID = xmlResp.TerminalID,
@@ -317,7 +320,7 @@ namespace Fibonatix.CommDoo.Borgun
                             transaction = new RefundResponse.Transaction() {
                                 reference_id = request.refund.transaction.reference_id,
                                 processing_status = new RefundResponse.Transaction.ProcessingStatus() {
-                                    ProviderTransactionID = xmlResp.Transaction,
+                                    ProviderTransactionID = xmlResp.DateAndTime + "-" + xmlResp.TerminalID + "-" + xmlResp.Batch + "-" + xmlResp.Transaction,
                                     RRN = xmlResp.RRN,
                                     DateAndTime = xmlResp.DateAndTime,
                                     TerminalID = xmlResp.TerminalID,
@@ -384,7 +387,7 @@ namespace Fibonatix.CommDoo.Borgun
                             transaction = new ReversalResponse.Transaction() {
                                 reference_id = request.reversal.transaction.reference_id,
                                 processing_status = new ReversalResponse.Transaction.ProcessingStatus() {
-                                    ProviderTransactionID = xmlResp.Transaction,
+                                    ProviderTransactionID = xmlResp.DateAndTime + "-" + xmlResp.TerminalID + "-" + xmlResp.Batch + "-" + xmlResp.Transaction,
                                     RRN = xmlResp.RRN,
                                     DateAndTime = xmlResp.DateAndTime,
                                     TerminalID = xmlResp.TerminalID,
@@ -446,8 +449,11 @@ namespace Fibonatix.CommDoo.Borgun
 
                 if (Int32.Parse(xmlResp.ActionCode) == 0) {
                     Entities.Responses.TransactionInfoResponse.TransactionInfo resultTransaction = null;
+                    string trID = request.reconcile.transaction.provider_transaction_id;
+                    if (trID.LastIndexOf('-') != -1)
+                        trID = trID.Substring(trID.LastIndexOf('-') + 1);
                     foreach (var tr in xmlResp.transactions) {
-                        if(tr.TransactionNumber == request.reconcile.transaction.provider_transaction_id) {
+                        if(tr.TransactionNumber == trID) {
                             resultTransaction = tr;
                             break;
                         }
@@ -459,7 +465,7 @@ namespace Fibonatix.CommDoo.Borgun
                                     reference_id = request.reconcile.transaction.reference_id,
                                     processing_status = new SingleReconcileResponse.Transaction.ProcessingStatus() {
                                         FunctionResult = "ACK",
-                                        ProviderTransactionID = resultTransaction.TransactionNumber,
+                                        ProviderTransactionID = request.reconcile.transaction.provider_transaction_id,
                                         TerminalID = resultTransaction.TerminalNr,
                                     }
                                 },
@@ -533,13 +539,12 @@ namespace Fibonatix.CommDoo.Borgun
                 enrolment_check = new EnrollmentCheck3DResponse.ResponseFunction() {
                     transaction = new EnrollmentCheck3DResponse.Transaction() {
                         processing_status = new EnrollmentCheck3DResponse.Transaction.ProcessingStatus() {
-                            FunctionResult = "NOK",
-                            error = new EnrollmentCheck3DResponse.Transaction.ProcessingStatus.Error() {
-                                type = "PROVIDER",
-                                number = "120",
-                                message = "Not Supported Acquier",
-                            }
-                        }
+                            FunctionResult = "ACK",                            
+                        },
+                        secure3D = new Response.Transaction.Secure3D() {
+                            acs_url = "https://mpi.borgun.is/mdpaympi/MerchantServer",
+                            post_data = RequestTransform.composePostStringFor3DSMPI(request),
+                        },
                     }
                 }
             };
@@ -601,21 +606,124 @@ namespace Fibonatix.CommDoo.Borgun
             return response;
         }
         public EvaluateProviderResponseResponse EvaluateProviderResponse(EvaluateProviderResponseRequest request) {
-            EvaluateProviderResponseResponse response = new EvaluateProviderResponseResponse() {
-                evaluate_provider = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection() {
-                    transaction = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction() {
-                        transaction_type = "NONE",
-                        processing_status = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction.ProcessingStatus() {
-                            FunctionResult = "NOK",
-                        },
-                        error = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction.Error() {
-                            type = "PROVIDER",
-                            number = "120",
-                            message = "Not Supported Acquier",
-                        },
-                    },
+            EvaluateProviderResponseResponse response = null;
+            
+            try {
+                string requestString = request.evaluation.raw_data.post_part;
+
+                var parameters = HttpUtility.ParseQueryString(requestString);
+                string string4hash = "";
+                string incomingDigest = "";
+                string MD = "";
+
+                for (int i = 0; i < parameters.Keys.Count; i++) {
+                    if (parameters.Keys[i] == "digest")
+                        incomingDigest = HttpUtility.HtmlDecode(parameters[parameters.Keys[i]]);
+                    else if (parameters.Keys[i] == "MD") {
+                        MD = parameters[parameters.Keys[i]];
+                        if (MD.IndexOf(',') != -1) {
+                            MD = MD.Substring(0, MD.IndexOf(','));
+                            string4hash += MD;
+                        } else
+                            string4hash += MD;
+                    } else if (parameters.Keys[i] == "version" ||
+                        parameters.Keys[i] == "merchantID" ||
+                        parameters.Keys[i] == "xid" ||
+                        parameters.Keys[i] == "mdStatus" ||
+                        parameters.Keys[i] == "mdErrorMsg" ||
+                        parameters.Keys[i] == "txstatus" ||
+                        parameters.Keys[i] == "iReqCode" ||
+                        parameters.Keys[i] == "iReqDetail" ||
+                        parameters.Keys[i] == "vendorCode" ||
+                        parameters.Keys[i] == "eci" ||
+                        parameters.Keys[i] == "cavv" ||
+                        parameters.Keys[i] == "cavvAlgorithm") {
+                        string4hash += parameters[parameters.Keys[i]];
+                    }
                 }
-            };
+                string4hash += request.getConfigValue("secretcode");
+
+                // string4hash = string4hash.Replace(" ", "+");
+
+                SHA1 sha = new SHA1Managed();
+                ASCIIEncoding ae = new ASCIIEncoding();
+                byte[] data = ae.GetBytes(string4hash);
+                byte[] digest = sha.ComputeHash(data);
+
+                string calculatedDigest = Convert.ToBase64String(digest);
+
+                if(calculatedDigest != incomingDigest) { 
+                    throw new System.ComponentModel.DataAnnotations.ValidationException("Signature verification failed").SetCode((int)ErrorCodes.InputDataError);
+                }
+
+                int mdStatus = Int32.Parse(parameters["mdStatus"]);
+                if (mdStatus >= 1 && mdStatus <= 4) {
+                    response = new EvaluateProviderResponseResponse() {
+                        evaluate_provider = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection() {
+                            transaction = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction() {
+                                transaction_type = "NONE",
+                                processing_status = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction.ProcessingStatus() {
+                                    FunctionResult = "ACK",
+                                    reference_id = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(MD)),
+                                },
+                            },
+                        }
+                    };
+                }
+                else {
+                    response = new EvaluateProviderResponseResponse() {
+                        evaluate_provider = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection() {
+                            transaction = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction() {
+                                transaction_type = "NONE",
+                                processing_status = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction.ProcessingStatus() {
+                                    FunctionResult = "NOK",
+                                    reference_id = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(MD)),
+                                },
+                                error = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction.Error() {
+                                    type = "PROVIDER", // "DATA"
+                                    number = ((UInt32)mdStatus + 1000).ToString(),
+                                    message = Helpers.MDStatus.getMDStatusMessage(mdStatus),
+                                },
+                            },
+                        }
+                    };
+                }
+
+            } catch (System.ComponentModel.DataAnnotations.ValidationException ex) {
+                response = new EvaluateProviderResponseResponse() {
+                    evaluate_provider = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection() {
+                        transaction = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction() {
+                            transaction_type = "NONE",
+                            processing_status = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction.ProcessingStatus() {
+                                FunctionResult = "NOK",
+                            },
+                            error = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction.Error() {
+                                type = "SYSTEM", // "DATA"
+                                number = ((UInt32)ex.HResult).ToString(),
+                                message = ex.Message,
+                            },
+                        },
+                    }
+                };
+            } catch (Exception) {
+                response = new EvaluateProviderResponseResponse() {
+                    evaluate_provider = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection() {
+                        transaction = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction() {
+                            transaction_type = "NONE",
+                            processing_status = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction.ProcessingStatus() {
+                                FunctionResult = "NOK",
+                            },
+                            error = new EvaluateProviderResponseResponse.EvaluateProviderResponseSection.Transaction.Error() {
+                                message = "Error from Notification center",
+                                number = "600",
+                                type = "SYSTEM"
+                            },
+                        },
+                    }
+                };
+            } finally {
+            }
+
             return response;
         }
 

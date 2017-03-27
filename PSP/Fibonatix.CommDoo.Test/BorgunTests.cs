@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -56,6 +57,55 @@ namespace Fibonatix.CommDoo.Test
                 "</Configurations>";
 
 
+        string configuration3D =
+                "<Configurations>" +
+                "<Configuration>" +
+                "<Name>login</Name>" +
+                "<Value>fibonatix</Value>" +
+                "</Configuration>" +
+                "<Configuration>" +
+                "<Name>password</Name>" +
+                "<Value>ark.138</Value>" +
+                "</Configuration>" +
+                "<Configuration>" +
+                "<Name>MerchantContractNumber</Name>" +
+                "<Value>9275444</Value>" +
+                "</Configuration>" +
+                "<Configuration>" +
+                "<Name>secretcode</Name>" +
+                "<Value>99887766</Value>" +
+                "</Configuration>" +
+                "<Configuration>" +
+                "<Name>Processor</Name>" +
+                "<Value>247</Value>" +
+                "</Configuration>" +
+                "<Configuration>" +
+                "<Name>MerchantId</Name>" +
+                "<Value>247</Value>" +
+                "</Configuration>" +
+                "<Configuration>" +
+                "<Name>TerminalN3DS</Name>" +
+                "<Value>1</Value>" +
+                "</Configuration>" +
+                "<Configuration>" +
+                "<Name>Terminal3DS</Name>" +
+                "<Value>2</Value>" +
+                "</Configuration>" +
+                "<Configuration>" +
+                "<Name>TerminalRecurrent</Name>" +
+                "<Value>3</Value>" +
+                "</Configuration>" +
+                "<Configuration>" +
+                "<Name>acquirer</Name>" +
+                "<Value>Borgun</Value>" +
+                "</Configuration>" +
+                "<Configuration>" +
+                "<Name>testmode</Name>" +
+                "<Value>true</Value>" +
+                "</Configuration>" +
+                "</Configurations>";
+
+
         internal static class CardsNumbers
         {
             public const string VisaSuccessfulTransaction = "5587402000012011"; // 4222222222222222
@@ -63,7 +113,7 @@ namespace Fibonatix.CommDoo.Test
             public const string VisaDeclinedTransaction = "4111111111111111";
             public const string MasterCardSuccessfulTransaction = "5555555555554444";
             public const string MasterCardDeclinedTransaction = "5105105105105100";
-            public const string Visa3dSecureEnrolled = "4240051496047240";
+            public const string Visa3dSecureEnrolled = "4111111111111111";
         }
 
         string VisaCard =
@@ -78,9 +128,9 @@ namespace Fibonatix.CommDoo.Test
 
         string VisaCard3D =
                 "<CreditCardData>" +
-                "<CVV>111</CVV>" +
-                "<ExpirationYear>2019</ExpirationYear>" +
-                "<ExpirationMonth>01</ExpirationMonth>" +
+                "<CVV>855</CVV>" +
+                "<ExpirationYear>2018</ExpirationYear>" +
+                "<ExpirationMonth>04</ExpirationMonth>" +
                 "<CardHolderName>John Doe</CardHolderName>" +
                 "<CreditCardNumber>" + CardsNumbers.Visa3dSecureEnrolled + "</CreditCardNumber>" +
                 "<CreditCardType>Visa</CreditCardType>" +
@@ -113,7 +163,7 @@ namespace Fibonatix.CommDoo.Test
                 "<Amount>" + amount + "</Amount>" +
                 "<Currency>EUR</Currency>" +
                 "<Usage>Usage Test</Usage>" +
-                "<RRN>" + rrn + "</RRN>" +
+                // "<RRN>" + rrn + "</RRN>" +
                 "<DateAndTime>" + datetime + "</DateAndTime>" +
                 VisaCard + 
                 "<CustomerData>" +
@@ -240,7 +290,7 @@ namespace Fibonatix.CommDoo.Test
                 "<Amount>" + amount + "</Amount>" +
                 "<Currency>EUR</Currency>" +
                 "<Usage>Usage Test</Usage>" +
-                "<RRN>" + rrn + "</RRN>" +
+                // "<RRN>" + rrn + "</RRN>" +
                 "<DateAndTime>" + datetime + "</DateAndTime>" +
                 VisaCard +
                 "<CustomerData>" +
@@ -355,7 +405,7 @@ namespace Fibonatix.CommDoo.Test
                 "<Amount>" + amount + "</Amount>" +
                 "<Currency>EUR</Currency>" +
                 "<Usage>Usage Test</Usage>" +
-                "<RRN>" + RRN + "</RRN>" +
+                // "<RRN>" + RRN + "</RRN>" +
                 "<DateAndTime>" + dt + "</DateAndTime>" +
                 "<RecurringTransaction>" +
                 "<Type>" + recc + "</Type>" +
@@ -390,7 +440,7 @@ namespace Fibonatix.CommDoo.Test
         public Responses.PurchaseResponse PurchaseRecurrenceTest(string recc = "SINGLE", Responses.PurchaseResponse reponse = null) {
 
             string dt = reponse != null ? reponse.purchase.transaction.processing_status.DateAndTime : getCurrentDateAndTime();
-            string RRN = reponse != null ? reponse.purchase.transaction.processing_status.RRN : getRRN();
+            string RRN = reponse != null ? reponse.purchase.transaction.processing_status.RRN : "";
             string providerID = ((recc == "REPEATED") ? reponse.purchase.transaction.processing_status.ProviderTransactionID : "");
 
             string xml =
@@ -443,10 +493,10 @@ namespace Fibonatix.CommDoo.Test
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<Request>" +
                 "<EnrollmentCheck>" +
-                configuration +
+                configuration3D +
                 "<Transaction>" +
                 "<ReferenceID>" + reference_id + "-3DENRL-" + String.Format("{0,8:X8}", DateTime.Now.ToBinary()) + "</ReferenceID>" +
-                "<Amount>500</Amount>" +
+                "<Amount>1</Amount>" +
                 "<Currency>EUR</Currency>" +
                 "<Usage>123456</Usage>" +
                 VisaCard3D +
@@ -462,6 +512,11 @@ namespace Fibonatix.CommDoo.Test
                 "<Phone>+18001234567</Phone>" +
                 "<IPAddress>8.8.8.8</IPAddress>" +
                 "</CustomerData>" +
+                "<Communication>" +
+                "<NotificationURL>http://mynotification.com/notification.aspx/processid=12</NotificationURL>" +
+                "<SuccessURL>http://mynotification.com/success.aspx?a=a&amp;b=b</SuccessURL>" +
+                "<FailURL>http://mynotification.com/fail.aspx?a=c&amp;b=d</FailURL>" +
+                "</Communication>" +
                 "</Transaction>" +
                 "</EnrollmentCheck>" +
                 "</Request>";
@@ -637,16 +692,17 @@ namespace Fibonatix.CommDoo.Test
             return res;
         }
 
-        public Responses.EvaluateProviderResponseResponse EvaluateProviderResponse() {
+        public Responses.EvaluateProviderResponseResponse EvaluateProviderResponse(string postdata, string getdata = null) {
+
 
             string xml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<Request>" +
                 "<EvaluateProviderResponse>" +
-                configuration +
+                configuration3D +
                 "<RawData>" +
-                "<Get>nkey=354076423_QPQQ91C9BU</Get>" +
-                "<Post>transaction_id=ORDER_30012017_3D2&amp;terminal_token=9d669ebe5f5bbffcbeea5565a636608669f8b037&amp;unique_id=6b7d6547ab6e97da77084550853c87ba&amp;transaction_type=init_recurring_sale3d&amp;status=approved&amp;signature=4bea0c8efe49da2920d8a6295f4e26086e33733a&amp;amount=12190&amp;eci=05</Post>" +
+                "<Get>" + WebUtility.HtmlEncode(getdata) + "</Get>" +
+                "<Post>" + WebUtility.HtmlEncode(postdata) + "</Post>" +
                 "</RawData>" +
                 "</EvaluateProviderResponse>" +
                 "</Request>";
@@ -691,12 +747,12 @@ namespace Fibonatix.CommDoo.Test
         public void FullTests() {
             // PreauthTest();               // ACK
             // CaptureTest();               // NOK
-            PreauthPlusCaptureTest();    // ACK + ACK
-            PurchaseTest();              // ACK
+            // PreauthPlusCaptureTest();    // ACK + ACK
+            // PurchaseTest();              // ACK
             // ReversalTest();              // NOK
             // RefundTest();                // NOK
-            PreauthPlusReversalTest();   // ACK + ACK
-            PurchasePlusRefundTest();    // ACK + ACK
+            // PreauthPlusReversalTest();   // ACK + ACK
+            // PurchasePlusRefundTest();    // ACK + ACK
 
             // PreauthRecurrenceTest("SINGLE");        // ACK
             // var r = PreauthRecurrenceTest("INITIAL");       // ACK
@@ -717,7 +773,12 @@ namespace Fibonatix.CommDoo.Test
             // PreauthAfterEnrollTest(r.enrolment_check.transaction.secure3D.md, "success");         // NOK
 
             // NotificationProcessing();   // NOK
-            // EvaluateProviderResponse(); // NOK
+            var postfail1 = "PAResSyntaxOK=true&PAResVerified=false&version=2.0&merchantID=9275444&xid=MDAwMC0wMDAwLTNERU5STC04OEQ%3D&mdStatus=0&mdErrorMsg=Not+authenticated&txstatus=N&iReqCode=&iReqDetail=&vendorCode=&eci=&cavv=&cavvAlgorithm=&MD=MDAwMC0wMDAwLTNERU5STC04OEQ0NzE1OTRCNUQ2MURB&md=MDAwMC0wMDAwLTNERU5STC04OEQ0NzE1OTRCNUQ2MURB&digest=t3%2FcqiIQ6qQWcOhp%2FiTic6%2BoTfM%3D&sID=2&veresEnrolledStatus=Y&paresTxStatus=N";
+            var postfail2 = "PAResSyntaxOK=true&PAResVerified=false&version=2.0&merchantID=9275444&xid=MDAwMC0wMDAwLTNERU5STC04OEQ%3D&mdStatus=0&mdErrorMsg=Not+authenticated&txstatus=N&iReqCode=&iReqDetail=&vendorCode=&eci=&cavv=&cavvAlgorithm=&MD=MDAwMC0wMDAwLTNERU5STC04OEQ0NzJGM0FBREI4NEFE&md=MDAwMC0wMDAwLTNERU5STC04OEQ0NzJGM0FBREI4NEFE&digest=iXg%2B91Hss%2BpRBXjy3%2F0iSiA0uRA%3D&sID=2&veresEnrolledStatus=Y&paresTxStatus=N";
+            var postsucc1 = "PAResSyntaxOK=true&PAResVerified=false&version=2.0&merchantID=9275444&xid=MDAwMC0wMDAwLTNERU5STC04OEQ%3D&mdStatus=1&mdErrorMsg=Authenticated&txstatus=Y&iReqCode=&iReqDetail=&vendorCode=&eci=05&cavv=AAABAiY1VGlkgShYUTVUAAAAAAA%3D&cavvAlgorithm=2&MD=MDAwMC0wMDAwLTNERU5STC04OEQ0NzJGMkU0RjJEODM1&md=MDAwMC0wMDAwLTNERU5STC04OEQ0NzJGMkU0RjJEODM1&digest=7%2BWpqudmncDaVaXBT7ISZmU02ig%3D&sID=1&veresEnrolledStatus=Y&paresTxStatus=Y";
+            var postsucc2 = "PAResSyntaxOK=false&PAResVerified=false&version=2.0&merchantID=9275444&xid=MDAwMC0wMDAwLTNERU5STC04OEQ%3D&mdStatus=2&mdErrorMsg=N-status%2FNot+enrolled+from+Directory+Server%3A+https%3A%2F%2Fdsec.visa3dsecure.com&txstatus=N&iReqCode=&iReqDetail=&vendorCode=&eci=&cavv=&cavvAlgorithm=&MD=MDAwMC0wMDAwLTNERU5STC04OEQ0NzJGNDIyQTE3RTJB&md=MDAwMC0wMDAwLTNERU5STC04OEQ0NzJGNDIyQTE3RTJB&digest=Y5MrctTr2Q1C%2BVflX3VXRVuPNGg%3D&sID=1&veresEnrolledStatus=N&paresTxStatus=-";
+
+            EvaluateProviderResponse(postsucc2); // NOK
             // Reconcile();
         }
     }

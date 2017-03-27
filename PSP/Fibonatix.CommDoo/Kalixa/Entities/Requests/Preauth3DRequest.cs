@@ -18,7 +18,43 @@ namespace Fibonatix.CommDoo.Kalixa.Entities.Requests
     public class Preauth3DRequest : Request
     {
         public override string getAPIPath() {
-            throw new System.ComponentModel.DataAnnotations.ValidationException("Kalixa aquirer doesn't support Preauthorize 3D request").SetCode((int)ErrorCodes.InvalidTransactionTypeError);
+            return "initiatePayment";
+        }
+
+        [XmlElement(ElementName = "merchantID")]
+        public string merchantID { get; set; }
+        [XmlElement(ElementName = "shopID")]
+        public string shopID { get; set; }
+        [XmlElement(ElementName = "merchantTransactionID")]
+        public string merchantTransactionID { get; set; }
+        [XmlElement(ElementName = "paymentMethodID")]
+        public string paymentMethodID { get; set; }
+        [XmlElement(ElementName = "amount")]
+        public Amount amount { get; set; }
+        [XmlElement(ElementName = "userID")]
+        public string userID { get; set; }
+        [XmlElement(ElementName = "userData")]
+        public UserData userData { get; set; }
+        [XmlElement(ElementName = "userIP")]
+        public string userIP { get; set; }
+        [XmlElement(ElementName = "userSessionID")]
+        public string userSessionID { get; set; }
+        [XmlElement(ElementName = "creationTypeID")]
+        public string creationTypeID { get; set; }
+
+        [XmlArray("specificPaymentData")]
+        [XmlArrayItem(typeof(keyStringValuePair), ElementName = "data")]
+        public dataList specificPaymentData { get; set; }
+
+        [XmlElement(ElementName = "paymentAccountID")]
+        public string paymentAccountID { get; set; }
+        [XmlElement(ElementName = "paymentAccount")]
+        public PaymentAccount paymentAccount { get; set; }
+        public class PaymentAccount
+        {
+            [XmlArray("specificPaymentAccountData")]
+            [XmlArrayItem(typeof(keyStringValuePair), ElementName = "data")]
+            public dataList specificPaymentAccountData { get; set; }
         }
     }
 }

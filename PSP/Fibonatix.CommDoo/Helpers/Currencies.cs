@@ -206,5 +206,8 @@ namespace Fibonatix.CommDoo.Helpers
             }
             return null;
         }
+        public static int? getCurrencyExponent(Iso4217CurrencyCodes code) {
+            return Iso4217Currencies.GetCurrency(code).MinorToMajorExponent;
+        }
     }
 }

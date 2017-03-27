@@ -35,7 +35,7 @@ namespace Fibonatix.CommDoo.Responses
                     [XmlElement(ElementName = "FunctionResult")]
                     public string FunctionResult { get; set; }
                     [XmlElement(ElementName = "Amount")]
-                    public decimal amount { get; set; }
+                    public string amount { get; set; }
                     [XmlElement(ElementName = "Currency")]
                     public string currency { get; set; }
                 }

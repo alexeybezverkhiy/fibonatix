@@ -74,4 +74,47 @@ namespace Fibonatix.CommDoo.Borgun.Helpers
             return getActionCodeMessage(Int32.Parse(Code));
         }
     }
+
+    class MDStatus
+    {
+        public static string getMDStatusMessage(int mdStatus) {
+            string response = "Unknown Status";
+            switch(mdStatus) {
+                case 0:
+                    response = "Authentication failed / Signature not valid";
+                    break;
+                case 1:
+                    response = "Fully authenticated transactio";
+                    break;
+                case 2:
+                    response = "Issuer or cardholder not enrolled";
+                    break;
+                case 3:
+                    response = "Issuer or cardholder not enrolled, in cache";
+                    break;
+                case 4:
+                    response = "Attempt receipt received and signature valid";
+                    break;
+                case 5:
+                    response = "Authentication unavailable";
+                    break;
+                case 6:
+                    response = "3-D Secure Error";
+                    break;
+                case 7:
+                    response = "System error";
+                    break;
+                case 8:
+                    response = "Fraud Score blocked";
+                    break;
+                case 9:
+                    response = "Pending transaction";
+                    break;
+                default:
+                    response = "Unknown Status";
+                    break;
+            }
+            return response;
+        }
+    }
 }

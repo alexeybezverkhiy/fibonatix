@@ -77,6 +77,8 @@ namespace Fibonatix.CommDoo.Responses
                 public string term_url { get; set; }
                 [XmlElement(ElementName = "AcsUrl")]
                 public string acs_url { get; set; }
+                [XmlElement(ElementName = "PostData")]
+                public string post_data { get; set; }
             }
         }
 

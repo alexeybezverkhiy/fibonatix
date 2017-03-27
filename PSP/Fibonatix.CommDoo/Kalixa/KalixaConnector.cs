@@ -40,15 +40,20 @@ namespace Fibonatix.CommDoo.Kalixa
         }
 
         public PreauthResponse Preauthorize(PreauthRequest request) {
+            /*
             if (request.preAuth.transaction.threed_secure != null &&
                 (request.preAuth.transaction.threed_secure.enrolment_status == "Y" ||
                 request.preAuth.transaction.threed_secure.enrolment_status == "N" || 
                 request.preAuth.transaction.threed_secure.enrolment_status == "U")) {
                 return PreauthorizeAfterEnroll(request);
-            } else {
+            } 
+            else 
+            */
+            {
                 return PreauthorizeNon3D(request);
             }
         }
+
         private PreauthResponse PreauthorizeNon3D(PreauthRequest request) {
             PreauthResponse response = null;
 
@@ -134,6 +139,8 @@ namespace Fibonatix.CommDoo.Kalixa
             }
             return response;
         }
+
+        /*
         private PreauthResponse PreauthorizeAfterEnroll(PreauthRequest request) {
             PreauthResponse response = null;
             try {
@@ -248,6 +255,7 @@ namespace Fibonatix.CommDoo.Kalixa
             }
             return response;
         }
+        */
         private PreauthResponse PreauthorizeAfterEnroll120(PreauthRequest request) {
             PreauthResponse response = null;
 
@@ -333,6 +341,7 @@ namespace Fibonatix.CommDoo.Kalixa
             }
             return response;
         }
+        
 
         public CaptureResponse Capture(CaptureRequest request) {
             CaptureResponse response = null;
@@ -417,7 +426,7 @@ namespace Fibonatix.CommDoo.Kalixa
             return response;
         }
 
-        // Refund - TODO - make implementation this request in two - preauth + capture
+        
         public PurchaseResponse Purchase(PurchaseRequest request) {
             PurchaseResponse response = null;
             try {
@@ -485,7 +494,7 @@ namespace Fibonatix.CommDoo.Kalixa
             return response;
         }
 
-        // Refund - TODO - test it
+        
         public RefundResponse Refund(RefundRequest request) {
             RefundResponse response = null;
 
@@ -569,7 +578,7 @@ namespace Fibonatix.CommDoo.Kalixa
             return response;
         }
 
-        // Reversal - TODO - test it
+        
         public ReversalResponse Reversal(ReversalRequest request) {
             ReversalResponse response = null;
 
@@ -653,8 +662,28 @@ namespace Fibonatix.CommDoo.Kalixa
             return response;
         }
 
-        // Enrollment Check - TODO - test it
+
         public EnrollmentCheck3DResponse EnrollmentCheck3D(EnrollmentCheck3DRequest request) {
+            EnrollmentCheck3DResponse response = new EnrollmentCheck3DResponse() {
+                enrolment_check = new EnrollmentCheck3DResponse.ResponseFunction() {                    
+                    transaction = new EnrollmentCheck3DResponse.Transaction() {                        
+                        processing_status = new EnrollmentCheck3DResponse.Transaction.ProcessingStatus() {
+                            FunctionResult = "NOK",
+                            error = new EnrollmentCheck3DResponse.Transaction.ProcessingStatus.Error() {
+                                type = "SYSTEM",
+                                number = ErrorCodes.InvalidTransactionTypeError.ToString(),
+                                message = "Kalixa aquirer doesn't support 'Enrollment Check' request",
+                            },
+                        },
+                    },
+                }
+            };
+            return response;
+        }
+
+        /*
+        public EnrollmentCheck3DResponse EnrollmentCheck3D(EnrollmentCheck3DRequest request) {
+
             EnrollmentCheck3DResponse response = null;
 
             try {
@@ -767,23 +796,128 @@ namespace Fibonatix.CommDoo.Kalixa
             }
             return response;
         }
+        */
 
         // Preauth 3D - not supported
         public Preauth3DResponse Preauthorize3D(Preauth3DRequest request) {
-            Preauth3DResponse response = new Preauth3DResponse() {
-                preAuth3D = new Preauth3DResponse.ResponseFunction() {
-                    transaction = new Preauth3DResponse.Transaction() {
-                        processing_status = new Preauth3DResponse.Transaction.ProcessingStatus() {
-                            FunctionResult = "NOK",
-                            error = new Preauth3DResponse.Transaction.ProcessingStatus.Error() {
-                                type = "PROVIDER",
-                                number = ErrorCodes.InvalidTransactionTypeError.ToString(),
-                                message = "Kalixa aquirer doesn't support 'Preauthorization 3D' request",
+            Preauth3DResponse response = null;
+
+            try {
+                var kalixEnroll = RequestTransform.getKalixaAuthorize3D(request);
+                string xml = kalixEnroll.getXml();
+
+                Console.WriteLine("Kalixa Enrollment Check request: {0}", xml);
+
+                string res = client.ProcessRequest(kalixEnroll);
+
+                Console.WriteLine("Kalixa Enrollment Check response: {0}", res);
+
+                try {
+                    Kalixa.Entities.Response.Preauth3DResponse resp = Kalixa.Entities.Response.Preauth3DResponse.DeserializeFromString(res);
+                    // 3D enrolled
+                    if (resp.payment.state.definition.key == "287") {
+                        response = new Preauth3DResponse() {
+                            preAuth3D = new Preauth3DResponse.ResponseFunction() {                                
+                                transaction = new Preauth3DResponse.Transaction() {
+                                    processing_status = new Preauth3DResponse.Transaction.ProcessingStatus() {
+                                        StatusType = "Y",
+                                        FunctionResult = "ACK",
+                                        ProviderTransactionID = resp.payment.paymentID,
+                                        CreditCardAlias = resp.payment.userID,
+                                    },
+                                    reference_id = resp.payment.merchantTransactionID,                                    
+                                    secure3D = new Response.Transaction.Secure3D() {
+                                        acs_url = resp.payment.state.paymentStateDetails.GetValueByKey("RedirectionUrl"),
+                                        md = resp.payment.state.paymentStateDetails.GetValueByKey("PostDataMD"),
+                                        pa_req = resp.payment.state.paymentStateDetails.GetValueByKey("PostDataPaReq"),
+                                        term_url = resp.payment.state.paymentStateDetails.GetValueByKey("PostDataTermUrl") != null ?
+                                                resp.payment.state.paymentStateDetails.GetValueByKey("PostDataTermUrl") : request.preAuth3D.transaction.communication3D.notification_url,
+                                    },
+                                },
                             },
-                        },                        
-                    },
+                        };
+                    }
+                    // non 3D enrolled
+                    else if (resp.payment.state.definition.key == "283" || resp.payment.state.definition.key == "284" ||
+                        resp.payment.state.definition.key == "285" || resp.payment.state.definition.key == "302") {
+
+                        PreauthRequest N3DRequest = new PreauthRequest() {
+                            preAuth = new PreauthRequest.PreAuthorization() {
+                                configurations = request.preAuth3D.configurations,
+                                transaction = new PreauthRequest.PreAuthorization.Transaction() {
+                                    credit_card_alias = request.preAuth3D.transaction.credit_card_alias,
+                                    amount = request.preAuth3D.transaction.amount,
+                                    cred_card_data = request.preAuth3D.transaction.cred_card_data,
+                                    currency = request.preAuth3D.transaction.currency,
+                                    customer_data = request.preAuth3D.transaction.customer_data,
+                                    recurring_transaction = request.preAuth3D.transaction.recurring_transaction,
+                                    reference_id = request.preAuth3D.transaction.reference_id,
+                                    usage = request.preAuth3D.transaction.usage,
+
+                                    provider_transaction_id = resp.payment.paymentID,                                    
+                                },
+                            }
+                        };
+
+                        var responseN3DS = PreauthorizeAfterEnroll120(N3DRequest);
+
+                        response = new Preauth3DResponse() {
+                            preAuth3D = new Preauth3DResponse.ResponseFunction() {
+                                transaction = responseN3DS.preAuth.transaction,                                
+                            },                            
+                        };
+                    } else {
+                        response = new Preauth3DResponse() {
+                            preAuth3D = new Preauth3DResponse.ResponseFunction() {
+                                transaction = new Preauth3DResponse.Transaction() {
+                                    processing_status = new Preauth3DResponse.Transaction.ProcessingStatus() {
+                                        FunctionResult = "NOK",
+                                        ProviderTransactionID = resp.payment.paymentID,
+                                        error = new ReversalResponse.Transaction.ProcessingStatus.Error() {
+                                            type = "PROVIDER", // "DATA"
+                                            number = resp.payment.state.definition.value,
+                                            message = resp.payment.state.definition.key + " : " + resp.payment.state.description,
+                                        }
+                                    },
+                                    reference_id = resp.payment.merchantTransactionID,
+                                },
+                            },
+                        };
+                    }
+                } catch {
+                    Kalixa.Entities.Response.ExceptionResponse resp = Kalixa.Entities.Response.ExceptionResponse.DeserializeFromString(res);
+                    response = new Preauth3DResponse() {
+                        preAuth3D = new Preauth3DResponse.ResponseFunction() {
+                            transaction = new Preauth3DResponse.Transaction() {
+                                processing_status = new Preauth3DResponse.Transaction.ProcessingStatus() {
+                                    FunctionResult = "NOK",
+                                    error = new ReversalResponse.Transaction.ProcessingStatus.Error() {
+                                        type = "PROVIDER", // "DATA"
+                                        number = resp.errorCode,
+                                        message = resp.errorMessage,
+                                    }
+                                },
+                            },
+                        },
+                    };
                 }
-            };
+            } catch (Exception ex) {
+                response = new Preauth3DResponse() {
+                    preAuth3D = new Preauth3DResponse.ResponseFunction() {
+                        transaction = new Preauth3DResponse.Transaction() {
+                            processing_status = new Preauth3DResponse.Transaction.ProcessingStatus() {
+                                FunctionResult = "NOK",
+                                error = new Preauth3DResponse.Transaction.ProcessingStatus.Error() {
+                                    type = "SYSTEM", // "DATA"
+                                    number = ((UInt32)ex.HResult).ToString(),
+                                    message = ex.Message,
+                                }
+                            }
+                        }
+                    }
+                };
+
+            }
             return response;
         }
 
@@ -795,9 +929,9 @@ namespace Fibonatix.CommDoo.Kalixa
                         processing_status = new Purchase3DResponse.Transaction.ProcessingStatus() {
                             FunctionResult = "NOK",
                             error = new Purchase3DResponse.Transaction.ProcessingStatus.Error() {
-                                type = "PROVIDER",
+                                type = "SYSTEM",
                                 number = ErrorCodes.InvalidTransactionTypeError.ToString(),
-                                message = "Kalixa aquirer doesn't support 'Purchase 3D' request",
+                                message = "Kalixa aquirer doesn't support 'Purchase 3D' request, call two methods 'Preauthorize 3D' and 'Capture' separatly",
                             },
                         },
                     },
@@ -848,7 +982,7 @@ namespace Fibonatix.CommDoo.Kalixa
             return response;
         }
 
-        // Single Reconcile - TODO - test it
+        
         public SingleReconcileResponse SingleReconcile(SingleReconcileRequest request) {
             Fibonatix.CommDoo.Kalixa.Entities.Requests.SingleReconcileRequest reconcile = null;
             SingleReconcileResponse response = null;

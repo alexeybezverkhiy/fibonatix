@@ -19,7 +19,8 @@ namespace Fibonatix.CommDoo.Kalixa.Network
             string authInfo = String.Format("{0}:{1}", login, password);
             Authorization = String.Format("Basic {0}", Convert.ToBase64String(Encoding.Default.GetBytes(authInfo)));
             if (sandbox)
-                baseURL = "https://test.backend.cqrpayments.com/PaymentRedirectionService/PaymentService.svc/pox/";
+                baseURL = "https://api.test.kalixa.com/PaymentRedirectionService/PaymentService.svc/pox/";
+                // baseURL = "https://test.backend.cqrpayments.com/PaymentRedirectionService/PaymentService.svc/pox/";
             else
                 baseURL = "https://backend.cqrpayments.com/PaymentRedirectionService/PaymentService.svc/pox/";
         }
