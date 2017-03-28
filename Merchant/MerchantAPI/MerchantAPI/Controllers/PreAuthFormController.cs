@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
 using MerchantAPI.Controllers.Factories;
 using MerchantAPI.Models;
@@ -17,35 +12,33 @@ using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Controllers
 {
-    public class SaleController : ApiController
-    {
-        private SaleService _service;
+    public class PreAuthFormController : ApiController {
+        private PreAuthService _service;
 
-        public SaleController()
-        {
-            _service = new SaleService();
+        public PreAuthFormController() {
+            _service = new PreAuthService();
         }
 
         [HttpPost]
         public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
-            [FromBody] SaleRequestModel model) {
-            SaleResponseModel err = null;
+            [FromBody] PreAuthRequestModel model) {
+            PreAuthResponseModel err = null;
             ServiceTransitionResult result = null;
 
             string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
             if (string.IsNullOrEmpty(controlKey)) {
-                err = new SaleResponseModel(model.client_orderid);
+                err = new PreAuthResponseModel(model.client_orderid);
                 err.SetValidationError("2", "INVALID_CONTROL_CODE");
             } else if (string.IsNullOrEmpty(model.client_orderid)) {
-                err = new SaleResponseModel(null);
+                err = new PreAuthResponseModel(null);
                 err.SetValidationError("2", "INVALID_INCOMING_DATA");
             } else {
                 if (model.IsHashValid(endpointId, controlKey)) {
                     string raw = RawContentReader.Read(Request).Result;
-                    result = _service.SaleSingleCurrency(endpointId, model, raw);
+                    result = _service.PreAuthSingleCurrency(endpointId, model, raw);
                 } else {
-                    err = new SaleResponseModel(model.client_orderid);
+                    err = new PreAuthResponseModel(model.client_orderid);
                     err.SetValidationError("2", "INVALID_CONTROL_CODE");
                 }
             }
@@ -60,7 +53,8 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage MultiCurrency(
             [FromUri] int endpointGroupId,
-            [FromBody] SaleRequestModel model) {
+            [FromBody] PreAuthRequestModel model) {
+
             return SingleCurrency(endpointGroupId, model);
         }
 
@@ -68,23 +62,15 @@ namespace MerchantAPI.Controllers
         [ActionName("success")]
         public HttpResponseMessage SingleSuccessPostback(
             [FromUri] int endpointId,
-            [FromUri] SaleSuccessPaymentModel model)
-        {
-            if (!CommDooFrontendFactory.SuccessHashIsValid(endpointId, model))
-            {
-                return new HttpResponseMessage(HttpStatusCode.BadRequest);
-            }
-
-            if (model.transactionid != null)
-            {
+            [FromUri] PreAuthSuccessPaymentModel model) {
+            if (model.transactionid != null) {
                 TransactionsDataStorage.UpdateTransaction(model.fibonatixID, model.transactionid,
-                    TransactionState.Finished, TransactionStatus.Approved);
+                    TransactionState.Finished);
+            } else {
+                TransactionsDataStorage.UpdateTransactionState(model.fibonatixID,
+                    TransactionState.Finished);
             }
-            else
-            {
-                TransactionsDataStorage.UpdateTransaction(model.fibonatixID,
-                    TransactionState.Finished, TransactionStatus.Approved);
-            }
+            TransactionsDataStorage.UpdateTransactionStatus(model.fibonatixID, TransactionStatus.Approved);
 
             var result = new ServiceTransitionResult(HttpStatusCode.Redirect, model.customerredirecturl);
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
@@ -95,13 +81,7 @@ namespace MerchantAPI.Controllers
         [ActionName("failure")]
         public HttpResponseMessage SingleFailurePostback(
             [FromUri] int endpointId,
-            [FromUri] SaleFailurePaymentModel model)
-        {
-            if (!CommDooFrontendFactory.FailureHashIsValid(endpointId, model))
-            {
-                return new HttpResponseMessage(HttpStatusCode.BadRequest);
-            }
-
+            [FromUri] PreAuthFailurePaymentModel model) {
             TransactionsDataStorage.UpdateTransaction(model.fibonatixID,
                 TransactionState.Finished, TransactionStatus.Declined);
             var result = new ServiceTransitionResult(HttpStatusCode.Redirect, model.customerredirecturl);
@@ -113,7 +93,7 @@ namespace MerchantAPI.Controllers
         [ActionName("success")]
         public HttpResponseMessage MultiSuccessPostback(
             [FromUri] int endpointGroupId,
-            [FromUri] SaleSuccessPaymentModel model) {
+            [FromUri] PreAuthSuccessPaymentModel model) {
 
             return SingleSuccessPostback(endpointGroupId, model);
         }
@@ -122,10 +102,9 @@ namespace MerchantAPI.Controllers
         [ActionName("failure")]
         public HttpResponseMessage MultiFailurePostback(
         [FromUri] int endpointGroupId,
-        [FromUri] SaleFailurePaymentModel model) {
+        [FromUri] PreAuthFailurePaymentModel model) {
 
             return SingleFailurePostback(endpointGroupId, model);
         }
-
     }
 }

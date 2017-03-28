@@ -17,11 +17,11 @@ using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Controllers
 {
-    public class SaleController : ApiController
+    public class SaleFormController : ApiController
     {
         private SaleService _service;
 
-        public SaleController()
+        public SaleFormController()
         {
             _service = new SaleService();
         }

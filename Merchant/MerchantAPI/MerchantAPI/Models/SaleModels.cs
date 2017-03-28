@@ -140,19 +140,19 @@ namespace MerchantAPI.Models
             if (IsSucc())
             {
                 return String.Format(
-                    "type={0}" +
-                    "&paynet-order-id={1}" +
-                    "&merchant-order-id={2}" +
-                    "&serial-number={3}",
+                    "type={0}\n" +
+                    "&paynet-order-id={1}\n" +
+                    "&merchant-order-id={2}\n" +
+                    "&serial-number={3}\n",
                     SUCC_ASYNC_RESPONSE, paynet_order_id, merchant_order_id, serial_number);
             }
             return String.Format(
-                    "type={0}" +
-                    "&paynet-order-id={1}" +
-                    "&merchant-order-id={2}" +
-                    "&serial-number={3}" +
-                    "&error-message={4}" +
-                    "&error-code={5}",
+                    "type={0}\n" +
+                    "&paynet-order-id={1}\n" +
+                    "&merchant-order-id={2}\n" +
+                    "&serial-number={3}\n" +
+                    "&error-message={4}\n" +
+                    "&error-code={5}\n",
                     type, paynet_order_id, merchant_order_id, serial_number,
                     HttpUtility.UrlEncode(error_message), error_code);
         }

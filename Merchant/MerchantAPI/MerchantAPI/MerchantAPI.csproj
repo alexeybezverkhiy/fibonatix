@@ -195,6 +195,8 @@
     <Compile Include="Controllers\Factories\SerializerFactory.cs" />
     <Compile Include="Controllers\NotificationController.cs" />
     <Compile Include="Controllers\MgmtController.cs" />
+    <Compile Include="Controllers\PreAuthFormController.cs" />
+    <Compile Include="Controllers\SaleFormController.cs" />
     <Compile Include="Data\MerchantCallback.cs" />
     <Compile Include="Helpers\ControllerHelper.cs" />
     <Compile Include="Helpers\CurrencyConverter.cs" />
