@@ -53,5 +53,13 @@ namespace MerchantAPI.Controllers
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }
+
+        [HttpPost]
+        public HttpResponseMessage MultiCurrency(
+            [FromUri] int endpointGroupId,
+            [FromBody] StatusRequestModel model) {
+            return SingleCurrency(endpointGroupId, model);
+        }
+
     }
 }

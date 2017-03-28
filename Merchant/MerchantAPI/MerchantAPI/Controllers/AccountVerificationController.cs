@@ -23,13 +23,20 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
-            [FromBody] SaleRequestModel model)
-        {
+            [FromBody] SaleRequestModel model) {
             ServiceTransitionResult result = _service.AccountVerificationSingleCurrency(endpointId, model);
 
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
 
+        }
+
+        [HttpPost]
+        public HttpResponseMessage MultiCurrency(
+            [FromUri] int endpointGroupId,
+            [FromBody] SaleRequestModel model) {
+
+            return SingleCurrency(endpointGroupId, model);
         }
 
     }

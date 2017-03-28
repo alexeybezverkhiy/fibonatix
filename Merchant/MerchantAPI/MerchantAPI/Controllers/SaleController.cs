@@ -29,33 +29,25 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
-            [FromBody] SaleRequestModel model)
-        {
+            [FromBody] SaleRequestModel model) {
             SaleResponseModel err = null;
             ServiceTransitionResult result = null;
 
             string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
-            if (string.IsNullOrEmpty(controlKey))
-            {
+            if (string.IsNullOrEmpty(controlKey)) {
                 err = new SaleResponseModel(model.client_orderid);
                 err.SetValidationError("2", "INVALID_CONTROL_CODE");
-            }
-            else
-            {
-                if (model.IsHashValid(endpointId, controlKey))
-                {
+            } else {
+                if (model.IsHashValid(endpointId, controlKey)) {
                     string raw = RawContentReader.Read(Request).Result;
                     result = _service.SaleSingleCurrency(endpointId, model, raw);
-                }
-                else
-                {
+                } else {
                     err = new SaleResponseModel(model.client_orderid);
                     err.SetValidationError("2", "INVALID_CONTROL_CODE");
                 }
             }
 
-            if (err != null)
-            {
+            if (err != null) {
                 result = new ServiceTransitionResult(HttpStatusCode.OK, err.ToHttpResponse());
             }
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
@@ -65,14 +57,13 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage MultiCurrency(
             [FromUri] int endpointGroupId,
-            [FromBody] SaleRequestModel model)
-        {
-            throw new NotImplementedException();
+            [FromBody] SaleRequestModel model) {
+            return SingleCurrency(endpointGroupId, model);
         }
 
         [HttpGet]
         [ActionName("success")]
-        public HttpResponseMessage SuccessPostback(
+        public HttpResponseMessage SingleSuccessPostback(
             [FromUri] int endpointId,
             [FromUri] SaleSuccessPaymentModel model)
         {
@@ -99,7 +90,7 @@ namespace MerchantAPI.Controllers
 
         [HttpGet]
         [ActionName("failure")]
-        public HttpResponseMessage FailurePostback(
+        public HttpResponseMessage SingleFailurePostback(
             [FromUri] int endpointId,
             [FromUri] SaleFailurePaymentModel model)
         {
@@ -114,5 +105,24 @@ namespace MerchantAPI.Controllers
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }
+
+        [HttpGet]
+        [ActionName("success")]
+        public HttpResponseMessage MultiSuccessPostback(
+            [FromUri] int endpointGroupId,
+            [FromUri] SaleSuccessPaymentModel model) {
+
+            return SingleSuccessPostback(endpointGroupId, model);
+        }
+
+        [HttpGet]
+        [ActionName("failure")]
+        public HttpResponseMessage MultiFailurePostback(
+        [FromUri] int endpointGroupId,
+        [FromUri] SaleFailurePaymentModel model) {
+
+            return SingleFailurePostback(endpointGroupId, model);
+        }
+
     }
 }

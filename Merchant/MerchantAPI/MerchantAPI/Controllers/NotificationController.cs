@@ -21,7 +21,7 @@ namespace MerchantAPI.Controllers
 
         [HttpPost]
         [ActionName("success")]
-        public HttpResponseMessage Success(
+        public HttpResponseMessage SingleSuccess(
             int endpointId,
             [FromBody] NotificationRequestModel model, 
             [FromUri] NotificationRequestExtraModel model2)
@@ -41,5 +41,16 @@ namespace MerchantAPI.Controllers
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }
+
+        [HttpPost]
+        [ActionName("success")]
+        public HttpResponseMessage MultiSuccess(
+            int endpointGroupId,
+            [FromBody] NotificationRequestModel model,
+            [FromUri] NotificationRequestExtraModel model2) {
+
+            return SingleSuccess(endpointGroupId, model, model2);
+        }
+
     }
 }

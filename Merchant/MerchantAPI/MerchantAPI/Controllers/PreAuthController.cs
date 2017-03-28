@@ -12,45 +12,35 @@ using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Controllers
 {
-    public class PreAuthController : ApiController
-    {
+    public class PreAuthController : ApiController {
         private PreAuthService _service;
 
-        public PreAuthController()
-        {
+        public PreAuthController() {
             _service = new PreAuthService();
         }
 
         [HttpPost]
         public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
-            [FromBody] PreAuthRequestModel model)
-        {
+            [FromBody] PreAuthRequestModel model) {
             PreAuthResponseModel err = null;
             ServiceTransitionResult result = null;
 
             string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
-            if (string.IsNullOrEmpty(controlKey))
-            {
+            if (string.IsNullOrEmpty(controlKey)) {
                 err = new PreAuthResponseModel(model.client_orderid);
                 err.SetValidationError("2", "INVALID_CONTROL_CODE");
-            }
-            else
-            {
-                if (model.IsHashValid(endpointId, controlKey))
-                {
+            } else {
+                if (model.IsHashValid(endpointId, controlKey)) {
                     string raw = RawContentReader.Read(Request).Result;
                     result = _service.PreAuthSingleCurrency(endpointId, model, raw);
-                }
-                else
-                {
+                } else {
                     err = new PreAuthResponseModel(model.client_orderid);
                     err.SetValidationError("2", "INVALID_CONTROL_CODE");
                 }
             }
 
-            if (err != null)
-            {
+            if (err != null) {
                 result = new ServiceTransitionResult(HttpStatusCode.OK, err.ToHttpResponse());
             }
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
@@ -60,22 +50,20 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage MultiCurrency(
             [FromUri] int endpointGroupId,
-            [FromBody] SaleRequestModel model) {
-            throw new NotImplementedException();
+            [FromBody] PreAuthRequestModel model) {
+
+            return SingleCurrency(endpointGroupId, model);
         }
 
         [HttpGet]
         [ActionName("success")]
-        public HttpResponseMessage SuccessPostback(
+        public HttpResponseMessage SingleSuccessPostback(
             [FromUri] int endpointId,
             [FromUri] PreAuthSuccessPaymentModel model) {
-            if (model.transactionid != null)
-            {
+            if (model.transactionid != null) {
                 TransactionsDataStorage.UpdateTransaction(model.fibonatixID, model.transactionid,
                     TransactionState.Finished);
-            }
-            else
-            {
+            } else {
                 TransactionsDataStorage.UpdateTransactionState(model.fibonatixID,
                     TransactionState.Finished);
             }
@@ -88,7 +76,7 @@ namespace MerchantAPI.Controllers
 
         [HttpGet]
         [ActionName("failure")]
-        public HttpResponseMessage FailurePostback(
+        public HttpResponseMessage SingleFailurePostback(
             [FromUri] int endpointId,
             [FromUri] PreAuthFailurePaymentModel model) {
             TransactionsDataStorage.UpdateTransaction(model.fibonatixID,
@@ -96,6 +84,24 @@ namespace MerchantAPI.Controllers
             var result = new ServiceTransitionResult(HttpStatusCode.Redirect, model.customerredirecturl);
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
+        }
+
+        [HttpGet]
+        [ActionName("success")]
+        public HttpResponseMessage MultiSuccessPostback(
+            [FromUri] int endpointGroupId,
+            [FromUri] PreAuthSuccessPaymentModel model) {
+
+            return SingleSuccessPostback(endpointGroupId, model);
+        }
+
+        [HttpGet]
+        [ActionName("failure")]
+        public HttpResponseMessage MultiFailurePostback(
+        [FromUri] int endpointGroupId,
+        [FromUri] PreAuthFailurePaymentModel model) {
+
+            return SingleFailurePostback(endpointGroupId, model);
         }
     }
 }
