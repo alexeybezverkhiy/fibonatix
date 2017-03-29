@@ -52,9 +52,11 @@ namespace MerchantAPI.Services
                 NameValueCollection response;
                 switch (transactionData.Type) {
                     case TransactionType.Sale:
+                    case TransactionType.SaleForm:
                         response = StatusSaleSingleCurrency(transactionData, merchantControlKey);
                         break;
                     case TransactionType.Preauth:
+                    case TransactionType.PreauthForm:
                         response = StatusPreAuthSingleCurrency(transactionData, merchantControlKey);
                         break;
                     case TransactionType.Capture:
@@ -106,7 +108,8 @@ namespace MerchantAPI.Services
                         response["paynet-order-id"] = transactionData.TransactionId;
                         response["merchant-order-id"] = transactionData.MerchantTransactionId;
                         response["phone"] = sale_model["phone"];
-                        response["html"] = HttpUtility.UrlEncode(redirectHTML);
+                        if(transactionData.Type != TransactionType.SaleForm)
+                            response["html"] = HttpUtility.UrlEncode(redirectHTML);
                         response["serial-number"] = Guid.NewGuid().ToString();
                         response["last-four-digits"] = ControllerHelper.LastFourDigits(sale_model["credit_card_number"]);
                         response["bin"] = "";
@@ -127,7 +130,12 @@ namespace MerchantAPI.Services
                         response["terminal-id"] = "";
                         response["paynet-processing-date"] = "";
                         response["approval-code"] = "";
-                        response["order-stage"] = "sale_3d_validating";
+
+                        if (transactionData.Type != TransactionType.SaleForm)
+                            response["order-stage"] = "sale_3d_validating";
+                        else
+                            response["order-stage"] = "sale_processing";
+
                         response["descriptor"] = sale_model["order_desc"];
                         response["by-request-sn"] = transactionData.SerialNumber;
                         response["control"] = CalculateHash(response, merchantControlKey);
@@ -202,7 +210,7 @@ namespace MerchantAPI.Services
                                 response["terminal-id"] = "";
                                 response["paynet-processing-date"] = "";
                                 response["approval-code"] = "";
-                                response["order-stage"] = "sale_failed";
+                                response["order-stage"] = "sale_declined";
                                 response["descriptor"] = sale_model["order_desc"];
                                 response["by-request-sn"] = transactionData.SerialNumber;
                                 response["control"] = CalculateHash(response, merchantControlKey);
@@ -268,7 +276,10 @@ namespace MerchantAPI.Services
                         response["paynet-order-id"] = transactionData.TransactionId;
                         response["merchant-order-id"] = transactionData.MerchantTransactionId;
                         response["phone"] = preauth_model["phone"];
-                        response["html"] = HttpUtility.UrlEncode(redirectHTML);
+
+                        if (transactionData.Type != TransactionType.PreauthForm)
+                            response["html"] = HttpUtility.UrlEncode(redirectHTML);
+
                         response["serial-number"] = Guid.NewGuid().ToString();
                         response["last-four-digits"] = ControllerHelper.LastFourDigits(preauth_model["credit_card_number"]);
                         response["bin"] = "";
@@ -289,7 +300,12 @@ namespace MerchantAPI.Services
                         response["terminal-id"] = "";
                         response["paynet-processing-date"] = "";
                         response["approval-code"] = "";
-                        response["order-stage"] = "auth_3d_validating";
+
+                        if (transactionData.Type != TransactionType.PreauthForm)
+                            response["order-stage"] = "auth_3d_validating";
+                        else
+                            response["order-stage"] = "auth_processing";
+
                         response["descriptor"] = preauth_model["order_desc"];
                         response["by-request-sn"] = transactionData.SerialNumber;
                         response["control"] = CalculateHash(response, merchantControlKey);
@@ -364,7 +380,7 @@ namespace MerchantAPI.Services
                             response["terminal-id"] = "";
                             response["paynet-processing-date"] = "";
                             response["approval-code"] = "";
-                            response["order-stage"] = "auth_failed";
+                            response["order-stage"] = "auth_declined";
                             response["descriptor"] = preauth_model["order_desc"];
                             response["by-request-sn"] = transactionData.SerialNumber;
                             response["control"] = CalculateHash(response, merchantControlKey);

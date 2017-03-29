@@ -86,7 +86,7 @@ namespace MerchantAPI.Controllers
                     TransactionState.Finished, TransactionStatus.Approved);
             }
 
-            var result = new ServiceTransitionResult(HttpStatusCode.Redirect, model.customerredirecturl);
+            var result = new ServiceTransitionResult(HttpStatusCode.Redirect, "", model.customerredirecturl);
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }
@@ -104,7 +104,7 @@ namespace MerchantAPI.Controllers
 
             TransactionsDataStorage.UpdateTransaction(model.fibonatixID,
                 TransactionState.Finished, TransactionStatus.Declined);
-            var result = new ServiceTransitionResult(HttpStatusCode.Redirect, model.customerredirecturl);
+            var result = new ServiceTransitionResult(HttpStatusCode.Redirect, "", model.customerredirecturl);
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }

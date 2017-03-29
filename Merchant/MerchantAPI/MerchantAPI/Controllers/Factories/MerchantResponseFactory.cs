@@ -20,9 +20,10 @@ namespace MerchantAPI.Controllers.Factories
                 serviceResult.Status == System.Net.HttpStatusCode.MovedPermanently ||
                 serviceResult.Status == System.Net.HttpStatusCode.Moved)
             {
-                response.Headers.Location = new Uri(serviceResult.StringContent);
-            }
-            else
+                response.Headers.Location = new Uri(serviceResult.StringLocation);
+                response.Content = new StringContent(serviceResult.StringContent);
+                response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+            } else
             {
                 response.Content = new StringContent(serviceResult.StringContent);
                 response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");

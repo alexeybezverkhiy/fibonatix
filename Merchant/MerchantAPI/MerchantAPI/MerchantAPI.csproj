@@ -18,8 +18,8 @@
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
-    <IISExpressAnonymousAuthentication />
-    <IISExpressWindowsAuthentication />
+    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>disabled</IISExpressWindowsAuthentication>
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
@@ -226,6 +226,10 @@
     <Compile Include="Migrations\201702281028204_ExpandTransaction.Designer.cs">
       <DependentUpon>201702281028204_ExpandTransaction.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201703291519158_val.cs" />
+    <Compile Include="Migrations\201703291519158_val.Designer.cs">
+      <DependentUpon>201703291519158_val.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\CallbackModels.cs" />
     <Compile Include="Models\NotificationRequestModel.cs" />
@@ -249,6 +253,8 @@
     <Compile Include="Models\BaseFibonatixModel.cs" />
     <Compile Include="Models\CaptureModels.cs" />
     <Compile Include="Models\PreAuthModels.cs" />
+    <Compile Include="Models\RedirectLandingModels.cs" />
+    <Compile Include="Models\SaleFormModels.cs" />
     <Compile Include="Models\StatusModels.cs" />
     <Compile Include="Models\SaleModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -256,6 +262,7 @@
     <Compile Include="Services\CallbackDeliveryService.cs" />
     <Compile Include="Services\Exceptions\TransactionNotFoundException.cs" />
     <Compile Include="Services\NotificationService.cs" />
+    <Compile Include="Services\SaleFormService.cs" />
     <Compile Include="Services\VoidService.cs" />
     <Compile Include="Services\ReturnService.cs" />
     <Compile Include="Services\CaptureService.cs" />
@@ -303,6 +310,9 @@
     <EmbeddedResource Include="Migrations\201702281028204_ExpandTransaction.resx">
       <DependentUpon>201702281028204_ExpandTransaction.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703291519158_val.resx">
+      <DependentUpon>201703291519158_val.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -315,11 +325,11 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
-          <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>52380</DevelopmentServerPort>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>False</AutoAssignPort>
+          <DevelopmentServerPort>8060</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:52380/</IISUrl>
+          <IISUrl>http://localhost:8060/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

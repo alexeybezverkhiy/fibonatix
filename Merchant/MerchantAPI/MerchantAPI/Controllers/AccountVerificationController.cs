@@ -28,7 +28,6 @@ namespace MerchantAPI.Controllers
 
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
-
         }
 
         [HttpPost]
@@ -38,6 +37,5 @@ namespace MerchantAPI.Controllers
 
             return SingleCurrency(endpointGroupId, model);
         }
-
     }
 }

@@ -34,6 +34,8 @@ namespace MerchantAPI.Data
         Capture = 3,
         Return = 4,
         Void = 5,
+        SaleForm = 6,
+        PreauthForm = 7,
     }
 
     public class Transaction
