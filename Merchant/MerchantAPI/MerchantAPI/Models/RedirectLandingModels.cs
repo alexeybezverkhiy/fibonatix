@@ -6,6 +6,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using MerchantAPI.Helpers;
 
+
+
 namespace MerchantAPI.Models
 {
     public class RedirectResponseModel : BaseFibonatixModel
@@ -34,24 +36,60 @@ namespace MerchantAPI.Models
             return success;
         }
 
-        public string ToHttpResponse() {
+        public string ToHttpResponse(string redirectUrl) {
             if (IsSucc()) {
-                return String.Format(
-                    "status={0}\n" +
-                    "&orderid={1}\n" +
-                    "&merchant-order={2}\n" +
-                    "&client-orderid={2}\n" +
-                    "&control={3}\n" +
-                    "&descriptor={4}\n",
-                    status, orderid, merchant_order, client_orderid, control, descriptor);
+
+                return
+@"<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv=""content-type"" content=""text/html; charset=UTF-8"">
+    <title>Redirecting...</title>
+    <script type=""text/javascript"" language=""javascript"">
+         function makeSubmit() {
+            document.returnform.submit();
+         }
+    </script>
+</head>
+<body onLoad = ""makeSubmit()"">
+    <form name=""returnform"" id=""returnform"" action=""" + redirectUrl + @""" method=""POST"">
+        <input type=""hidden"" name=""status"" value=""" + status + @""" >
+        <input type=""hidden"" name=""orderid"" value=""" + orderid + @""" >
+        <input type=""hidden"" name=""merchant-order"" value=""" + merchant_order + @""" >
+        <input type=""hidden"" name=""client-orderid"" value=""" + client_orderid + @""" >
+        <input type=""hidden"" name=""control"" value=""" + control + @""" >
+        <input type=""hidden"" name=""descriptor"" value=""" + HttpUtility.UrlEncode(descriptor != null ? descriptor : "") + @""" >
+        <noscript>
+            <input type=""submit"" name=""submit"" value=""Press this button to continue"" />
+        </noscript>
+    </form>
+</body>";
             }
-            return String.Format(
-                    "&paynet-order-id={0}\n" +
-                    "&merchant-order-id={1}\n" +
-                    "&error-message={2}\n" +
-                    "&error-code={3}\n",
-                    orderid, merchant_order,
-                    HttpUtility.UrlEncode(error_message));
+
+            return 
+@"<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv=""content-type"" content=""text/html; charset=UTF-8"">
+    <title>Redirecting...</title>
+    <script type=""text/javascript"" language=""javascript"">
+         function makeSubmit() {
+            document.returnform.submit();
+         }
+    </script>
+</head>
+<body onLoad = ""makeSubmit()"">
+    <form name=""returnform"" id=""returnform"" action=""" + redirectUrl + @""" method=""POST"">
+        <input type=""hidden"" name=""paynet-order-id"" value=""" + orderid + @""" >
+        <input type=""hidden"" name=""merchant-order-id"" value=""" + merchant_order + @""" >
+        <input type=""hidden"" name=""error-message"" value=""" + HttpUtility.UrlEncode(error_message) + @""" >
+        <input type=""hidden"" name=""error-code"" value=""" + "100" +@""" >
+        <input type=""hidden"" name=""control"" value=""" + control + @""" >
+        <noscript>
+            <input type=""submit"" name=""submit"" value=""Press this button to continue"" />
+        </noscript>
+    </form>
+</body>";
         }
     }
 }

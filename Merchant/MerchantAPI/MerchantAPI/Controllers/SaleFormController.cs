@@ -90,9 +90,8 @@ namespace MerchantAPI.Controllers
             responseData.merchant_order = model.fibonatixID;
             responseData.status = "approved";
             string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
-            responseData.control = responseData.AssemblyHashContent(endpointId, controlKey);
-
-            var result = new ServiceTransitionResult(HttpStatusCode.Redirect, responseData.ToHttpResponse(), model.customerredirecturl);
+            responseData.control = HashHelper.SHA1(responseData.AssemblyHashContent(endpointId, controlKey));
+            var result = new ServiceTransitionResult(HttpStatusCode.OK, responseData.ToHttpResponse(model.customerredirecturl));
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }
@@ -115,9 +114,9 @@ namespace MerchantAPI.Controllers
             responseData.merchant_order = model.fibonatixID;
             responseData.status = "declined";
             string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
-            responseData.control = responseData.AssemblyHashContent(endpointId, controlKey);
+            responseData.control = HashHelper.SHA1(responseData.AssemblyHashContent(endpointId, controlKey));
 
-            var result = new ServiceTransitionResult(HttpStatusCode.Redirect, responseData.ToHttpResponse(), model.customerredirecturl);
+            var result = new ServiceTransitionResult(HttpStatusCode.OK, responseData.ToHttpResponse(model.customerredirecturl));
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }
