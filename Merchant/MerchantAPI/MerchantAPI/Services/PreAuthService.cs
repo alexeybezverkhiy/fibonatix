@@ -23,7 +23,7 @@ namespace MerchantAPI.Services
             Transaction transactionData = new Transaction(TransactionType.Preauth, model.client_orderid);
             try
             {
-                NameValueCollection requestParameters = CommDooFrontendFactory.CreateMultyCurrencyPaymentParams(
+                NameValueCollection requestParameters = CommDooFrontendFactory.CreateSingleCurrencyPaymentParams(
                     endpointId, model, transactionData.TransactionId);
 
                 var parameters = new StringBuilder(256)

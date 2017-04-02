@@ -403,7 +403,7 @@ namespace MerchantAPI.Helpers
             { Iso4217CurrencyCodes.XAG, new Currency("Silver", "961", "ZZ11_Silver", null) },
             { Iso4217CurrencyCodes.XAU, new Currency("Gold", "959", "ZZ08_Gold", null) },
             { Iso4217CurrencyCodes.XBA, new Currency("Bond Markets Unit European Composite Unit (EURCO)", "955", "ZZ01_Bond Markets Unit European_EURCO", null) },
-            { Iso4217CurrencyCodes.XBB, new Currency("Bon d Markets Unit European Monetary Unit (E.M.U.-6)", "956", "ZZ02_Bond Markets Unit European_EMU-6", null) },
+            { Iso4217CurrencyCodes.XBB, new Currency("Bond Markets Unit European Monetary Unit (E.M.U.-6)", "956", "ZZ02_Bond Markets Unit European_EMU-6", null) },
             { Iso4217CurrencyCodes.XBC, new Currency("Bond Markets Unit European Unit of Account 9 (E.U.A.-9)", "957", "ZZ03_Bond Markets Unit European_EUA-9", null) },
             { Iso4217CurrencyCodes.XBD, new Currency("Bond Markets Unit European Unit of Account 17 (E.U.A.-17)", "958", "ZZ04_Bond Markets Unit European_EUA-17", null) },
             { Iso4217CurrencyCodes.XCD, new Currency("East Caribbean Dollar", "951", "SAINT VINCENT AND THE GRENADINES", 2) },
@@ -427,35 +427,39 @@ namespace MerchantAPI.Helpers
     {
         public static decimal MinorAmountToMajor(int minor, Iso4217CurrencyCodes code) {
             decimal majorAmount;
-            bool res = Iso4217Currencies.TryConvertMinorToMajor(code, (int)minor, out majorAmount);
-            if (!res)
-                majorAmount = (decimal)minor;
-            return majorAmount;
+            bool res = Iso4217Currencies.TryConvertMinorToMajor(code, minor, out majorAmount);
+            return res ? majorAmount : minor;
         }
+
         public static int MajorAmountToMinor(decimal major, Iso4217CurrencyCodes code) {
             int minorAmount;
             bool res = Iso4217Currencies.TryConvertMajorToMinor(code, major, out minorAmount);
-            if (!res)
-                minorAmount = (int)major;
-            return minorAmount;
+            return res ? minorAmount : (int) major;
         }
 
         public static decimal MinorAmountToMajor(int minor, string currencyCode) {
-            decimal ret = (decimal)minor;
             try {
-                ret = MinorAmountToMajor(minor, (Iso4217CurrencyCodes)Enum.Parse(typeof(Iso4217CurrencyCodes), currencyCode));
-            } catch {
+                decimal ret = MinorAmountToMajor(minor, (Iso4217CurrencyCodes)Enum.Parse(typeof(Iso4217CurrencyCodes), currencyCode));
+                return ret;
             }
-            return ret;
+            catch (Exception e)
+            {
+                throw new ArgumentException($"Cann't convert minor amount [{minor}] of currency [{currencyCode}] to major value" +
+                    $". Cause: {e.Message}");
+            }
         }
+
         public static int MajorAmountToMinor(decimal major, string currencyCode) {
-            int ret = (int)major;
             try {
-                ret = MajorAmountToMinor(major, (Iso4217CurrencyCodes)Enum.Parse(typeof(Iso4217CurrencyCodes), currencyCode));
-            } catch {
+                int ret = MajorAmountToMinor(major, (Iso4217CurrencyCodes)Enum.Parse(typeof(Iso4217CurrencyCodes), currencyCode));
+                return ret;
+            } catch (Exception e)
+            {
+                throw new ArgumentException($"Cann't convert major amount [{major}] of currency [{currencyCode}] into minor units" +
+                    $". Cause: {e.Message}");
             }
-            return ret;
         }
+
         public static string MajorAmountToMinor(string major, string currencyCode) {
             return MajorAmountToMinor(Decimal.Parse(major, NumberStyles.Currency, CultureInfo.InvariantCulture), currencyCode).ToString();
         }

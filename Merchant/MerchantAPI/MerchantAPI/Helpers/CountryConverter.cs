@@ -12,7 +12,9 @@ namespace MerchantAPI.Helpers
         }
 
         public static string countryAlpha2String(string c) {
-            if (c == null) return "US";
+            if (c == null) {
+                throw new ArgumentNullException("Argument 'c' cann't be [null]");
+            }
             string code = c.ToUpper();
             if (code == "AU" || code == "AUS") return "AU";
             else if (code == "AT" || code == "AUT") return "AT";
@@ -265,11 +267,15 @@ namespace MerchantAPI.Helpers
             else if (code == "SS" || code == "SSD") return "SS";
             else if (code == "JM" || code == "JAM") return "JM";
             else if (code == "JP" || code == "JPN") return "JP";
-            else return "US";
+            else
+                throw new ArgumentException($"Argument 'c' has unknown value [{c}]");
         }
 
         public static string countryAlpha3String(string c) {
-            if (c == null) return "USA";
+            if (c == null)
+            {
+                throw new ArgumentNullException("Argument 'c' cann't be null");
+            }
             string code = c.ToUpper();
             if (code == "AU" || code == "AUS") return "AUS";
             else if (code == "AT" || code == "AUT") return "AUT";
@@ -522,7 +528,8 @@ namespace MerchantAPI.Helpers
             else if (code == "SS" || code == "SSD") return "SSD";
             else if (code == "JM" || code == "JAM") return "JAM";
             else if (code == "JP" || code == "JPN") return "JPN";
-            else return "USA";
+            else
+                throw new ArgumentException($"Argument 'c' has unknown value [{c}]");
         }
     }
 }

@@ -20,6 +20,12 @@ namespace MerchantAPI.Helpers
             '&'
         };
 
+        private static char[] HttpAuthHeaderDelimiterChars =
+        {
+            '=',
+            ','
+        };
+
         private const string PARAM_CVV = "cvv2";
         private const string PARAM_CARD_NUMBER = "credit_card_number";
 
@@ -41,8 +47,8 @@ namespace MerchantAPI.Helpers
         public static string LastFourDigits(string cardNumber)
         {
             if (string.IsNullOrEmpty(cardNumber)) return string.Empty;
-            return cardNumber.Length >= 4 
-                ? cardNumber.Substring(cardNumber.Length - 4) 
+            return cardNumber.Length >= 4
+                ? cardNumber.Substring(cardNumber.Length - 4)
                 : cardNumber;
         }
 
@@ -56,7 +62,7 @@ namespace MerchantAPI.Helpers
             NameValueCollection result = new NameValueCollection();
             for (int i = 0; i < pairs.Length; i += 2)
             {
-                result.Add(pairs[i], HttpUtility.UrlDecode(pairs[i+1]));
+                result.Add(pairs[i], HttpUtility.UrlDecode(pairs[i + 1]));
             }
             return result;
         }
@@ -74,6 +80,22 @@ namespace MerchantAPI.Helpers
                     .Append(HttpUtility.UrlEncode(value));
             }
             return builder.ToString();
+        }
+
+        public static NameValueCollection DeserializeHeader(string headerName, string raw)
+        {
+            string[] pairs = raw.Split(HttpAuthHeaderDelimiterChars);
+            if (pairs.Length % 2 != 0)
+            {
+                throw new ArgumentException($"Length of parsed raw parameters of '{headerName}' header" +
+                    $" is odd [actual={pairs.Length}], but must be even");
+            }
+            NameValueCollection result = new NameValueCollection();
+            for (int i = 0; i < pairs.Length; i += 2)
+            {
+                result.Add(pairs[i], HttpUtility.UrlDecode(pairs[i + 1]));
+            }
+            return result;
         }
     }
 

@@ -191,10 +191,12 @@
     <Compile Include="CommDoo\Configuration\Requests\Request.cs" />
     <Compile Include="CommDoo\Configuration\Responses\Response.cs" />
     <Compile Include="Connectors\CommDooFrontendConnector.cs" />
+    <Compile Include="Controllers\Exceptions\InvalidAuthHeaderException.cs" />
     <Compile Include="Controllers\AccountVerificationController.cs" />
     <Compile Include="Controllers\Factories\SerializerFactory.cs" />
     <Compile Include="Controllers\NotificationController.cs" />
     <Compile Include="Controllers\MgmtController.cs" />
+    <Compile Include="Controllers\PayoutController.cs" />
     <Compile Include="Controllers\PreAuthFormController.cs" />
     <Compile Include="Controllers\SaleFormController.cs" />
     <Compile Include="Data\MerchantCallback.cs" />
@@ -252,6 +254,7 @@
     <Compile Include="Helpers\HashHelper.cs" />
     <Compile Include="Models\BaseFibonatixModel.cs" />
     <Compile Include="Models\CaptureModels.cs" />
+    <Compile Include="Models\PayoutModels.cs" />
     <Compile Include="Models\PreAuthModels.cs" />
     <Compile Include="Models\RedirectLandingModels.cs" />
     <Compile Include="Models\SaleFormModels.cs" />
@@ -263,6 +266,7 @@
     <Compile Include="Services\Exceptions\TransactionNotFoundException.cs" />
     <Compile Include="Services\NotificationService.cs" />
     <Compile Include="Services\SaleFormService.cs" />
+    <Compile Include="Services\PayoutService.cs" />
     <Compile Include="Services\VoidService.cs" />
     <Compile Include="Services\ReturnService.cs" />
     <Compile Include="Services\CaptureService.cs" />

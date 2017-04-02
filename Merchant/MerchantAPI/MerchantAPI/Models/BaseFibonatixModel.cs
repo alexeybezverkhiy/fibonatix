@@ -35,4 +35,70 @@ namespace MerchantAPI.Models
             return string.Equals(control, calulatedHash, StringComparison.OrdinalIgnoreCase);
         }
     }
+
+    public abstract class BaseFibonatixResponseModel
+    {
+        private static string SUCC_ASYNC_RESPONSE = "async-response";
+        private static string FAIL_ERROR = "error";
+        private static string FAIL_VALIDATION_ERROR = "validation-error";
+
+        public BaseFibonatixResponseModel(string clientOrderId)
+        {
+            merchant_order_id = clientOrderId;
+        }
+
+        public string type { get; set; }
+        public string paynet_order_id { get; set; }
+        public string merchant_order_id { get; set; }
+        public string serial_number { get; set; }
+        public string error_message { get; set; }
+        public string error_code { get; set; }
+
+        public bool IsSucc()
+        {
+            return string.Equals(SUCC_ASYNC_RESPONSE, type);
+        }
+
+        public string ToHttpResponse()
+        {
+            if (IsSucc())
+            {
+                return String.Format(
+                    "type={0}" +
+                    "&paynet-order-id={1}" +
+                    "&merchant-order-id={2}" +
+                    "&serial-number={3}",
+                    SUCC_ASYNC_RESPONSE, paynet_order_id, merchant_order_id, serial_number);
+            }
+            return String.Format(
+                    "type={0}" +
+                    "&paynet-order-id={1}" +
+                    "&merchant-order-id={2}" +
+                    "&serial-number={3}" +
+                    "&error-message={4}" +
+                    "&error-code={5}",
+                    type, paynet_order_id, merchant_order_id, serial_number,
+                    HttpUtility.UrlEncode(error_message), error_code);
+        }
+
+        public void SetSucc()
+        {
+            type = SUCC_ASYNC_RESPONSE;
+        }
+
+        public void SetValidationError(string code, string message)
+        {
+            type = FAIL_VALIDATION_ERROR;
+            error_code = code;
+            error_message = message;
+        }
+
+        public void SetError(string code, string message)
+        {
+            type = FAIL_ERROR;
+            error_code = code;
+            error_message = message;
+        }
+    }
+
 }
