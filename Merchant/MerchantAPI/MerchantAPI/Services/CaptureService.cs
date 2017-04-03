@@ -38,7 +38,7 @@ namespace MerchantAPI.Services
                 //Cache.setCaptureRequestData(transactionData.TransactionId, model);
 
                 Transaction preAuthTransactionData = TransactionsDataStorage
-                    .FindByTransactionIdAndType(model.orderid, TransactionType.Preauth);
+                    .FindByTransactionIdAndType(model.orderid, TransactionType.PreAuth);
                 CommDoo.BackEnd.Requests.CaptureReservedAmountRequest request = CommDoo.BackEnd.Requests.CaptureReservedAmountRequest
                     .createRequestByModel(model, endpointId, preAuthTransactionData.ProcessingTransactionId);
                 string commdooResponse = request.executeRequest();

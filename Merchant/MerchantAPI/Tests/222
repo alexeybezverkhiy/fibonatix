@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">
+    <title>Redirecting...</title>
+    <script type=\"text/javascript\" language=\"javascript\">
+         function makeSubmit() {
+            document.returnform.submit();
+         }
+    </script>
+</head>
+<body onLoad = \"makeSubmit()\">
+    <form name=\"returnform\" id=\"returnform\" action=\"http%3a%2f%2fdoc.fibonatix.com%2fdoc%2fdummy.htm\" method=\"POST\">
+    <input type=\"hidden\" name=\"status\" value=\"declined\" >
+    <input type=\"hidden\" name=\"orderid\" value=\"\" >
+    <input type=\"hidden\" name=\"merchant-order\" value=\"e9e2fd05-6de3-4169-b810-f0d0a9886bb2\" >
+    <input type=\"hidden\" name=\"client-orderid\" value=\"\" >
+    <input type=\"hidden\" name=\"control\" value=\"declinede9e2fd05-6de3-4169-b810-f0d0a9886bb2DDA76C34-0621-47DD-ADF2-F9D594ADCE2E\" >
+    <input type=\"hidden\" name=\"descriptor\" value=\"\" >
+        <noscript>
+            <input type=\"submit\" name=\"submit\" value=\"Press this button to continue\" />
+        </noscript>
+    </form>
+</body>

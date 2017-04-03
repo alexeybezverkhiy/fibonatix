@@ -1,36 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
-using System.Web;
-using MerchantAPI.Models;
-using System.Collections.Specialized;
-using MerchantAPI.Data;
-using MerchantAPI.Controllers.Factories;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
+using System.Web;
+using MerchantAPI.Connectors;
+using MerchantAPI.Controllers.Factories;
+using MerchantAPI.Data;
 using MerchantAPI.Helpers;
+using MerchantAPI.Models;
 
 namespace MerchantAPI.Services
 {
-    public class PreAuthService
+    public class PreAuthFormService
     {
-
-        public ServiceTransitionResult PreAuthSingleCurrency(
-            int endpointId, 
-            PreAuthRequestModel model,
-            string rawModel)
+        public ServiceTransitionResult PreAuthFormSingleCurrency(int endpointId, PreAuthFormRequestModel model, string rawModel)
         {
-            Transaction transactionData = new Transaction(TransactionType.PreAuth, model.client_orderid);
+            Transaction transactionData = new Transaction(TransactionType.PreAuthForm, model.client_orderid);
             try
             {
-                NameValueCollection requestParameters = CommDooFrontendFactory.CreateSingleCurrencyPaymentParams(
+                NameValueCollection requestParameters = CommDooFrontendFactory.CreateMultyCurrencyPaymentParams(
                     endpointId, model, transactionData.TransactionId);
 
                 var parameters = new StringBuilder(256)
                     .Append(WebApiConfig.Settings.PaymentASPXEndpoint);
                 char delim = '?';
-                foreach (string key in requestParameters.Keys)
-                {
+                foreach (string key in requestParameters.Keys) {
                     parameters
                         .Append(delim)
                         .Append(key)
@@ -46,6 +44,7 @@ namespace MerchantAPI.Services
                 transactionData.Status = TransactionStatus.Undefined;
                 //transactionData.RedirectUri = parameters.ToString(); // don't save the url in DB, as it may contain cvv and credit card number
                 transactionData.ReferenceQuery = ControllerHelper.SerializeHttpParameters(referenceQuery);
+                transactionData.RedirectUri = parameters.ToString();
 
                 TransactionsDataStorage.Store(transactionData);
 
@@ -54,12 +53,14 @@ namespace MerchantAPI.Services
                 //TransactionsDataStorage.UpdateTransaction(transactionData.TransactionId, 
                 //    TransactionState.Started, TransactionStatus.Undefined);
                 Cache.setRedirectUrlForRequest(transactionData.TransactionId, parameters.ToString());
-                //Cache.setPreAuthRequestData(transactionData.TransactionId, model);
+                //Cache.setSaleRequestData(transactionData.TransactionId, model);
 
-                string response = "type=async-response" +
-                                  "&serial-number=" + transactionData.SerialNumber +
-                                  "&merchant-order-id=" + model.client_orderid +
-                                  "&paynet-order-id=" + transactionData.TransactionId;
+                string response = "type=" + "async-form-response" + "\n" +
+                                  "&status=" + "processing" + "\n" +
+                                  "&serial-number=" + transactionData.SerialNumber + "\n" +
+                                  "&merchant-order-id=" + model.client_orderid + "\n" +
+                                  "&paynet-order-id=" + transactionData.TransactionId + "\n" +
+                                  "&redirect_url=" + HttpUtility.UrlEncode(transactionData.RedirectUri);
 
                 return new ServiceTransitionResult(HttpStatusCode.OK,
                     response + "\n");
@@ -74,4 +75,5 @@ namespace MerchantAPI.Services
             finally { }
         }
     }
+
 }

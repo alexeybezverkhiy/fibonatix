@@ -30,12 +30,12 @@ namespace MerchantAPI.Data
     {
         Sale = 0,
         Verify = 1,
-        Preauth = 2,
+        PreAuth = 2,
         Capture = 3,
         Return = 4,
         Void = 5,
         SaleForm = 6,
-        PreauthForm = 7,
+        PreAuthForm = 7,
     }
 
     public class Transaction

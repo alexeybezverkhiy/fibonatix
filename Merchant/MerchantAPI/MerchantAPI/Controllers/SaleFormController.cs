@@ -17,12 +17,10 @@ using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Controllers
 {
-    public class SaleFormController : ApiController
-    {
+    public class SaleFormController : ApiController {
         private SaleFormService _service;
 
-        public SaleFormController()
-        {
+        public SaleFormController() {
             _service = new SaleFormService();
         }
 
@@ -68,20 +66,16 @@ namespace MerchantAPI.Controllers
         [ActionName("success")]
         public HttpResponseMessage SingleSuccessPostback(
             [FromUri] int endpointId,
-            [FromUri] SaleFormSuccessPaymentModel model)
-        {
-            if (!CommDooFrontendFactory.SuccessHashIsValid(endpointId, model))
-            {
+            [FromUri] SaleFormSuccessPaymentModel model) {
+
+            if (!CommDooFrontendFactory.SuccessHashIsValid(endpointId, model)) {
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
 
-            if (model.transactionid != null)
-            {
+            if (model.transactionid != null) {
                 TransactionsDataStorage.UpdateTransaction(model.fibonatixID, model.transactionid,
                     TransactionState.Finished, TransactionStatus.Approved);
-            }
-            else
-            {
+            } else {
                 TransactionsDataStorage.UpdateTransaction(model.fibonatixID,
                     TransactionState.Finished, TransactionStatus.Approved);
             }
@@ -100,10 +94,9 @@ namespace MerchantAPI.Controllers
         [ActionName("failure")]
         public HttpResponseMessage SingleFailurePostback(
             [FromUri] int endpointId,
-            [FromUri] SaleFormFailurePaymentModel model)
-        {
-            if (!CommDooFrontendFactory.FailureHashIsValid(endpointId, model))
-            {
+            [FromUri] SaleFormFailurePaymentModel model) {
+
+            if (!CommDooFrontendFactory.FailureHashIsValid(endpointId, model)) {
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
 

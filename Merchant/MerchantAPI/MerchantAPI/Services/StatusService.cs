@@ -48,8 +48,8 @@ namespace MerchantAPI.Services
                     case TransactionType.SaleForm:
                         response = StatusSaleSingleCurrency(transactionData, merchantControlKey);
                         break;
-                    case TransactionType.Preauth:
-                    case TransactionType.PreauthForm:
+                    case TransactionType.PreAuth:
+                    case TransactionType.PreAuthForm:
                         response = StatusPreAuthSingleCurrency(transactionData, merchantControlKey);
                         break;
                     case TransactionType.Capture:
@@ -292,7 +292,7 @@ namespace MerchantAPI.Services
                         response["merchant-order-id"] = transactionData.MerchantTransactionId;
                         response["phone"] = preauth_model["phone"];
 
-                        if (transactionData.Type != TransactionType.PreauthForm)
+                        if (transactionData.Type != TransactionType.PreAuthForm)
                         {
                             string redirectHTML = FillRedirectTemplate(redirectTemplate, redirectURL);
                             response["html"] = HttpUtility.UrlEncode(redirectHTML);
@@ -319,7 +319,7 @@ namespace MerchantAPI.Services
                         //response["paynet-processing-date"] = "";
                         //response["approval-code"] = "";
 
-                        if (transactionData.Type != TransactionType.PreauthForm)
+                        if (transactionData.Type != TransactionType.PreAuthForm)
                             response["order-stage"] = "auth_3d_validating";
                         else
                             response["order-stage"] = "auth_processing";
@@ -591,11 +591,11 @@ namespace MerchantAPI.Services
         private string RestorePreAuthQuery(string transactionId)
         {
             Transaction transaction = TransactionsDataStorage.FindByTransactionIdAndType(
-                transactionId, TransactionType.Preauth);
+                transactionId, TransactionType.PreAuth);
             if (transaction == null)
             {
                 throw new TransactionNotFoundException($"Transaction is not found by criteria " + 
-                    $"[TransactionId={transactionId};Type={TransactionType.Preauth}]");
+                    $"[TransactionId={transactionId};Type={TransactionType.PreAuth}]");
             }
             return transaction.ReferenceQuery;
         }

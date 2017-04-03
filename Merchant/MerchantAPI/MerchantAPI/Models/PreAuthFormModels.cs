@@ -8,15 +8,11 @@ using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Models
 {
-    public class PreAuthRequestModel : BaseFibonatixModel
+    public class PreAuthFormRequestModel : BaseFibonatixModel
     {
         [Required]
         [StringLength(65535)]
         public string order_desc { get; set; }
-
-        [Required]
-        [StringLength(128)]
-        public string card_printed_name { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -69,27 +65,11 @@ namespace MerchantAPI.Models
         public string currency { get; set; }
 
         [Required]
-//        [StringLength(20, MinimumLength = 16)]
-        public string credit_card_number { get; set; }
-
-        [Required]
-        public int expire_month { get; set; }
-
-        [Required]
-        public int expire_year { get; set; }
-
-        [Required]
-        public int cvv2  { get; set; }
-
-        [Required]
         [StringLength(20)]
         public string ipaddress { get; set; }
 
         [StringLength(128)]
         public string site_url { get; set; }    // OPTIONAL
-
-        [StringLength(19, MinimumLength = 16)]
-        public string destination_card_no { get; set; } // CONDITIONAL for Money Send transactions
 
         [StringLength(128)]
         public string purpose { get; set; }     // OPTIONAL
@@ -112,51 +92,58 @@ namespace MerchantAPI.Models
         }
     }
 
-    public class PreAuthResponseModel
+    public class PreAuthFormResponseModel
     {
-        private static string SUCC_ASYNC_RESPONSE = "async-response";
+        private static string SUCC_ASYNCFORM_RESPONSE = "async-form-response";
         private static string FAIL_ERROR = "error";
         private static string FAIL_VALIDATION_ERROR = "validation-error";
 
-        public PreAuthResponseModel(string clientOrderId)
+        public PreAuthFormResponseModel(string clientOrderId)
         {
             merchant_order_id = clientOrderId;
         }
 
         public string type { get; set; }
+        public string status { get; set; }
         public string paynet_order_id { get; set; }
         public string merchant_order_id { get; set; }
         public string serial_number { get; set; }
         public string error_message { get; set; }
         public string error_code { get; set; }
+        public string redirect_url { get; set; }
 
         public bool IsSucc()
         {
-            return string.Equals(SUCC_ASYNC_RESPONSE, type);
+            return String.Equals(SUCC_ASYNCFORM_RESPONSE, type);
         }
 
         public string ToHttpResponse()
         {
             if (IsSucc())
             {
-                return 
-                    $"type={SUCC_ASYNC_RESPONSE}\n" +
-                    $"&paynet-order-id={paynet_order_id}\n" +
-                    $"&merchant-order-id={merchant_order_id}\n" + 
-                    $"&serial-number={serial_number}\n";
+                return String.Format(
+                    "type={0}\n" +
+                    "&status={1}\n" +
+                    "&paynet-order-id={2}\n" +
+                    "&merchant-order-id={3}\n" +
+                    "&serial-number={4}\n" +
+                    "&redirect_url={5}\n",
+                    SUCC_ASYNCFORM_RESPONSE, status, paynet_order_id, merchant_order_id, serial_number, redirect_url);
             }
-            return 
-                $"type={type}\n" + 
-                $"&paynet-order-id={paynet_order_id}\n" + 
-                $"&merchant-order-id={merchant_order_id}\n" +
-                $"&serial-number={serial_number}\n" +
-                $"&error-message={HttpUtility.UrlEncode(error_message)}\n" +
-                $"&error-code={error_code}\n";
+            return String.Format(
+                    "type={0}\n" +
+                    "&paynet-order-id={1}\n" +
+                    "&merchant-order-id={2}\n" +
+                    "&serial-number={3}\n" +
+                    "&error-message={4}\n" +
+                    "&error-code={5}\n",
+                    type, paynet_order_id, merchant_order_id, serial_number,
+                    HttpUtility.UrlEncode(error_message), error_code);
         }
 
         public void SetSucc()
         {
-            type = SUCC_ASYNC_RESPONSE;
+            type = SUCC_ASYNCFORM_RESPONSE;
         }
 
         public void SetValidationError(string code, string message)
@@ -174,7 +161,7 @@ namespace MerchantAPI.Models
         }
     }
 
-    public class PreAuthBasePaymentModel
+    public class PreAuthFormBasePaymentModel
     {
         [Required]
         public string clientid { get; set; }
@@ -194,7 +181,7 @@ namespace MerchantAPI.Models
         public string hash { get; set; }
     }
 
-    public class PreAuthFailurePaymentModel : PreAuthBasePaymentModel
+    public class PreAuthFormFailurePaymentModel : SaleFormBasePaymentModel
     {
         [Required]
         public string customerredirecturl { get; set; }
@@ -211,7 +198,7 @@ namespace MerchantAPI.Models
         public string errortext { get; set; }
     }
 
-    public class PreAuthSuccessPaymentModel : SaleBasePaymentModel
+    public class PreAuthFormSuccessPaymentModel : SaleFormBasePaymentModel
     {
         [Required]
         public string customerredirecturl { get; set; }

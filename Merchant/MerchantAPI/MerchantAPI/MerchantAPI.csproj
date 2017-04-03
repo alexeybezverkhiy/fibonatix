@@ -257,6 +257,7 @@
     <Compile Include="Models\PayoutModels.cs" />
     <Compile Include="Models\PreAuthModels.cs" />
     <Compile Include="Models\RedirectLandingModels.cs" />
+    <Compile Include="Models\PreAuthFormModels.cs" />
     <Compile Include="Models\SaleFormModels.cs" />
     <Compile Include="Models\StatusModels.cs" />
     <Compile Include="Models\SaleModels.cs" />
@@ -265,6 +266,7 @@
     <Compile Include="Services\CallbackDeliveryService.cs" />
     <Compile Include="Services\Exceptions\TransactionNotFoundException.cs" />
     <Compile Include="Services\NotificationService.cs" />
+    <Compile Include="Services\PreAuthFormService.cs" />
     <Compile Include="Services\SaleFormService.cs" />
     <Compile Include="Services\PayoutService.cs" />
     <Compile Include="Services\VoidService.cs" />
