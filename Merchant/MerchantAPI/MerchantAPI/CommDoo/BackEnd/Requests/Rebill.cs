@@ -26,7 +26,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
         public PurchaseData Purchase { get; set; }
 
         public override string executeRequest() {
-            string requestURL = WebApiConfig.Settings.BackendServiceUrl + "/Rebill";
+            string requestURL = WebApiConfig.Settings.BackendServiceUrlMain + "/Rebill";
             return sendRequest(requestURL);
         }
 

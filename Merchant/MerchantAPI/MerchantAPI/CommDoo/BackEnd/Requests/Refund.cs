@@ -5,6 +5,8 @@ using System.Web;
 using System.ComponentModel.DataAnnotations;
 using System.Xml;
 using System.Xml.Serialization;
+using MerchantAPI.Models;
+using MerchantAPI.Helpers;
 
 namespace MerchantAPI.CommDoo.BackEnd.Requests
 {
@@ -21,8 +23,26 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
         [XmlElement(ElementName = "Purchase")]
         public PurchaseData Purchase { get; set; }
 
+        public static RefundRequest createRequestByModel(ReturnRequestModel model, int endpointId, string commDooReferencedTransactionID) {
+            RefundRequest request = new RefundRequest() {
+                Client = new ClientData() {
+                    ClientID = WebApiConfig.Settings.GetClientID(endpointId),
+                    SharedSecret = WebApiConfig.Settings.GetSharedSecret(endpointId),
+                },
+                Order = new PaymentData() {
+                    Amount = string.IsNullOrEmpty(model.amount) ? null : CurrencyConverter.MajorAmountToMinor(model.amount, model.currency),
+                    Currency = string.IsNullOrEmpty(model.currency) ? null : model.currency,
+                    RelatedInformation = new RelatedInformationData() {
+                        ReferencedTransactionID = commDooReferencedTransactionID,
+                        // RefundType = "Accommodation",
+                    },
+                },
+            };
+            return request;
+        }
+
         public override string executeRequest() {
-            string requestURL = WebApiConfig.Settings.BackendServiceUrl + "/Refund";
+            string requestURL = WebApiConfig.Settings.BackendServiceUrlRefund + "/CreditNote";
             return sendRequest(requestURL);
         }
 
@@ -41,8 +61,10 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
                 strToHashCal += Order.Amount;
                 strToHashCal += Order.Currency;
                 if (Order.RelatedInformation != null) {
-                    strToHashCal += Order.RelatedInformation.ReferencedTransactionID;
-                    strToHashCal += Order.RelatedInformation.RefundType;
+                    if(!string.IsNullOrEmpty(Order.RelatedInformation.ReferencedTransactionID))
+                        strToHashCal += /* "ReferencedTransactionID" + */ Order.RelatedInformation.ReferencedTransactionID;
+                    if (!string.IsNullOrEmpty(Order.RelatedInformation.RefundType))
+                        strToHashCal += /* "RefundType" + */ Order.RelatedInformation.RefundType;
                 }
                 if (Purchase != null) {
                     if (Purchase.Items != null) {

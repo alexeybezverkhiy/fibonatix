@@ -23,6 +23,7 @@ namespace MerchantAPI.Controllers
         public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
             [FromBody] CaptureRequestModel model) {
+
             CaptureResponseModel err = null;
             ServiceTransitionResult result = null;
 

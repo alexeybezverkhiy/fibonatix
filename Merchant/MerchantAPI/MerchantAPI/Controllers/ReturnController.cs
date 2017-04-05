@@ -7,6 +7,7 @@ using System.Web.Http;
 using MerchantAPI.Controllers.Factories;
 using MerchantAPI.Models;
 using MerchantAPI.Services;
+using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Controllers
 {
@@ -22,10 +23,28 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
-            [FromBody] SaleRequestModel model)
+            [FromBody] ReturnRequestModel model)
         {
-            ServiceTransitionResult result = _service.ReturnSingleCurrency(endpointId, model);
+            ReturnResponseModel err = null;
+            ServiceTransitionResult result = null;
 
+            string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
+            if (string.IsNullOrEmpty(controlKey)) {
+                err = new ReturnResponseModel(model.client_orderid);
+                err.SetValidationError("2", "INVALID_CONTROL_CODE");
+            } else {
+                if (model.IsHashValid(endpointId, controlKey)) {
+                    string raw = RawContentReader.Read(Request).Result;
+                    result = _service.ReturnSingleCurrency(endpointId, model, raw);
+                } else {
+                    err = new ReturnResponseModel(model.client_orderid);
+                    err.SetValidationError("2", "INVALID_CONTROL_CODE");
+                }
+            }
+
+            if (err != null) {
+                result = new ServiceTransitionResult(HttpStatusCode.OK, err.ToHttpResponse());
+            }
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }
@@ -33,7 +52,7 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage MultiCurrency(
             [FromUri] int endpointGroupId,
-            [FromBody] SaleRequestModel model) {
+            [FromBody] ReturnRequestModel model) {
             return SingleCurrency(endpointGroupId, model);
         }
 

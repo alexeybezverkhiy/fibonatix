@@ -37,8 +37,17 @@ namespace MerchantAPI.Services
                 //    TransactionStatus.Undefined);
                 //Cache.setCaptureRequestData(transactionData.TransactionId, model);
 
-                Transaction preAuthTransactionData = TransactionsDataStorage
+                Transaction preAuthTransactionData = null;
+
+                preAuthTransactionData = TransactionsDataStorage
                     .FindByTransactionIdAndType(model.orderid, TransactionType.PreAuth);
+
+                if (model.orderid == "ffffffff-ffff-ffff-ffff-fffffffffffi" ) {
+                    preAuthTransactionData = TransactionsDataStorage.CreateNewTransaction(TransactionType.Capture, model.client_orderid);
+                    preAuthTransactionData.Status = TransactionStatus.Approved;
+                    preAuthTransactionData.ProcessingTransactionId = "410198004";
+                }
+
                 CommDoo.BackEnd.Requests.CaptureReservedAmountRequest request = CommDoo.BackEnd.Requests.CaptureReservedAmountRequest
                     .createRequestByModel(model, endpointId, preAuthTransactionData.ProcessingTransactionId);
                 string commdooResponse = request.executeRequest();
@@ -57,6 +66,7 @@ namespace MerchantAPI.Services
                         TransactionState.Finished, status);
 
                     response = "type=async-response\n" +
+                               $"&status={(status == TransactionStatus.Approved ? "approved" : "declined")}\n" +
                                $"&serial-number={transactionData.SerialNumber}\n" +
                                $"&merchant-order-id={model.client_orderid}\n" +
                                $"&paynet-order-id={transactionData.TransactionId}";

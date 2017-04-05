@@ -13,7 +13,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
     public class ReserveAmountRequest : StartRequest
     {
         public override string executeRequest() {
-            string requestURL = WebApiConfig.Settings.BackendServiceUrl + "/ReserveAmount";
+            string requestURL = WebApiConfig.Settings.BackendServiceUrlMain + "/ReserveAmount";
             return sendRequest(requestURL);
         }
     }

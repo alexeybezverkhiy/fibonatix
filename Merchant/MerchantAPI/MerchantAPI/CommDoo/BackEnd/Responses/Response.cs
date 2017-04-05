@@ -31,8 +31,8 @@ namespace MerchantAPI.CommDoo.BackEnd.Responses
         {
             [XmlElement("TransactionID")]
             public string TransactionID { get; set; }
-            [XmlElement("PaymentType")]
-            public string PaymentType { get; set; }
+            // [XmlElement("PaymentType")]
+            // public string PaymentType { get; set; }
             [XmlElement("PaymentAdvice")]
             public string PaymentAdvice { get; set; }
             [XmlElement("Status")]

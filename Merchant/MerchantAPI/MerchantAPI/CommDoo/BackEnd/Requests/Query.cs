@@ -20,7 +20,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
         public PaymentData Payment { get; set; }
 
         public override string executeRequest() {
-            string requestURL = WebApiConfig.Settings.BackendServiceUrl + "/Query";
+            string requestURL = WebApiConfig.Settings.BackendServiceUrlMain + "/Query";
             return sendRequest(requestURL);
         }
 

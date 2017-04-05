@@ -32,7 +32,7 @@ namespace MerchantAPI.Controllers
                 PaymentKey = WebApiConfig.Settings.PaymentKey,
                 PublicServerName = WebApiConfig.Settings.PublicServerName,
                 PaymentASPXEndpoint = WebApiConfig.Settings.PaymentASPXEndpoint,
-                BackendServiceUrl = WebApiConfig.Settings.BackendServiceUrl,
+                BackendServiceUrl = WebApiConfig.Settings.BackendServiceUrlMain,
                 ConfigurationServiceUrl = WebApiConfig.Settings.ConfigurationServiceUrl,
                 CacheSlidingExpirationSeconds = WebApiConfig.Settings.CacheSlidingExpirationSeconds,
                 CacheSlidingExpirationTimeSpan = WebApiConfig.SettingsFactory.CreateCacheSlidingExpiration(),

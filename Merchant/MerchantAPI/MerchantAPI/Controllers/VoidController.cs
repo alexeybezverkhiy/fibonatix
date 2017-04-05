@@ -14,8 +14,7 @@ namespace MerchantAPI.Controllers
     {
         private VoidService _service;
 
-        public VoidController()
-        {
+        public VoidController() {
             _service = new VoidService();
         }
 

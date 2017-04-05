@@ -5,6 +5,8 @@ using System.Web;
 using System.ComponentModel.DataAnnotations;
 using System.Xml;
 using System.Xml.Serialization;
+using MerchantAPI.Models;
+using MerchantAPI.Helpers;
 
 namespace MerchantAPI.CommDoo.BackEnd.Requests
 {
@@ -19,8 +21,24 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
         [XmlElement(ElementName = "Payment")]
         public PaymentData Payment { get; set; }
 
+        public static CancelReservedAmountRequest createRequestByModel(ReturnRequestModel model, int endpointId, string commDooReferencedTransactionID) {
+            CancelReservedAmountRequest request = new CancelReservedAmountRequest() {
+                Client = new ClientData() {
+                    ClientID = WebApiConfig.Settings.GetClientID(endpointId),
+                    SharedSecret = WebApiConfig.Settings.GetSharedSecret(endpointId),
+                },
+                Payment = new PaymentData() {
+                    RelatedInformation = new RelatedInformationData() {
+                        ReferencedTransactionID = commDooReferencedTransactionID,
+                    },
+                },
+            };
+            return request;
+        }
+
+
         public override string executeRequest() {
-            string requestURL = WebApiConfig.Settings.BackendServiceUrl + "/CancelReservedAmount";
+            string requestURL = WebApiConfig.Settings.BackendServiceUrlMain + "/CancelReservedAmount";
             return sendRequest(requestURL);
         }
 
@@ -36,7 +54,9 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
 
                 strToHashCal += Client.ClientID;
                 strToHashCal += Security.Timestamp;
-                strToHashCal += Payment.RelatedInformation.ReferencedTransactionID;
+                if(!string.IsNullOrEmpty(Payment.RelatedInformation.ReferencedTransactionID)) {
+                    strToHashCal += "ReferencedTransactionID" + Payment.RelatedInformation.ReferencedTransactionID;
+                }
                 strToHashCal += Client.SharedSecret;
                 strHash = sha1(strToHashCal);
             } catch {

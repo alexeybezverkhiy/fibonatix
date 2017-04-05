@@ -234,6 +234,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\CallbackModels.cs" />
+    <Compile Include="Models\ReturnModels.cs" />
     <Compile Include="Models\NotificationRequestModel.cs" />
     <Compile Include="Controllers\VoidController.cs" />
     <Compile Include="Controllers\ReturnController.cs" />

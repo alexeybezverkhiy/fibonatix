@@ -37,7 +37,8 @@ namespace MerchantAPI.App_Start
         string PublicServerName { get; }
         ApplicationMode ApplicationMode { get; }
         string PaymentASPXEndpoint { get; }
-        string BackendServiceUrl { get; }
+        string BackendServiceUrlMain { get; }
+        string BackendServiceUrlRefund { get; }
         string ConfigurationServiceUrl { get; }
         int CacheSlidingExpirationSeconds { get; }
         string PaymentKey { get; }
@@ -58,7 +59,8 @@ namespace MerchantAPI.App_Start
         public string PublicServerName => "localhost";
         //public string PaymentASPXEndpoint => "http://localhost:8010/payment.aspx";
         public string PaymentASPXEndpoint => "https://frontend.payment-transaction.net/payment.aspx";
-        public string BackendServiceUrl => "https://service.commpay.net/server2server/payment/transaction.asmx";
+        public string BackendServiceUrlMain => "https://service.commpay.net/server2server/payment/transaction.asmx";
+        public string BackendServiceUrlRefund => "https://service.commpay.net/server2server/service/order/creditnote.asmx";
         public string ConfigurationServiceUrl => "https://service.commpay.net/server2server/security/endpoints.asmx";
         public int CacheSlidingExpirationSeconds => 600;
         public string PaymentKey => "creditcard_fibonatix";
@@ -97,7 +99,8 @@ namespace MerchantAPI.App_Start
         // public string PublicServerName => "x.x.x.x";
         public string PublicServerName => "127.0.0.1";
         public string PaymentASPXEndpoint => "https://frontend.payment-transaction.net/payment.aspx";
-        public string BackendServiceUrl => "https://service.commpay.net/server2server/payment/transaction.asmx";
+        public string BackendServiceUrlMain => "https://service.commpay.net/server2server/payment/transaction.asmx";
+        public string BackendServiceUrlRefund => "https://service.commpay.net/server2server/service/order/creditnote.asmx";
         public string ConfigurationServiceUrl => "https://service.commpay.net/server2server/security/endpoints.asmx";
         public int CacheSlidingExpirationSeconds => 600;
         public string PaymentKey => "creditcard_fibonatix";
@@ -144,9 +147,14 @@ namespace MerchantAPI.App_Start
             get { return "https://frontend.payment-transaction.net/payment.aspx"; }
         }
 
-        public string BackendServiceUrl
+        public string BackendServiceUrlMain
         {
             get { return "https://service.commpay.net/server2server/payment/transaction.asmx"; }
+        }
+
+        public string BackendServiceUrlRefund 
+        {
+            get { return "https://service.commpay.net/server2server/service/order/creditnote.asmx"; }
         }
 
         public string ConfigurationServiceUrl
