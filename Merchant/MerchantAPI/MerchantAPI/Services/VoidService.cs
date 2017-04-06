@@ -15,7 +15,7 @@ namespace MerchantAPI.Services
             SaleRequestModel model)
         {
             return new ServiceTransitionResult(HttpStatusCode.OK,
-                "Method [VoidService.VoidSingleCurrency] is not implemented yet");
+                "Method [VoidService] is not supported yet");
         }
 
     }

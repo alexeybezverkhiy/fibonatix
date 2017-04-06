@@ -23,6 +23,7 @@ namespace MerchantAPI.Controllers
         public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
             [FromBody] PreAuthRequestModel model) {
+
             PreAuthResponseModel err = null;
             ServiceTransitionResult result = null;
 

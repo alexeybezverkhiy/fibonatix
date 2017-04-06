@@ -15,9 +15,10 @@ namespace MerchantAPI.Services
     public class ReturnService
     {
         public ServiceTransitionResult ReturnSingleCurrency(
-                    int endpointId,
-                    ReturnRequestModel model,
-                    string rawModel) {
+            int endpointId,
+            ReturnRequestModel model,
+            string rawModel) 
+        {
 
             Transaction transactionData = new Transaction(TransactionType.Return, model.client_orderid);
             try {

@@ -30,6 +30,7 @@ namespace MerchantAPI.Controllers
         public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
             [FromBody] SaleRequestModel model) {
+
             SaleResponseModel err = null;
             ServiceTransitionResult result = null;
 

@@ -28,9 +28,10 @@ namespace MerchantAPI.Services
 
         private static readonly string hiddenInputTemplate = @"<input type=""hidden"" name=""{0}"" value=""{1}"">\n";
 
-
-
-        public ServiceTransitionResult StatusSingleCurrency(int endpointId, StatusRequestModel model, string merchantControlKey)
+        public ServiceTransitionResult StatusSingleCurrency(
+            int endpointId, 
+            StatusRequestModel model, 
+            string merchantControlKey)
         {
             Transaction transactionData = null;
             try

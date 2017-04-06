@@ -17,7 +17,10 @@ namespace MerchantAPI.Services
 {
     public class SaleFormService
     {
-        public ServiceTransitionResult SaleFormSingleCurrency(int endpointId, SaleFormRequestModel model, string rawModel)
+        public ServiceTransitionResult SaleFormSingleCurrency(
+            int endpointId, 
+            SaleFormRequestModel model, 
+            string rawModel)
         {
             Transaction transactionData = new Transaction(TransactionType.SaleForm, model.client_orderid);
             try

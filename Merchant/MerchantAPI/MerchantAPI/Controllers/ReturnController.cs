@@ -23,8 +23,8 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
-            [FromBody] ReturnRequestModel model)
-        {
+            [FromBody] ReturnRequestModel model) {
+
             ReturnResponseModel err = null;
             ServiceTransitionResult result = null;
 

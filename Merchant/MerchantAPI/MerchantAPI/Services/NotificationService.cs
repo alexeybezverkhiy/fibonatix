@@ -14,7 +14,9 @@ namespace MerchantAPI.Services
 {
     public class NotificationService
     {
-        public ServiceTransitionResult Notified(int endpointId, NotificationRequestModel model)
+        public ServiceTransitionResult Notified(
+            int endpointId, 
+            NotificationRequestModel model)
         {
             TransactionStatus newStatus = TransactionStatus.Undefined;
             if (model.transactionstatus == "Charged" ||

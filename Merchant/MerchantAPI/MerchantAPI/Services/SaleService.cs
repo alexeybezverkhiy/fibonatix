@@ -17,7 +17,10 @@ namespace MerchantAPI.Services
 {
     public class SaleService
     {
-        public ServiceTransitionResult SaleSingleCurrency(int endpointId, SaleRequestModel model, string rawModel)
+        public ServiceTransitionResult SaleSingleCurrency(
+            int endpointId, 
+            SaleRequestModel model, 
+            string rawModel)
         {
             Transaction transactionData = new Transaction(TransactionType.Sale, model.client_orderid);
             try

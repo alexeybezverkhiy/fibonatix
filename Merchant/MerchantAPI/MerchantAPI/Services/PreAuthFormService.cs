@@ -17,7 +17,10 @@ namespace MerchantAPI.Services
 {
     public class PreAuthFormService
     {
-        public ServiceTransitionResult PreAuthFormSingleCurrency(int endpointId, PreAuthFormRequestModel model, string rawModel)
+        public ServiceTransitionResult PreAuthFormSingleCurrency(
+            int endpointId, 
+            PreAuthFormRequestModel model, 
+            string rawModel)
         {
             Transaction transactionData = new Transaction(TransactionType.PreAuthForm, model.client_orderid);
             try
