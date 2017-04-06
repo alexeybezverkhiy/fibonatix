@@ -59,8 +59,12 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage MultiCurrency(
             [FromUri] int endpointGroupId,
-            [FromBody] SaleFormRequestModel model) {
-            return SingleCurrency(endpointGroupId, model);
+            [FromBody] SaleFormRequestModel model)
+        {
+            ServiceTransitionResult result = null;
+            result = _service.SaleFormMultiCurrency(endpointGroupId, model);
+            HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
+            return response;
         }
 
         [HttpGet]

@@ -73,5 +73,13 @@ namespace MerchantAPI.Services
             }
             finally { }
         }
+
+        internal ServiceTransitionResult PreAuthMultiCurrency(
+            int endpointGroupId, 
+            PreAuthRequestModel model)
+        {
+            return new ServiceTransitionResult(HttpStatusCode.OK,
+                 "Method [PreAuthService.PreAuthMultiCurrency] is not supported yet");
+        }
     }
 }

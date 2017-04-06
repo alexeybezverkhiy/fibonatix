@@ -51,9 +51,12 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage MultiCurrency(
             [FromUri] int endpointGroupId,
-            [FromBody] PreAuthRequestModel model) {
-
-            return SingleCurrency(endpointGroupId, model);
+            [FromBody] PreAuthRequestModel model)
+        {
+            ServiceTransitionResult result = null;
+            result = _service.PreAuthMultiCurrency(endpointGroupId, model);
+            HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
+            return response;
         }
 
         [HttpGet]

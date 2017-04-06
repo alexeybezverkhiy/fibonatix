@@ -25,7 +25,7 @@ namespace MerchantAPI.Services
             Transaction transactionData = new Transaction(TransactionType.PreAuthForm, model.client_orderid);
             try
             {
-                NameValueCollection requestParameters = CommDooFrontendFactory.CreateMultyCurrencyPaymentParams(
+                NameValueCollection requestParameters = CommDooFrontendFactory.CreateSingleCurrencyPaymentParams(
                     endpointId, model, transactionData.TransactionId);
 
                 var parameters = new StringBuilder(256)
@@ -76,6 +76,12 @@ namespace MerchantAPI.Services
                     $"EXCP: Processing PreAuth for [client_orderid={transactionData.TransactionId}] failed\n");
             }
             finally { }
+        }
+
+        internal ServiceTransitionResult PreAuthFormMultiCurrency(int endpointGroupId, PreAuthFormRequestModel model)
+        {
+            return new ServiceTransitionResult(HttpStatusCode.OK,
+                "Method [PreAuthFormService.PreAuthFormMultiCurrency] is not supported yet");
         }
     }
 
