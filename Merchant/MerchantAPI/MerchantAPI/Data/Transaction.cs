@@ -49,8 +49,10 @@ namespace MerchantAPI.Data
         public string SerialNumber { get; set; }
         [StringLength(48)]
         public string ProcessingTransactionId { get; set; }
+        [Index("TransactionMerchantTransactionId_UIDX", IsUnique = true, Order = 100)]
         [StringLength(48)]
         public string MerchantTransactionId { get; set; }
+        [Index("TransactionMerchantTransactionId_UIDX", IsUnique = true, Order = 200)]
         [Index("TransactionTransactionId_UIDX", IsUnique = true, Order = 200)]
         [Index("TransactionType_IDX")]
         public TransactionType Type { get; set; }
