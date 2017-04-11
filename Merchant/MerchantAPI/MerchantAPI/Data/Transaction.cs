@@ -69,10 +69,14 @@ namespace MerchantAPI.Data
 
         public Transaction() {}
 
-        public Transaction(TransactionType type)
+        public Transaction(TransactionType type) : this(CreateTransactionId(), type)
+        {
+        }
+
+        public Transaction(string fixonatixTransactionId, TransactionType type)
         {
             // ID =
-            TransactionId = Guid.NewGuid().ToString();
+            TransactionId = fixonatixTransactionId;
             SerialNumber = Guid.NewGuid().ToString();
             // ProcessingTransactionId =
             // MerchantTransactionId =
@@ -84,9 +88,14 @@ namespace MerchantAPI.Data
             // ReferenceQuery =
         }
 
-        public Transaction(TransactionType type, string merchantTransactionID) : this(type)
+        public Transaction(TransactionType type, string merchantTransactionID, string fixonatixTransactionId) : this(fixonatixTransactionId, type)
         {
             MerchantTransactionId = merchantTransactionID;
+        }
+
+        public static string CreateTransactionId()
+        {
+            return Guid.NewGuid().ToString();
         }
     }
 

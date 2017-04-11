@@ -22,8 +22,8 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
-            [FromBody] PreAuthRequestModel model) {
-
+            [FromBody] PreAuthRequestModel model)
+        {
             PreAuthResponseModel err = null;
             ServiceTransitionResult result = null;
 
@@ -53,8 +53,33 @@ namespace MerchantAPI.Controllers
             [FromUri] int endpointGroupId,
             [FromBody] PreAuthRequestModel model)
         {
+            PreAuthResponseModel err = null;
             ServiceTransitionResult result = null;
-            result = _service.PreAuthMultiCurrency(endpointGroupId, model);
+
+            string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointGroupId);
+            if (string.IsNullOrEmpty(controlKey))
+            {
+                err = new PreAuthResponseModel(model.client_orderid);
+                err.SetValidationError("2", "INVALID_CONTROL_CODE");
+            }
+            else
+            {
+                if (model.IsHashValid(endpointGroupId, controlKey))
+                {
+                    string raw = RawContentReader.Read(Request).Result;
+                    result = _service.PreAuthMultiCurrency(endpointGroupId, model, raw);
+                }
+                else
+                {
+                    err = new PreAuthResponseModel(model.client_orderid);
+                    err.SetValidationError("2", "INVALID_CONTROL_CODE");
+                }
+            }
+
+            if (err != null)
+            {
+                result = new ServiceTransitionResult(HttpStatusCode.OK, err.ToHttpResponse());
+            }
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }
@@ -63,7 +88,8 @@ namespace MerchantAPI.Controllers
         [ActionName("success")]
         public HttpResponseMessage SingleSuccessPostback(
             [FromUri] int endpointId,
-            [FromUri] PreAuthSuccessPaymentModel model) {
+            [FromUri] PreAuthSuccessPaymentModel model)
+        {
             if (model.transactionid != null) {
                 TransactionsDataStorage.UpdateTransaction(model.fibonatixID, model.transactionid,
                     TransactionState.Finished);
@@ -73,7 +99,10 @@ namespace MerchantAPI.Controllers
             }
             TransactionsDataStorage.UpdateTransactionStatus(model.fibonatixID, TransactionStatus.Approved);
 
-            var result = new ServiceTransitionResult(HttpStatusCode.Redirect, "", model.customerredirecturl);
+            string redirectHTML = RedirectHelper.CreateRedirectHtml(RedirectHelper.RedirectTemplate,
+                model.customerredirecturl);
+            var result = new ServiceTransitionResult(HttpStatusCode.OK, redirectHTML);
+
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }

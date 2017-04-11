@@ -29,8 +29,8 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
-            [FromBody] SaleRequestModel model) {
-
+            [FromBody] SaleRequestModel model)
+        {
             SaleResponseModel err = null;
             ServiceTransitionResult result = null;
 
@@ -63,8 +63,38 @@ namespace MerchantAPI.Controllers
             [FromUri] int endpointGroupId,
             [FromBody] SaleRequestModel model)
         {
+            SaleResponseModel err = null;
             ServiceTransitionResult result = null;
-            result = _service.SaleMultiCurrency(endpointGroupId, model);
+
+            string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointGroupId);
+            if (string.IsNullOrEmpty(controlKey))
+            {
+                err = new SaleResponseModel(model.client_orderid);
+                err.SetValidationError("2", "INVALID_CONTROL_CODE");
+            }
+            else if (string.IsNullOrEmpty(model.client_orderid))
+            {
+                err = new SaleResponseModel(null);
+                err.SetValidationError("2", "INVALID_INCOMING_DATA");
+            }
+            else
+            {
+                if (model.IsHashValid(endpointGroupId, controlKey))
+                {
+                    string raw = RawContentReader.Read(Request).Result;
+                    result = _service.SaleMultiCurrency(endpointGroupId, model, raw);
+                }
+                else
+                {
+                    err = new SaleResponseModel(model.client_orderid);
+                    err.SetValidationError("2", "INVALID_CONTROL_CODE");
+                }
+            }
+
+            if (err != null)
+            {
+                result = new ServiceTransitionResult(HttpStatusCode.OK, err.ToHttpResponse());
+            }
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }
@@ -91,7 +121,10 @@ namespace MerchantAPI.Controllers
                     TransactionState.Finished, TransactionStatus.Approved);
             }
 
-            var result = new ServiceTransitionResult(HttpStatusCode.Redirect, "", model.customerredirecturl);
+            string redirectHTML = RedirectHelper.CreateRedirectHtml(RedirectHelper.RedirectTemplate,
+                model.customerredirecturl);
+            var result = new ServiceTransitionResult(HttpStatusCode.OK, redirectHTML);
+
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }
@@ -118,19 +151,18 @@ namespace MerchantAPI.Controllers
         [ActionName("success")]
         public HttpResponseMessage MultiSuccessPostback(
             [FromUri] int endpointGroupId,
-            [FromUri] SaleSuccessPaymentModel model) {
-
+            [FromUri] SaleSuccessPaymentModel model)
+        {
             return SingleSuccessPostback(endpointGroupId, model);
         }
 
         [HttpGet]
         [ActionName("failure")]
         public HttpResponseMessage MultiFailurePostback(
-        [FromUri] int endpointGroupId,
-        [FromUri] SaleFailurePaymentModel model) {
-
+            [FromUri] int endpointGroupId,
+            [FromUri] SaleFailurePaymentModel model)
+        {
             return SingleFailurePostback(endpointGroupId, model);
         }
-
     }
 }

@@ -9,6 +9,7 @@ using MerchantAPI.Data;
 using MerchantAPI.Controllers.Factories;
 using System.Text;
 using MerchantAPI.Helpers;
+using MerchantAPI.App_Start;
 
 namespace MerchantAPI.Services
 {
@@ -19,8 +20,7 @@ namespace MerchantAPI.Services
             ReturnRequestModel model,
             string rawModel) 
         {
-
-            Transaction transactionData = new Transaction(TransactionType.Return, model.client_orderid);
+            Transaction transactionData = new Transaction(TransactionType.Return, model.client_orderid, Transaction.CreateTransactionId());
             try {
                 NameValueCollection referenceQuery = ControllerHelper.DeserializeHttpParameters(rawModel);
                 ControllerHelper.EliminateCardData(referenceQuery);
@@ -44,8 +44,10 @@ namespace MerchantAPI.Services
                     if (saleTransactionData == null) saleTransactionData = TransactionsDataStorage.FindByTransactionIdAndType(model.orderid, TransactionType.SaleForm);
                     if (saleTransactionData == null) saleTransactionData = TransactionsDataStorage.FindByTransactionIdAndType(model.orderid, TransactionType.Capture);
 
-                    // test -
-                    if (model.orderid == "ffffffff-ffff-ffff-ffff-fffffffffffg") {
+                    // ONLY for TESTING mode
+                    if (WebApiConfig.Settings.ApplicationMode == ApplicationMode.TESTING
+                            && model.orderid == "ffffffff-ffff-ffff-ffff-fffffffffffg")
+                    {
                         saleTransactionData = TransactionsDataStorage.CreateNewTransaction(TransactionType.Capture, model.client_orderid);
                         saleTransactionData.Status = TransactionStatus.Approved;
                         saleTransactionData.ProcessingTransactionId = "763120942";
@@ -59,7 +61,10 @@ namespace MerchantAPI.Services
                     if (saleTransactionData == null) saleTransactionData = TransactionsDataStorage.FindByTransactionIdAndType(model.orderid, TransactionType.PreAuth);
                     if (saleTransactionData == null) saleTransactionData = TransactionsDataStorage.FindByTransactionIdAndType(model.orderid, TransactionType.PreAuthForm);
 
-                    if (model.orderid == "ffffffff-ffff-ffff-ffff-fffffffffffh") {
+                    // ONLY for TESTING mode
+                    if (WebApiConfig.Settings.ApplicationMode == ApplicationMode.TESTING
+                            && model.orderid == "ffffffff-ffff-ffff-ffff-fffffffffffh")
+                    {
                         saleTransactionData = TransactionsDataStorage.CreateNewTransaction(TransactionType.PreAuth, model.client_orderid);
                         saleTransactionData.Status = TransactionStatus.Approved;
                         saleTransactionData.ProcessingTransactionId = "410198004";
@@ -82,7 +87,7 @@ namespace MerchantAPI.Services
                 CommDoo.BackEnd.Responses.Response xmlResponse = CommDoo.BackEnd.Responses.Response
                     .DeserializeFromString(commdooResponse);
 
-                Cache.setBackendResponseData(transactionData.TransactionId, xmlResponse);
+                Cache.SetBackendResponseData(transactionData.TransactionId, xmlResponse.Error);
 
                 string response;
                 // Refund

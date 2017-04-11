@@ -15,19 +15,6 @@ namespace MerchantAPI.Services
 {
     public class StatusService
     {
-        private static readonly string redirectTemplate =
-@"<!DOCTYPE html><html><head>
-<meta http-equiv=""content-type"" content=""text/html; charset=UTF-8"">
-<title>Redirecting...</title>
-<script type=""text/javascript"" language=""javascript"">function makeSubmit(){document.returnform.submit();}</script>
-</head><body onLoad=""makeSubmit()"">
-<form name=""returnform"" action=""{0}"" method=""POST"">
-{1}
-<noscript><input type=""submit"" name=""submit"" value=""Press this button to continue""/></noscript>
-</form></body></html>";
-
-        private static readonly string hiddenInputTemplate = @"<input type=""hidden"" name=""{0}"" value=""{1}"">\n";
-
         public ServiceTransitionResult StatusSingleCurrency(
             int endpointId, 
             StatusRequestModel model, 
@@ -104,7 +91,7 @@ namespace MerchantAPI.Services
                         response["phone"] = sale_model["phone"];
                         if (transactionData.Type != TransactionType.SaleForm)
                         {
-                            string redirectHTML = FillRedirectTemplate(redirectTemplate, redirectURL);
+                            string redirectHTML = RedirectHelper.CreateRedirectHtml(RedirectHelper.RedirectTemplate, redirectURL);
                             response["html"] = HttpUtility.UrlEncode(redirectHTML);                            
                         }
                         response["serial-number"] = Guid.NewGuid().ToString();
@@ -236,23 +223,6 @@ namespace MerchantAPI.Services
             return response;
         }
 
-        private static string FillRedirectTemplate(string redirectTemplate, string redirectUrl)
-        {
-            string[] splittedUrl = redirectUrl.Split('?');
-            string redirectHTML = redirectTemplate.Replace("{0}", splittedUrl[0]);
-            StringBuilder sb = new StringBuilder(1024);
-            if (splittedUrl.Length > 1)
-            {
-                NameValueCollection redirectParams = ControllerHelper.DeserializeHttpParameters(splittedUrl[1]);
-                foreach (string name in redirectParams)
-                {
-                    string value = redirectParams[name];
-                    sb.Append(hiddenInputTemplate.Replace("{0}", name).Replace("{1}", value));
-                }
-            }
-            return redirectTemplate.Replace("{1}", sb.ToString());
-        }
-
         private static string[] STATUS_HASH_KEY_SEQUENSE =
         {
             "login",
@@ -295,7 +265,7 @@ namespace MerchantAPI.Services
 
                         if (transactionData.Type != TransactionType.PreAuthForm)
                         {
-                            string redirectHTML = FillRedirectTemplate(redirectTemplate, redirectURL);
+                            string redirectHTML = RedirectHelper.CreateRedirectHtml(RedirectHelper.RedirectTemplate, redirectURL);
                             response["html"] = HttpUtility.UrlEncode(redirectHTML);
                         }
 
@@ -434,7 +404,7 @@ namespace MerchantAPI.Services
             string rawPreAuthModel = RestorePreAuthQuery(transactionData.TransactionId);
             NameValueCollection preauth_model = ControllerHelper.DeserializeHttpParameters(rawPreAuthModel);
             NameValueCollection capture_model = ControllerHelper.DeserializeHttpParameters(transactionData.ReferenceQuery);
-            CommDoo.BackEnd.Responses.Response backResponse = Cache.getBackendResponseData(transactionData.TransactionId);
+            CommDoo.BackEnd.Responses.Response.ErrorData backResponseError = Cache.GetBackendResponseData(transactionData.TransactionId);
 
             if (preauth_model.Count == 0)
             {
@@ -564,8 +534,8 @@ namespace MerchantAPI.Services
                             case TransactionStatus.Error:
                                 response["type"] = "error";
                                 response["serial-number"] = Guid.NewGuid().ToString();
-                                response["error-code"] = backResponse.Error.ErrorNumber;
-                                response["error-message"] = HttpUtility.UrlEncode(backResponse.Error.ErrorMessage);
+                                response["error-code"] = backResponseError.ErrorNumber;
+                                response["error-message"] = HttpUtility.UrlEncode(backResponseError.ErrorMessage);
                                 break;
                             case TransactionStatus.Undefined:
                             default:

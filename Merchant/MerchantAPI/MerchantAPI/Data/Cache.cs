@@ -88,11 +88,11 @@ namespace MerchantAPI.Data
         }
         */
 
-        public static void setBackendResponseData(string transactionid, CommDoo.BackEnd.Responses.Response reponse)
+        public static void SetBackendResponseData(string transactionid, CommDoo.BackEnd.Responses.Response.ErrorData reponseError)
         {
             try
             {
-                HttpContext.Current.Cache.Insert("backend_response:" + transactionid, reponse, null,
+                HttpContext.Current.Cache.Insert("backend_response_error:" + transactionid, reponseError, null,
                     System.Web.Caching.Cache.NoAbsoluteExpiration,
                     WebApiConfig.SettingsFactory.CreateCacheSlidingExpiration());
             }
@@ -101,12 +101,12 @@ namespace MerchantAPI.Data
             }
         }
 
-        public static CommDoo.BackEnd.Responses.Response getBackendResponseData(string transactionid)
+        public static CommDoo.BackEnd.Responses.Response.ErrorData GetBackendResponseData(string transactionid)
         {
-            CommDoo.BackEnd.Responses.Response data = null;
+            CommDoo.BackEnd.Responses.Response.ErrorData data = null;
             try
             {
-                data = (CommDoo.BackEnd.Responses.Response)HttpContext.Current.Cache.Get("backend_response:" + transactionid);
+                data = (CommDoo.BackEnd.Responses.Response.ErrorData)HttpContext.Current.Cache.Get("backend_response_error:" + transactionid);
             }
             catch
             {

@@ -20,22 +20,46 @@ namespace MerchantAPI.Services
             PreAuthRequestModel model,
             string rawModel)
         {
-            Transaction transactionData = new Transaction(TransactionType.PreAuth, model.client_orderid);
+            string fibonatixId = Transaction.CreateTransactionId();
+            NameValueCollection requestParameters = CommDooFrontendFactory.CreateSingleCurrencyPaymentParams(
+                endpointId, model, fibonatixId);
+
+            ServiceTransitionResult preAuth = PreAuth(rawModel, model.client_orderid, fibonatixId, requestParameters);
+            return preAuth;
+        }
+
+        public ServiceTransitionResult PreAuthMultiCurrency(
+            int endpointGroupId, 
+            PreAuthRequestModel model,
+            string rawModel)
+        {
+            string fibonatixId = Transaction.CreateTransactionId();
+            NameValueCollection requestParameters = CommDooFrontendFactory.CreateMultiCurrencyPaymentParams(
+                endpointGroupId, model, fibonatixId);
+
+            ServiceTransitionResult preAuth = PreAuth(rawModel, model.client_orderid, fibonatixId, requestParameters);
+            return preAuth;
+        }
+
+        protected ServiceTransitionResult PreAuth(
+            string rawModel,
+            string merchantOrderId,
+            string fibonatixId,
+            NameValueCollection commDooRequestParams)
+        {
+            Transaction transactionData = new Transaction(TransactionType.PreAuth, merchantOrderId, fibonatixId);
             try
             {
-                NameValueCollection requestParameters = CommDooFrontendFactory.CreateSingleCurrencyPaymentParams(
-                    endpointId, model, transactionData.TransactionId);
-
                 var parameters = new StringBuilder(256)
                     .Append(WebApiConfig.Settings.PaymentASPXEndpoint);
                 char delim = '?';
-                foreach (string key in requestParameters.Keys)
+                foreach (string key in commDooRequestParams.Keys)
                 {
                     parameters
                         .Append(delim)
                         .Append(key)
                         .Append('=')
-                        .Append(HttpUtility.UrlEncode(requestParameters[key]));
+                        .Append(HttpUtility.UrlEncode(commDooRequestParams[key]));
                     delim = '&';
                 }
 
@@ -58,7 +82,7 @@ namespace MerchantAPI.Services
 
                 string response = "type=async-response" +
                                   "&serial-number=" + transactionData.SerialNumber +
-                                  "&merchant-order-id=" + model.client_orderid +
+                                  "&merchant-order-id=" + merchantOrderId +
                                   "&paynet-order-id=" + transactionData.TransactionId;
 
                 return new ServiceTransitionResult(HttpStatusCode.OK,
@@ -74,12 +98,5 @@ namespace MerchantAPI.Services
             finally { }
         }
 
-        internal ServiceTransitionResult PreAuthMultiCurrency(
-            int endpointGroupId, 
-            PreAuthRequestModel model)
-        {
-            return new ServiceTransitionResult(HttpStatusCode.OK,
-                 "Method [PreAuthService.PreAuthMultiCurrency] is not supported yet");
-        }
     }
 }

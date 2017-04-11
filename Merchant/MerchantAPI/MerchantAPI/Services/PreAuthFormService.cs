@@ -22,21 +22,46 @@ namespace MerchantAPI.Services
             PreAuthFormRequestModel model, 
             string rawModel)
         {
-            Transaction transactionData = new Transaction(TransactionType.PreAuthForm, model.client_orderid);
+            string fibonatixId = Transaction.CreateTransactionId();
+            NameValueCollection requestParameters = CommDooFrontendFactory.CreateSingleCurrencyPaymentParams(
+                endpointId, model, fibonatixId);
+
+            ServiceTransitionResult preAuthForm = PreAuthForm(rawModel, model.client_orderid, fibonatixId, requestParameters);
+            return preAuthForm;
+        }
+
+        public ServiceTransitionResult PreAuthFormMultiCurrency(
+            int endpointGroupId,
+            PreAuthFormRequestModel model,
+            string rawModel)
+        {
+            string fibonatixId = Transaction.CreateTransactionId();
+            NameValueCollection requestParameters = CommDooFrontendFactory.CreateMultiCurrencyPaymentParams(
+                endpointGroupId, model, fibonatixId);
+
+            ServiceTransitionResult preAuthForm = PreAuthForm(rawModel, model.client_orderid, fibonatixId, requestParameters);
+            return preAuthForm;
+        }
+
+        protected ServiceTransitionResult PreAuthForm(
+            string rawModel,
+            string merchantOrderId,
+            string fibonatixId,
+            NameValueCollection commDooRequestParams)
+        {
+            Transaction transactionData = new Transaction(TransactionType.PreAuthForm, merchantOrderId, fibonatixId);
             try
             {
-                NameValueCollection requestParameters = CommDooFrontendFactory.CreateSingleCurrencyPaymentParams(
-                    endpointId, model, transactionData.TransactionId);
-
                 var parameters = new StringBuilder(256)
                     .Append(WebApiConfig.Settings.PaymentASPXEndpoint);
                 char delim = '?';
-                foreach (string key in requestParameters.Keys) {
+                foreach (string key in commDooRequestParams.Keys)
+                {
                     parameters
                         .Append(delim)
                         .Append(key)
                         .Append('=')
-                        .Append(HttpUtility.UrlEncode(requestParameters[key]));
+                        .Append(HttpUtility.UrlEncode(commDooRequestParams[key]));
                     delim = '&';
                 }
 
@@ -61,7 +86,7 @@ namespace MerchantAPI.Services
                 string response = "type=" + "async-form-response" + "\n" +
                                   "&status=" + "processing" + "\n" +
                                   "&serial-number=" + transactionData.SerialNumber + "\n" +
-                                  "&merchant-order-id=" + model.client_orderid + "\n" +
+                                  "&merchant-order-id=" + merchantOrderId + "\n" +
                                   "&paynet-order-id=" + transactionData.TransactionId + "\n" +
                                   "&redirect_url=" + HttpUtility.UrlEncode(transactionData.RedirectUri);
 
@@ -73,16 +98,9 @@ namespace MerchantAPI.Services
                 TransactionsDataStorage.Store(transactionData, e);
 
                 return new ServiceTransitionResult(HttpStatusCode.InternalServerError,
-                    $"EXCP: Processing PreAuth for [client_orderid={transactionData.TransactionId}] failed\n");
+                    $"EXCP: Processing PreAuthForm for [client_orderid={transactionData.TransactionId}] failed\n");
             }
             finally { }
         }
-
-        internal ServiceTransitionResult PreAuthFormMultiCurrency(int endpointGroupId, PreAuthFormRequestModel model)
-        {
-            return new ServiceTransitionResult(HttpStatusCode.OK,
-                "Method [PreAuthFormService.PreAuthFormMultiCurrency] is not supported yet");
-        }
     }
-
 }

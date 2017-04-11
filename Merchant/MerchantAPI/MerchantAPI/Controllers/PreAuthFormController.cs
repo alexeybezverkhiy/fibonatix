@@ -27,8 +27,8 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
-            [FromBody] PreAuthFormRequestModel model) {
-
+            [FromBody] PreAuthFormRequestModel model)
+        {
             PreAuthFormResponseModel err = null;
             ServiceTransitionResult result = null;
 
@@ -61,8 +61,38 @@ namespace MerchantAPI.Controllers
             [FromUri] int endpointGroupId,
             [FromBody] PreAuthFormRequestModel model)
         {
+            PreAuthFormResponseModel err = null;
             ServiceTransitionResult result = null;
-            result = _service.PreAuthFormMultiCurrency(endpointGroupId, model);
+
+            string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointGroupId);
+            if (string.IsNullOrEmpty(controlKey))
+            {
+                err = new PreAuthFormResponseModel(model.client_orderid);
+                err.SetValidationError("2", "INVALID_CONTROL_CODE");
+            }
+            else if (string.IsNullOrEmpty(model.client_orderid))
+            {
+                err = new PreAuthFormResponseModel(null);
+                err.SetValidationError("2", "INVALID_INCOMING_DATA");
+            }
+            else
+            {
+                if (model.IsHashValid(endpointGroupId, controlKey))
+                {
+                    string raw = RawContentReader.Read(Request).Result;
+                    result = _service.PreAuthFormMultiCurrency(endpointGroupId, model, raw);
+                }
+                else
+                {
+                    err = new PreAuthFormResponseModel(model.client_orderid);
+                    err.SetValidationError("2", "INVALID_CONTROL_CODE");
+                }
+            }
+
+            if (err != null)
+            {
+                result = new ServiceTransitionResult(HttpStatusCode.OK, err.ToHttpResponse());
+            }
             HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
             return response;
         }

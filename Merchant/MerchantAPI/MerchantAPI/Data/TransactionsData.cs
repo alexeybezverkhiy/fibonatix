@@ -33,7 +33,7 @@ namespace MerchantAPI.Data
         {
             using (var db = new PersistenceContext())
             {
-                Transaction created = new Transaction(type, merchantTransactionID);
+                Transaction created = new Transaction(type, merchantTransactionID, Transaction.CreateTransactionId());
                 db.Transactions.Add(created);
                 db.SaveChanges();
                 return created;

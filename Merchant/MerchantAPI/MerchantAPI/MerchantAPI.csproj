@@ -204,6 +204,7 @@
     <Compile Include="Helpers\CurrencyConverter.cs" />
     <Compile Include="Data\PersistenceContext.cs" />
     <Compile Include="Data\Transaction.cs" />
+    <Compile Include="Helpers\RedirectHelper.cs" />
     <Compile Include="Migrations\201702181556495_Initial.cs" />
     <Compile Include="Migrations\201702181556495_Initial.Designer.cs">
       <DependentUpon>201702181556495_Initial.cs</DependentUpon>

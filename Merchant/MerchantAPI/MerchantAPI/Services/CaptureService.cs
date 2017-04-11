@@ -9,6 +9,7 @@ using MerchantAPI.Data;
 using MerchantAPI.Controllers.Factories;
 using System.Text;
 using MerchantAPI.Helpers;
+using MerchantAPI.App_Start;
 
 namespace MerchantAPI.Services
 {
@@ -20,7 +21,7 @@ namespace MerchantAPI.Services
             CaptureRequestModel model,
             string rawModel)
         {
-            Transaction transactionData = new Transaction(TransactionType.Capture, model.client_orderid);
+            Transaction transactionData = new Transaction(TransactionType.Capture, model.client_orderid, Transaction.CreateTransactionId());
             try
             {
                 NameValueCollection referenceQuery = ControllerHelper.DeserializeHttpParameters(rawModel);
@@ -42,7 +43,10 @@ namespace MerchantAPI.Services
                 preAuthTransactionData = TransactionsDataStorage
                     .FindByTransactionIdAndType(model.orderid, TransactionType.PreAuth);
 
-                if (model.orderid == "ffffffff-ffff-ffff-ffff-fffffffffffi" ) {
+                // ONLY for TESTING mode
+                if (WebApiConfig.Settings.ApplicationMode == ApplicationMode.TESTING
+                        && model.orderid == "ffffffff-ffff-ffff-ffff-fffffffffffi" )
+                {
                     preAuthTransactionData = TransactionsDataStorage.CreateNewTransaction(TransactionType.Capture, model.client_orderid);
                     preAuthTransactionData.Status = TransactionStatus.Approved;
                     preAuthTransactionData.ProcessingTransactionId = "410198004";
@@ -54,7 +58,7 @@ namespace MerchantAPI.Services
                 CommDoo.BackEnd.Responses.Response xmlResponse = CommDoo.BackEnd.Responses.Response
                     .DeserializeFromString(commdooResponse);
 
-                Cache.setBackendResponseData(transactionData.TransactionId, xmlResponse);
+                Cache.SetBackendResponseData(transactionData.TransactionId, xmlResponse.Error);
 
                 string response;
                 if (xmlResponse.Error == null && xmlResponse.Payment != null)

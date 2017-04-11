@@ -20,7 +20,7 @@ namespace MerchantAPI.Controllers.Factories
         //
         // Sale operation block
         //
-        public static NameValueCollection CreateMultyCurrencyPaymentParams(
+        public static NameValueCollection CreateMultiCurrencyPaymentParams(
             int endpointGroupId,
             SaleRequestModel model,
             string fibonatixID)
@@ -111,10 +111,11 @@ namespace MerchantAPI.Controllers.Factories
         //
         // Sale-Form operation block
         //
-        public static NameValueCollection CreateMultyCurrencyPaymentParams(
+        public static NameValueCollection CreateMultiCurrencyPaymentParams(
             int endpointGroupId,
             SaleFormRequestModel model,
-            string fibonatixID) {
+            string fibonatixID)
+        {
             NameValueCollection data = CreatePaymentParams(model, fibonatixID, endpointGroupId);
             data.Add("relatedinformation-endpointgroupid", "" + endpointGroupId);
             data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENCE, data,
@@ -125,7 +126,8 @@ namespace MerchantAPI.Controllers.Factories
         public static NameValueCollection CreateSingleCurrencyPaymentParams(
             int endpointId,
             SaleFormRequestModel model,
-            string fibonatixID) {
+            string fibonatixID)
+        {
             NameValueCollection data = CreatePaymentParams(model, fibonatixID, endpointId);
             data.Add("relatedinformation-endpointid", "" + endpointId);
             data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENCE, data,
@@ -195,7 +197,7 @@ namespace MerchantAPI.Controllers.Factories
         //
         // PreAuth operation block
         //
-        public static NameValueCollection CreateMultyCurrencyPaymentParams(
+        public static NameValueCollection CreateMultiCurrencyPaymentParams(
             int endpointGroupId,
             PreAuthRequestModel model,
             string fibonatixID)
@@ -227,19 +229,15 @@ namespace MerchantAPI.Controllers.Factories
                 {"clientid", WebApiConfig.Settings.GetClientID(endpointId)},
                 {"payment", WebApiConfig.Settings.PaymentKey},
                 {"paymentmode", "reservation" },
-                {"referenceid", model.client_orderid + "-" + now.ToString("yyyyMMddHHmmss.fff")},
-                {"orderid", model.client_orderid},
+                {"referenceid", model.client_orderid},
+                //{"orderid", model.client_orderid},
                 {"creditcardowner", model.card_printed_name},
                 {"firstname", model.first_name},
                 {"lastname", model.last_name},
-                {"idcardnumber", "" + model.ssn},
-                {"dateofbirth", CommDooTargetConverter.ConvertBirthdayToString(model.birthday)},
                 {"street", model.address1},
                 {"city", model.city},
-                {"state", model.state},
                 {"postalcode", model.zip_code},
                 {"country", CountryConverter.ConvertCountryToCommDooSpace(model.country)},
-                {"phonenumber", string.IsNullOrEmpty(model.phone) ? model.cell_phone : model.phone},
                 {"emailaddress", model.email},
                 {"amount", CurrencyConverter.MajorAmountToMinor(model.amount, model.currency)},
                 {"currency", model.currency},
@@ -250,11 +248,38 @@ namespace MerchantAPI.Controllers.Factories
                 {"ipaddress", model.ipaddress},
                 {"website", model.site_url},
                 {"successurl", ResolveInternalUrl(SUCC_EXTRA_PATH) + CreateRedirectParams(model.redirect_url, fibonatixID)},
-                {"notificationurl", ResolveInternalNotificationUrl(endpointId, SUCC_EXTRA_PATH) + CreateNotifyParams(model.server_callback_url, fibonatixID)},
                 {"failurl", ResolveInternalUrl(FAIL_EXTRA_PATH) + CreateRedirectParams(model.redirect_url, fibonatixID)},
-                {"timestamp", CommDooTargetConverter.ConvertToCentralEurope(now).ToString("ddMMyyyyHHmmss")},
-                {"relatedinformation-orderdescription", model.order_desc}
+                {"timestamp", now.ToString("ddMMyyyyHHmmss")},
             };
+            if (model.ssn >= 0)
+            {
+                data.Add("idcardnumber", "" + model.ssn);
+            }
+            if (model.birthday >= 0)
+            {
+                data.Add("dateofbirth", CommDooTargetConverter.ConvertBirthdayToString(model.birthday));
+            }
+            if (!string.IsNullOrEmpty(model.state))
+            {
+                data.Add("state", model.state);
+            }
+            if (!string.IsNullOrEmpty(model.phone))
+            {
+                data.Add("phonenumber", model.phone);
+            }
+            else if (!string.IsNullOrEmpty(model.cell_phone))
+            {
+                data.Add("phonenumber", model.cell_phone);
+            }
+            if (!string.IsNullOrEmpty(model.server_callback_url))
+            {
+                data.Add("notificationurl", ResolveInternalNotificationUrl(endpointId, SUCC_EXTRA_PATH)
+                    + CreateNotifyParams(model.server_callback_url, fibonatixID));
+            }
+            if (!string.IsNullOrEmpty(model.order_desc))
+            {
+                data.Add("relatedinformation-orderdescription", model.order_desc);
+            }
             return data;
         }
 
@@ -262,10 +287,11 @@ namespace MerchantAPI.Controllers.Factories
         //
         // PreAuth-Form operation block
         //
-        public static NameValueCollection CreateMultyCurrencyPaymentParams(
+        public static NameValueCollection CreateMultiCurrencyPaymentParams(
             int endpointGroupId,
             PreAuthFormRequestModel model,
-            string fibonatixID) {
+            string fibonatixID)
+        {
             NameValueCollection data = CreatePaymentParams(model, fibonatixID, endpointGroupId);
             data.Add("relatedinformation-endpointgroupid", "" + endpointGroupId);
             data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENCE, data,
@@ -276,7 +302,8 @@ namespace MerchantAPI.Controllers.Factories
         public static NameValueCollection CreateSingleCurrencyPaymentParams(
             int endpointId,
             PreAuthFormRequestModel model,
-            string fibonatixID) {
+            string fibonatixID)
+        {
             NameValueCollection data = CreatePaymentParams(model, fibonatixID, endpointId);
             data.Add("relatedinformation-endpointid", "" + endpointId);
             data.Add("hash", HashHelper.CalculateHash(PAYMENT_HASH_KEY_SEQUENCE, data,
@@ -287,7 +314,8 @@ namespace MerchantAPI.Controllers.Factories
         private static NameValueCollection CreatePaymentParams(
             PreAuthFormRequestModel model,
             string fibonatixID,
-            int endpointId) {
+            int endpointId)
+        {
             DateTime now = DateTime.Now;
             NameValueCollection data = new NameValueCollection
             {
@@ -370,7 +398,8 @@ namespace MerchantAPI.Controllers.Factories
         //
         // hash checking methods
         //
-        public static bool SuccessHashIsValid(int endpointId, SaleSuccessPaymentModel model) {
+        public static bool SuccessHashIsValid(int endpointId, SaleSuccessPaymentModel model)
+        {
             if (model == null ||
                 string.IsNullOrEmpty(model.clientid) ||
                 string.IsNullOrEmpty(model.transactionid) ||
@@ -407,7 +436,8 @@ namespace MerchantAPI.Controllers.Factories
             return model.hash.Trim().ToLowerInvariant() == calculatedHash.Trim().ToLowerInvariant();
         }
 
-        public static bool SuccessHashIsValid(int endpointId, SaleFormSuccessPaymentModel model) {
+        public static bool SuccessHashIsValid(int endpointId, SaleFormSuccessPaymentModel model)
+        {
             if (model == null ||
                 string.IsNullOrEmpty(model.clientid) ||
                 string.IsNullOrEmpty(model.transactionid) ||

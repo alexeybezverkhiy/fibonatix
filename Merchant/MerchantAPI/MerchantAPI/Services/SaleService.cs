@@ -22,21 +22,46 @@ namespace MerchantAPI.Services
             SaleRequestModel model, 
             string rawModel)
         {
-            Transaction transactionData = new Transaction(TransactionType.Sale, model.client_orderid);
+            string fibonatixId = Transaction.CreateTransactionId();
+            NameValueCollection requestParameters = CommDooFrontendFactory.CreateSingleCurrencyPaymentParams(
+                endpointId, model, fibonatixId);
+
+            ServiceTransitionResult sale = Sale(rawModel, model.client_orderid, fibonatixId, requestParameters);
+            return sale;
+        }
+
+        public ServiceTransitionResult SaleMultiCurrency(
+            int endpointGroupId, 
+            SaleRequestModel model,
+            string rawModel)
+        {
+            string fibonatixId = Transaction.CreateTransactionId();
+            NameValueCollection requestParameters = CommDooFrontendFactory.CreateMultiCurrencyPaymentParams(
+                endpointGroupId, model, fibonatixId);
+
+            ServiceTransitionResult sale = Sale(rawModel, model.client_orderid, fibonatixId, requestParameters);
+            return sale;
+        }
+
+        protected ServiceTransitionResult Sale(
+            string rawModel,
+            string merchantOrderId,
+            string fibonatixId,
+            NameValueCollection commDooRequestParams)
+        {
+            Transaction transactionData = new Transaction(TransactionType.Sale, merchantOrderId, fibonatixId);
             try
             {
-                NameValueCollection requestParameters = CommDooFrontendFactory.CreateSingleCurrencyPaymentParams(
-                    endpointId, model, transactionData.TransactionId);
-
                 var parameters = new StringBuilder(256)
                     .Append(WebApiConfig.Settings.PaymentASPXEndpoint);
                 char delim = '?';
-                foreach (string key in requestParameters.Keys) {
+                foreach (string key in commDooRequestParams.Keys)
+                {
                     parameters
                         .Append(delim)
                         .Append(key)
                         .Append('=')
-                        .Append(HttpUtility.UrlEncode(requestParameters[key]));
+                        .Append(HttpUtility.UrlEncode(commDooRequestParams[key]));
                     delim = '&';
                 }
 
@@ -59,7 +84,7 @@ namespace MerchantAPI.Services
 
                 string response = "type=async-response" + "\n" +
                                   "&serial-number=" + transactionData.SerialNumber + "\n" +
-                                  "&merchant-order-id=" + model.client_orderid + "\n" +
+                                  "&merchant-order-id=" + merchantOrderId + "\n" +
                                   "&paynet-order-id=" + transactionData.TransactionId + "\n";
 
                 return new ServiceTransitionResult(HttpStatusCode.OK,
@@ -73,12 +98,6 @@ namespace MerchantAPI.Services
                     $"EXCP: Processing Sale for [client_orderid={transactionData.TransactionId}] failed\n");
             }
             finally { }
-        }
-
-        internal ServiceTransitionResult SaleMultiCurrency(int endpointGroupId, SaleRequestModel model)
-        {
-            return new ServiceTransitionResult(HttpStatusCode.OK,
-                "Method [SaleService.SaleMultiCurrency] is not supported yet");
         }
     }
 
