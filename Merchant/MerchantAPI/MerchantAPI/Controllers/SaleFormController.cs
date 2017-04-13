@@ -101,27 +101,24 @@ namespace MerchantAPI.Controllers
         [ActionName("success")]
         public HttpResponseMessage SingleSuccessPostback(
             [FromUri] int endpointId,
-            [FromUri] SaleFormSuccessPaymentModel model) {
-
+            [FromUri] PostbackSuccessModel model)
+        {
             if (!CommDooFrontendFactory.SuccessHashIsValid(endpointId, model)) {
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
 
-            if (model.transactionid != null) {
+            if (model.transactionid != null)
+            {
                 TransactionsDataStorage.UpdateTransaction(model.fibonatixID, model.transactionid,
                     TransactionState.Finished, TransactionStatus.Approved);
-            } else {
+            }
+            else
+            {
                 TransactionsDataStorage.UpdateTransaction(model.fibonatixID,
                     TransactionState.Finished, TransactionStatus.Approved);
             }
 
-            RedirectResponseModel responseData = new RedirectResponseModel(model.referenceid);
-            responseData.merchant_order = model.fibonatixID;
-            responseData.status = "approved";
-            string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
-            responseData.control = HashHelper.SHA1(responseData.AssemblyHashContent(endpointId, controlKey));
-            var result = new ServiceTransitionResult(HttpStatusCode.OK, responseData.ToHttpResponse(model.customerredirecturl));
-            HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
+            HttpResponseMessage response = PostbackHelper.CreateRedirectContent(endpointId, model, RedirectStatus.Approved);
             return response;
         }
 
@@ -129,8 +126,8 @@ namespace MerchantAPI.Controllers
         [ActionName("failure")]
         public HttpResponseMessage SingleFailurePostback(
             [FromUri] int endpointId,
-            [FromUri] SaleFormFailurePaymentModel model) {
-
+            [FromUri] PostbackFailureModel model)
+        {
             if (!CommDooFrontendFactory.FailureHashIsValid(endpointId, model)) {
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
@@ -138,14 +135,7 @@ namespace MerchantAPI.Controllers
             TransactionsDataStorage.UpdateTransaction(model.fibonatixID,
                 TransactionState.Finished, TransactionStatus.Declined);
 
-            RedirectResponseModel responseData = new RedirectResponseModel(model.referenceid);
-            responseData.merchant_order = model.fibonatixID;
-            responseData.status = "declined";
-            string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
-            responseData.control = HashHelper.SHA1(responseData.AssemblyHashContent(endpointId, controlKey));
-
-            var result = new ServiceTransitionResult(HttpStatusCode.OK, responseData.ToHttpResponse(model.customerredirecturl));
-            HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
+            HttpResponseMessage response = PostbackHelper.CreateRedirectContent(endpointId, model, RedirectStatus.Declined);
             return response;
         }
 
@@ -153,17 +143,17 @@ namespace MerchantAPI.Controllers
         [ActionName("success")]
         public HttpResponseMessage MultiSuccessPostback(
             [FromUri] int endpointGroupId,
-            [FromUri] SaleFormSuccessPaymentModel model) {
-
+            [FromUri] PostbackSuccessModel model)
+        {
             return SingleSuccessPostback(endpointGroupId, model);
         }
 
         [HttpGet]
         [ActionName("failure")]
         public HttpResponseMessage MultiFailurePostback(
-        [FromUri] int endpointGroupId,
-        [FromUri] SaleFormFailurePaymentModel model) {
-
+            [FromUri] int endpointGroupId,
+            [FromUri] PostbackFailureModel model)
+        {
             return SingleFailurePostback(endpointGroupId, model);
         }
 

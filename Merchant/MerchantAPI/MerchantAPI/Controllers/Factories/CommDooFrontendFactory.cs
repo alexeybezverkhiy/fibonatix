@@ -71,16 +71,15 @@ namespace MerchantAPI.Controllers.Factories
                 {"expirationyear", "" + model.expire_year},
                 {"cvv", "" + model.cvv2},
                 {"ipaddress", model.ipaddress},
-                {"website", model.site_url},
                 {"successurl", ResolveInternalUrl(SUCC_EXTRA_PATH) + CreateRedirectParams(model.redirect_url, fibonatixID)},
                 {"failurl", ResolveInternalUrl(FAIL_EXTRA_PATH) + CreateRedirectParams(model.redirect_url, fibonatixID)},
                 {"timestamp", now.ToString("ddMMyyyyHHmmss")},
             };
-            if (model.ssn >= 0)
+            if (model.ssn > 0)
             {
                 data.Add("idcardnumber", "" + model.ssn);
             }
-            if (model.birthday >= 0)
+            if (model.birthday > 0)
             {
                 data.Add("dateofbirth", CommDooTargetConverter.ConvertBirthdayToString(model.birthday));
             }
@@ -95,6 +94,10 @@ namespace MerchantAPI.Controllers.Factories
             else if (!string.IsNullOrEmpty(model.cell_phone))
             {
                 data.Add("phonenumber", model.cell_phone);
+            }
+            if (!string.IsNullOrEmpty(model.site_url))
+            {
+                data.Add("website", model.site_url);
             }
             if (!string.IsNullOrEmpty(model.server_callback_url))
             {
@@ -156,16 +159,15 @@ namespace MerchantAPI.Controllers.Factories
                 {"amount", CurrencyConverter.MajorAmountToMinor(model.amount, model.currency)},
                 {"currency", model.currency},
                 {"ipaddress", model.ipaddress},
-                {"website", model.site_url},
                 {"successurl", ResolveInternalUrl(SUCC_EXTRA_PATH) + CreateRedirectParams(model.redirect_url, fibonatixID)},
                 {"failurl", ResolveInternalUrl(FAIL_EXTRA_PATH) + CreateRedirectParams(model.redirect_url, fibonatixID)},
                 {"timestamp", now.ToString("ddMMyyyyHHmmss")},
             };
-            if (model.ssn >= 0)
+            if (model.ssn > 0)
             {
                 data.Add("idcardnumber", "" + model.ssn);
             }
-            if (model.birthday >= 0)
+            if (model.birthday > 0)
             {
                 data.Add("dateofbirth", CommDooTargetConverter.ConvertBirthdayToString(model.birthday));
             }
@@ -177,9 +179,13 @@ namespace MerchantAPI.Controllers.Factories
             {
                 data.Add("phonenumber", model.phone);
             }
-            else if(!string.IsNullOrEmpty(model.cell_phone))
+            else if (!string.IsNullOrEmpty(model.cell_phone))
             {
                 data.Add("phonenumber", model.cell_phone);
+            }
+            if (!string.IsNullOrEmpty(model.site_url))
+            {
+                data.Add("website", model.site_url);
             }
             if (!string.IsNullOrEmpty(model.server_callback_url))
             {
@@ -246,16 +252,15 @@ namespace MerchantAPI.Controllers.Factories
                 {"expirationyear", "" + model.expire_year},
                 {"cvv", "" + model.cvv2},
                 {"ipaddress", model.ipaddress},
-                {"website", model.site_url},
                 {"successurl", ResolveInternalUrl(SUCC_EXTRA_PATH) + CreateRedirectParams(model.redirect_url, fibonatixID)},
                 {"failurl", ResolveInternalUrl(FAIL_EXTRA_PATH) + CreateRedirectParams(model.redirect_url, fibonatixID)},
                 {"timestamp", now.ToString("ddMMyyyyHHmmss")},
             };
-            if (model.ssn >= 0)
+            if (model.ssn > 0)
             {
                 data.Add("idcardnumber", "" + model.ssn);
             }
-            if (model.birthday >= 0)
+            if (model.birthday > 0)
             {
                 data.Add("dateofbirth", CommDooTargetConverter.ConvertBirthdayToString(model.birthday));
             }
@@ -270,6 +275,10 @@ namespace MerchantAPI.Controllers.Factories
             else if (!string.IsNullOrEmpty(model.cell_phone))
             {
                 data.Add("phonenumber", model.cell_phone);
+            }
+            if (!string.IsNullOrEmpty(model.site_url))
+            {
+                data.Add("website", model.site_url);
             }
             if (!string.IsNullOrEmpty(model.server_callback_url))
             {
@@ -334,15 +343,14 @@ namespace MerchantAPI.Controllers.Factories
                 {"amount", CurrencyConverter.MajorAmountToMinor(model.amount, model.currency)},
                 {"currency", model.currency},
                 {"ipaddress", model.ipaddress},
-                {"website", model.site_url},
                 {"successurl", ResolveInternalUrl(SUCC_EXTRA_PATH) + CreateRedirectParams(model.redirect_url, fibonatixID)},
                 {"failurl", ResolveInternalUrl(FAIL_EXTRA_PATH) + CreateRedirectParams(model.redirect_url, fibonatixID)},
                 {"timestamp", now.ToString("ddMMyyyyHHmmss")},
             };
-            if (model.ssn >= 0) {
+            if (model.ssn > 0) {
                 data.Add("idcardnumber", "" + model.ssn);
             }
-            if (model.birthday >= 0) {
+            if (model.birthday > 0) {
                 data.Add("dateofbirth", CommDooTargetConverter.ConvertBirthdayToString(model.birthday));
             }
             if (!string.IsNullOrEmpty(model.state)) {
@@ -352,6 +360,10 @@ namespace MerchantAPI.Controllers.Factories
                 data.Add("phonenumber", model.phone);
             } else if (!string.IsNullOrEmpty(model.cell_phone)) {
                 data.Add("phonenumber", model.cell_phone);
+            }
+            if (!string.IsNullOrEmpty(model.site_url))
+            {
+                data.Add("website", model.site_url);
             }
             if (!string.IsNullOrEmpty(model.server_callback_url)) {
                 data.Add("notificationurl", ResolveInternalNotificationUrl(endpointId, SUCC_EXTRA_PATH)
@@ -436,44 +448,6 @@ namespace MerchantAPI.Controllers.Factories
             return model.hash.Trim().ToLowerInvariant() == calculatedHash.Trim().ToLowerInvariant();
         }
 
-        public static bool SuccessHashIsValid(int endpointId, SaleFormSuccessPaymentModel model)
-        {
-            if (model == null ||
-                string.IsNullOrEmpty(model.clientid) ||
-                string.IsNullOrEmpty(model.transactionid) ||
-                string.IsNullOrEmpty(model.referenceid) ||
-                model.amount < 0 ||
-                string.IsNullOrEmpty(model.currency) ||
-                string.IsNullOrEmpty(model.paymentmethod) ||
-                string.IsNullOrEmpty(model.transactionstatus) ||
-                string.IsNullOrEmpty(model.timestamp) ||
-                string.IsNullOrEmpty(model.hash))
-            {
-                return false;
-            }
-
-            NameValueCollection data = new NameValueCollection
-            {
-                {"clientid", model.clientid.ToString()},
-                {"transactionid", model.transactionid},
-                {"referenceid", model.referenceid},
-                {"subscriptionid", string.IsNullOrEmpty(model.subscriptionid) ? string.Empty : model.subscriptionid},
-                {"amount", model.amount.ToString()},
-                {"currency", model.currency},
-                {"paymentmethod", model.paymentmethod},
-                {"customerid", string.IsNullOrEmpty(model.customerid) ? string.Empty : model.customerid},
-                {"transactionstatus", model.transactionstatus},
-                {"transactionstatusaddition", string.IsNullOrEmpty(model.transactionstatusaddition) ? string.Empty : model.transactionstatusaddition},
-                {"creditcardtype", string.IsNullOrEmpty(model.creditcardtype) ? string.Empty : model.creditcardtype},
-                {"providertransactionid", string.IsNullOrEmpty(model.providertransactionid) ? string.Empty : model.providertransactionid},
-                {"additionaldata", string.IsNullOrEmpty(model.additionaldata) ? string.Empty : model.additionaldata},
-                {"timestamp", model.timestamp.ToString()},
-            };
-
-            string calculatedHash = HashHelper.CalculateHash(SUCC_HASH_KEY_SEQUENCE, data, WebApiConfig.Settings.GetSharedSecret(endpointId));
-            return model.hash.Trim().ToLowerInvariant() == calculatedHash.Trim().ToLowerInvariant();
-        }
-
         public static bool FailureHashIsValid(int endpointId, SaleFailurePaymentModel model) {
             if (model == null ||
                 string.IsNullOrEmpty(model.clientid) ||
@@ -500,7 +474,44 @@ namespace MerchantAPI.Controllers.Factories
             return model.hash.Trim().ToLowerInvariant() == calculatedHash.Trim().ToLowerInvariant();
         }
 
-        public static bool FailureHashIsValid(int endpointId, SaleFormFailurePaymentModel model) {
+        public static bool SuccessHashIsValid(int endpointId, PostbackSuccessModel model) {
+            if (model == null ||
+                string.IsNullOrEmpty(model.clientid) ||
+                string.IsNullOrEmpty(model.transactionid) ||
+                string.IsNullOrEmpty(model.referenceid) ||
+                model.amount < 0 ||
+                string.IsNullOrEmpty(model.currency) ||
+                string.IsNullOrEmpty(model.paymentmethod) ||
+                string.IsNullOrEmpty(model.transactionstatus) ||
+                string.IsNullOrEmpty(model.timestamp) ||
+                string.IsNullOrEmpty(model.hash))
+            {
+                return false;
+            }
+
+            NameValueCollection data = new NameValueCollection
+            {
+                {"clientid", model.clientid.ToString()},
+                {"transactionid", model.transactionid},
+                {"referenceid", model.referenceid},
+                {"subscriptionid", string.IsNullOrEmpty(model.subscriptionid) ? string.Empty : model.subscriptionid},
+                {"amount", model.amount.ToString()},
+                {"currency", model.currency},
+                {"paymentmethod", model.paymentmethod},
+                {"customerid", string.IsNullOrEmpty(model.customerid) ? string.Empty : model.customerid},
+                {"transactionstatus", model.transactionstatus},
+                {"transactionstatusaddition", string.IsNullOrEmpty(model.transactionstatusaddition) ? string.Empty : model.transactionstatusaddition},
+                {"creditcardtype", string.IsNullOrEmpty(model.creditcardtype) ? string.Empty : model.creditcardtype},
+                {"providertransactionid", string.IsNullOrEmpty(model.providertransactionid) ? string.Empty : model.providertransactionid},
+                {"additionaldata", string.IsNullOrEmpty(model.additionaldata) ? string.Empty : model.additionaldata},
+                {"timestamp", model.timestamp.ToString()},
+            };
+
+            string calculatedHash = HashHelper.CalculateHash(SUCC_HASH_KEY_SEQUENCE, data, WebApiConfig.Settings.GetSharedSecret(endpointId));
+            return model.hash.Trim().ToLowerInvariant() == calculatedHash.Trim().ToLowerInvariant();
+        }
+
+        public static bool FailureHashIsValid(int endpointId, PostbackFailureModel model) {
             if (model == null ||
                 string.IsNullOrEmpty(model.clientid) ||
                 string.IsNullOrEmpty(model.referenceid) ||
@@ -525,131 +536,6 @@ namespace MerchantAPI.Controllers.Factories
             string calculatedHash = HashHelper.CalculateHash(FAIL_HASH_KEY_SEQUENCE, data, WebApiConfig.Settings.GetSharedSecret(endpointId));
             return model.hash.Trim().ToLowerInvariant() == calculatedHash.Trim().ToLowerInvariant();
         }
-
-
-        public static bool SuccessHashIsValid(int endpointId, PreAuthSuccessPaymentModel model) {
-            if (model == null ||
-                string.IsNullOrEmpty(model.clientid) ||
-                string.IsNullOrEmpty(model.transactionid) ||
-                string.IsNullOrEmpty(model.referenceid) ||
-                model.amount < 0 ||
-                string.IsNullOrEmpty(model.currency) ||
-                string.IsNullOrEmpty(model.paymentmethod) ||
-                string.IsNullOrEmpty(model.transactionstatus) ||
-                string.IsNullOrEmpty(model.timestamp) ||
-                string.IsNullOrEmpty(model.hash)) {
-                return false;
-            }
-
-            NameValueCollection data = new NameValueCollection
-            {
-                {"clientid", model.clientid.ToString()},
-                {"transactionid", model.transactionid},
-                {"referenceid", model.referenceid},
-                {"subscriptionid", string.IsNullOrEmpty(model.subscriptionid) ? string.Empty : model.subscriptionid},
-                {"amount", model.amount.ToString()},
-                {"currency", model.currency},
-                {"paymentmethod", model.paymentmethod},
-                {"customerid", string.IsNullOrEmpty(model.customerid) ? string.Empty : model.customerid},
-                {"transactionstatus", model.transactionstatus},
-                {"transactionstatusaddition", string.IsNullOrEmpty(model.transactionstatusaddition) ? string.Empty : model.transactionstatusaddition},
-                {"creditcardtype", string.IsNullOrEmpty(model.creditcardtype) ? string.Empty : model.creditcardtype},
-                {"providertransactionid", string.IsNullOrEmpty(model.providertransactionid) ? string.Empty : model.providertransactionid},
-                {"additionaldata", string.IsNullOrEmpty(model.additionaldata) ? string.Empty : model.additionaldata},
-                {"timestamp", model.timestamp.ToString()},
-            };
-
-            string calculatedHash = HashHelper.CalculateHash(SUCC_HASH_KEY_SEQUENCE, data, WebApiConfig.Settings.GetSharedSecret(endpointId));
-            return model.hash.Trim().ToLowerInvariant() == calculatedHash.Trim().ToLowerInvariant();
-        }
-
-        public static bool SuccessHashIsValid(int endpointId, PreAuthFormSuccessPaymentModel model) {
-            if (model == null ||
-                string.IsNullOrEmpty(model.clientid) ||
-                string.IsNullOrEmpty(model.transactionid) ||
-                string.IsNullOrEmpty(model.referenceid) ||
-                model.amount < 0 ||
-                string.IsNullOrEmpty(model.currency) ||
-                string.IsNullOrEmpty(model.paymentmethod) ||
-                string.IsNullOrEmpty(model.transactionstatus) ||
-                string.IsNullOrEmpty(model.timestamp) ||
-                string.IsNullOrEmpty(model.hash)) {
-                return false;
-            }
-
-            NameValueCollection data = new NameValueCollection
-            {
-                {"clientid", model.clientid.ToString()},
-                {"transactionid", model.transactionid},
-                {"referenceid", model.referenceid},
-                {"subscriptionid", string.IsNullOrEmpty(model.subscriptionid) ? string.Empty : model.subscriptionid},
-                {"amount", model.amount.ToString()},
-                {"currency", model.currency},
-                {"paymentmethod", model.paymentmethod},
-                {"customerid", string.IsNullOrEmpty(model.customerid) ? string.Empty : model.customerid},
-                {"transactionstatus", model.transactionstatus},
-                {"transactionstatusaddition", string.IsNullOrEmpty(model.transactionstatusaddition) ? string.Empty : model.transactionstatusaddition},
-                {"creditcardtype", string.IsNullOrEmpty(model.creditcardtype) ? string.Empty : model.creditcardtype},
-                {"providertransactionid", string.IsNullOrEmpty(model.providertransactionid) ? string.Empty : model.providertransactionid},
-                {"additionaldata", string.IsNullOrEmpty(model.additionaldata) ? string.Empty : model.additionaldata},
-                {"timestamp", model.timestamp.ToString()},
-            };
-
-            string calculatedHash = HashHelper.CalculateHash(SUCC_HASH_KEY_SEQUENCE, data, WebApiConfig.Settings.GetSharedSecret(endpointId));
-            return model.hash.Trim().ToLowerInvariant() == calculatedHash.Trim().ToLowerInvariant();
-        }
-
-        public static bool FailureHashIsValid(int endpointId, PreAuthFailurePaymentModel model) {
-            if (model == null ||
-                string.IsNullOrEmpty(model.clientid) ||
-                string.IsNullOrEmpty(model.referenceid) ||
-                string.IsNullOrEmpty(model.errornumber) ||
-                string.IsNullOrEmpty(model.errortext) ||
-                string.IsNullOrEmpty(model.timestamp) ||
-                string.IsNullOrEmpty(model.hash)) {
-                return false;
-            }
-
-            NameValueCollection data = new NameValueCollection
-            {
-                {"clientid", model.clientid.ToString()},
-                {"referenceid", model.referenceid},
-                {"errornumber", model.errornumber},
-                {"errortext", model.errortext},
-                {"additionaldata", string.IsNullOrEmpty(model.additionaldata) ? string.Empty : model.additionaldata},
-                {"timestamp", model.timestamp.ToString()},
-            };
-
-            string calculatedHash = HashHelper.CalculateHash(FAIL_HASH_KEY_SEQUENCE, data, WebApiConfig.Settings.GetSharedSecret(endpointId));
-            return model.hash.Trim().ToLowerInvariant() == calculatedHash.Trim().ToLowerInvariant();
-        }
-
-        public static bool FailureHashIsValid(int endpointId, PreAuthFormFailurePaymentModel model) {
-            if (model == null ||
-                string.IsNullOrEmpty(model.clientid) ||
-                string.IsNullOrEmpty(model.referenceid) ||
-                string.IsNullOrEmpty(model.errornumber) ||
-                string.IsNullOrEmpty(model.errortext) ||
-                string.IsNullOrEmpty(model.timestamp) ||
-                string.IsNullOrEmpty(model.hash)) {
-                return false;
-            }
-
-            NameValueCollection data = new NameValueCollection
-            {
-                {"clientid", model.clientid.ToString()},
-                {"referenceid", model.referenceid},
-                {"errornumber", model.errornumber},
-                {"errortext", model.errortext},
-                {"additionaldata", string.IsNullOrEmpty(model.additionaldata) ? string.Empty : model.additionaldata},
-                {"timestamp", model.timestamp.ToString()},
-            };
-
-            string calculatedHash = HashHelper.CalculateHash(FAIL_HASH_KEY_SEQUENCE, data, WebApiConfig.Settings.GetSharedSecret(endpointId));
-            return model.hash.Trim().ToLowerInvariant() == calculatedHash.Trim().ToLowerInvariant();
-        }
-
-
 
         private static string[] PAYMENT_HASH_KEY_SEQUENCE =
         {

@@ -26,7 +26,7 @@ namespace MerchantAPI.Helpers
         public static string CreateRedirectHtml(string redirectTemplate, string redirectUrl)
         {
             string[] splittedUrl = redirectUrl.Split('?');
-            string redirectHTML = redirectTemplate.Replace("{0}", splittedUrl[0]);
+            string html = redirectTemplate.Replace("{0}", splittedUrl[0]);
             StringBuilder sb = new StringBuilder(1024);
             if (splittedUrl.Length > 1)
             {
@@ -37,7 +37,7 @@ namespace MerchantAPI.Helpers
                     sb.Append(HiddenInputTemplate.Replace("{0}", name).Replace("{1}", value));
                 }
             }
-            return redirectTemplate.Replace("{1}", sb.ToString());
+            return html.Replace("{1}", sb.ToString());
         }
     }
 }

@@ -44,8 +44,14 @@ namespace MerchantAPI.Services
                         response = StatusCaptureSingleCurrency(transactionData, merchantControlKey);
                         break;
                     case TransactionType.Return:
-                    case TransactionType.Verify:
+                        // TODO - Implement a response for Return
+                        response = StatusReturnSingleCurrency(transactionData, merchantControlKey);
+                        break;
                     case TransactionType.Void:
+                        // TODO - Implement a response for Void
+                        response = StatusVoidSingleCurrency(transactionData, merchantControlKey);
+                        break;
+                    case TransactionType.Verify:
                     default:
                         throw new ArgumentException($"Unsupported transaction type [{transactionData.Type}] for Status request");
                 }
@@ -66,13 +72,12 @@ namespace MerchantAPI.Services
             finally { }
         }
 
-        private NameValueCollection StatusSaleSingleCurrency(Transaction transactionData, string merchantControlKey) {
-
-            NameValueCollection response = new NameValueCollection();
-
+        private NameValueCollection StatusSaleSingleCurrency(Transaction transactionData, string merchantControlKey)
+        {
             NameValueCollection sale_model = ControllerHelper.DeserializeHttpParameters(transactionData.ReferenceQuery);
             string redirectURL = Cache.getRedirectUrlForRequest(transactionData.TransactionId);
 
+            NameValueCollection response = new NameValueCollection();
             switch (transactionData.State) {
                 case TransactionState.Started:
                 case TransactionState.Redirected:
@@ -238,13 +243,12 @@ namespace MerchantAPI.Services
                 .ToString());
         }
 
-        private NameValueCollection StatusPreAuthSingleCurrency(Transaction transactionData, string merchantControlKey) {
-
-            NameValueCollection response = new NameValueCollection();
-
+        private NameValueCollection StatusPreAuthSingleCurrency(Transaction transactionData, string merchantControlKey)
+        {
             NameValueCollection preauth_model = ControllerHelper.DeserializeHttpParameters(transactionData.ReferenceQuery);
             string redirectURL = Cache.getRedirectUrlForRequest(transactionData.TransactionId);
 
+            NameValueCollection response = new NameValueCollection();
             switch (transactionData.State) {
                 case TransactionState.Started:
                 case TransactionState.Redirected:
@@ -554,6 +558,338 @@ namespace MerchantAPI.Services
                         response["error-code"] = "1";
                         response["error-message"] = HttpUtility.UrlEncode("Undefined state of transaction");
                     }
+                    break;
+            }
+            return response;
+        }
+
+        private NameValueCollection StatusReturnSingleCurrency(Transaction transactionData, string merchantControlKey)
+        {
+            NameValueCollection return_model = ControllerHelper.DeserializeHttpParameters(transactionData.ReferenceQuery);
+
+            NameValueCollection response = new NameValueCollection();
+            switch (transactionData.State)
+            {
+                case TransactionState.Started:
+                case TransactionState.Redirected:
+                    if (transactionData.State == TransactionState.Started)
+                    {
+                        TransactionsDataStorage.UpdateTransactionState(transactionData.TransactionId,
+                            TransactionState.Redirected);
+                    }
+                    if (return_model != null)
+                    {
+                        // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo
+                        response["type"] = "status-response";
+                        response["status"] = "processing";
+                        response["amount"] = return_model["amount"];
+                        response["currency"] = return_model["currency"];
+                        response["paynet-order-id"] = transactionData.TransactionId;
+                        response["merchant-order-id"] = transactionData.MerchantTransactionId;
+                        response["phone"] = return_model["phone"];
+
+                        //string redirectHTML = RedirectHelper.CreateRedirectHtml(RedirectHelper.RedirectTemplate, redirectURL);
+                        //response["html"] = HttpUtility.UrlEncode(redirectHTML);
+
+                        response["serial-number"] = Guid.NewGuid().ToString();
+                        response["last-four-digits"] = ControllerHelper.LastFourDigits(return_model["credit_card_number"]);
+                        //response["bin"] = "";
+                        //response["card-type"] = "";
+                        //response["gate-partial-reversal"] = "";
+                        //response["gate-partial-capture"] = "";
+
+                        response["transaction-type"] = "reversal";
+                        
+                        //response["processor-rrn"] = "";
+                        //response["processor-tx-id"] = "";
+                        //response["receipt-id"] = "";
+                        response["name"] = HttpUtility.UrlEncode(return_model["first_name"] + " " + return_model["last_name"]);
+                        response["cardholder-name"] = HttpUtility.UrlEncode(return_model["card_printed_name"]);
+                        response["card-exp-month"] = return_model["expire_month"];
+                        response["card-exp-year"] = return_model["expire_year"];
+                        //response["card-hash-id"] = "";
+                        response["email"] = return_model["email"];
+                        //response["bank-name"] = "";
+                        //response["terminal-id"] = "";
+                        //response["paynet-processing-date"] = "";
+                        //response["approval-code"] = "";
+
+                        response["order-stage"] = "reversal_processing";
+
+                        //response["descriptor"] = sale_model["order_desc"];
+                        response["by-request-sn"] = transactionData.SerialNumber;
+                        //response["control"] = CalculateHash(response, merchantControlKey);
+                    }
+                    else
+                    {
+                        TransactionsDataStorage.UpdateTransaction(transactionData.TransactionId, TransactionState.Finished, TransactionStatus.Error);
+                        response["type"] = "validation-error";
+                        response["serial-number"] = Guid.NewGuid().ToString();
+                        response["error-code"] = "1";
+                        response["error-message"] = HttpUtility.UrlEncode($"Unknown 'orderid' [{transactionData.TransactionId}] to find stored transaction data");
+                    }
+                    break;
+                case TransactionState.Finished:
+                    switch (transactionData.Status)
+                    {
+                        case TransactionStatus.Approved:
+                            response["type"] = "status-response";
+                            response["status"] = "approved";
+                            response["amount"] = return_model["amount"];
+                            response["currency"] = return_model["currency"];
+                            response["paynet-order-id"] = transactionData.TransactionId;
+                            response["merchant-order-id"] = transactionData.MerchantTransactionId;
+                            response["phone"] = return_model["phone"];
+                            //response["html"] = "";
+                            response["serial-number"] = Guid.NewGuid().ToString();
+                            response["last-four-digits"] = ControllerHelper.LastFourDigits(return_model["credit_card_number"]);
+                            //response["bin"] = "";
+                            //response["card-type"] = "";
+                            //response["gate-partial-reversal"] = "";
+                            //response["gate-partial-capture"] = "";
+
+                            response["transaction-type"] = "reversal";
+                            
+                            //response["processor-rrn"] = "";
+                            //response["processor-tx-id"] = "";
+                            //response["receipt-id"] = "";
+                            response["name"] = HttpUtility.UrlEncode(return_model["first_name"] + " " + return_model["last_name"]);
+                            response["cardholder-name"] = HttpUtility.UrlEncode(return_model["card_printed_name"]);
+                            response["card-exp-month"] = return_model["expire_month"];
+                            response["card-exp-year"] = return_model["expire_year"];
+                            //response["card-hash-id"] = "";
+                            response["email"] = return_model["email"];
+                            //response["bank-name"] = "";
+                            //response["terminal-id"] = "";
+                            //response["paynet-processing-date"] = "";
+                            //response["approval-code"] = "";
+
+                            response["order-stage"] = "reversal_approved";
+                            
+                            //response["descriptor"] = sale_model["order_desc"];
+                            response["by-request-sn"] = transactionData.SerialNumber;
+                            //response["control"] = CalculateHash(response, merchantControlKey);
+                            break;
+                        case TransactionStatus.Declined:
+                            response["type"] = "status-response";
+                            response["status"] = "declined";
+                            response["amount"] = return_model["amount"];
+                            response["currency"] = return_model["currency"];
+                            response["paynet-order-id"] = transactionData.TransactionId;
+                            response["merchant-order-id"] = transactionData.MerchantTransactionId;
+                            response["phone"] = return_model["phone"];
+                            //response["html"] = "";
+                            response["serial-number"] = Guid.NewGuid().ToString();
+                            response["last-four-digits"] = ControllerHelper.LastFourDigits(return_model["credit_card_number"]);
+                            //response["bin"] = "";
+                            //response["card-type"] = "";
+                            //response["gate-partial-reversal"] = "";
+                            //response["gate-partial-capture"] = "";
+
+                            response["transaction-type"] = "reversal";
+                            
+                            //response["processor-rrn"] = "";
+                            //response["processor-tx-id"] = "";
+                            //response["receipt-id"] = "";
+                            response["name"] = HttpUtility.UrlEncode(return_model["first_name"] + " " + return_model["last_name"]);
+                            response["cardholder-name"] = HttpUtility.UrlEncode(return_model["card_printed_name"]);
+                            response["card-exp-month"] = return_model["expire_month"];
+                            response["card-exp-year"] = return_model["expire_year"];
+                            //response["card-hash-id"] = "";
+                            response["email"] = return_model["email"];
+                            //response["bank-name"] = "";
+                            //response["terminal-id"] = "";
+                            //response["paynet-processing-date"] = "";
+                            //response["approval-code"] = "";
+
+                            response["order-stage"] = "reversal_declined";
+                            
+                            //response["descriptor"] = sale_model["order_desc"];
+                            response["by-request-sn"] = transactionData.SerialNumber;
+                            //response["control"] = CalculateHash(response, merchantControlKey);
+                            break;
+                        case TransactionStatus.Error:
+                        case TransactionStatus.Undefined:
+                        default:
+                            response["type"] = "validation-error";
+                            response["serial-number"] = Guid.NewGuid().ToString();
+                            response["error-code"] = "1";
+                            response["error-message"] = HttpUtility.UrlEncode($"Transaction [orderid={transactionData.TransactionId}] has State [{transactionData.State}] but its Status is [{transactionData.Status}]");
+                            break;
+                    }
+                    break;
+                case TransactionState.Created:
+                default:
+                    response["type"] = "validation-error";
+                    response["serial-number"] = Guid.NewGuid().ToString();
+                    response["error-code"] = "1";
+                    response["error-message"] = HttpUtility.UrlEncode("Undefined state of transaction");
+                    break;
+            }
+            return response;
+        }
+
+        private NameValueCollection StatusVoidSingleCurrency(Transaction transactionData, string merchantControlKey)
+        {
+            NameValueCollection void_model = ControllerHelper.DeserializeHttpParameters(transactionData.ReferenceQuery);
+
+            NameValueCollection response = new NameValueCollection();
+            switch (transactionData.State)
+            {
+                case TransactionState.Started:
+                case TransactionState.Redirected:
+                    if (transactionData.State == TransactionState.Started)
+                    {
+                        TransactionsDataStorage.UpdateTransactionState(transactionData.TransactionId,
+                            TransactionState.Redirected);
+                    }
+                    if (void_model != null)
+                    {
+                        // Add to cache with key requestParameters['client_orderid'] and data redirectToCommDoo
+                        response["type"] = "status-response";
+                        response["status"] = "processing";
+                        response["amount"] = void_model["amount"];
+                        response["currency"] = void_model["currency"];
+                        response["paynet-order-id"] = transactionData.TransactionId;
+                        response["merchant-order-id"] = transactionData.MerchantTransactionId;
+                        response["phone"] = void_model["phone"];
+
+                        //string redirectHTML = RedirectHelper.CreateRedirectHtml(RedirectHelper.RedirectTemplate, redirectURL);
+                        //response["html"] = HttpUtility.UrlEncode(redirectHTML);
+
+                        response["serial-number"] = Guid.NewGuid().ToString();
+                        response["last-four-digits"] = ControllerHelper.LastFourDigits(void_model["credit_card_number"]);
+                        //response["bin"] = "";
+                        //response["card-type"] = "";
+                        //response["gate-partial-reversal"] = "";
+                        //response["gate-partial-capture"] = "";
+
+                        response["transaction-type"] = "reversal";
+
+                        //response["processor-rrn"] = "";
+                        //response["processor-tx-id"] = "";
+                        //response["receipt-id"] = "";
+                        response["name"] = HttpUtility.UrlEncode(void_model["first_name"] + " " + void_model["last_name"]);
+                        response["cardholder-name"] = HttpUtility.UrlEncode(void_model["card_printed_name"]);
+                        response["card-exp-month"] = void_model["expire_month"];
+                        response["card-exp-year"] = void_model["expire_year"];
+                        //response["card-hash-id"] = "";
+                        response["email"] = void_model["email"];
+                        //response["bank-name"] = "";
+                        //response["terminal-id"] = "";
+                        //response["paynet-processing-date"] = "";
+                        //response["approval-code"] = "";
+
+                        response["order-stage"] = "void_processing";
+
+                        //response["descriptor"] = sale_model["order_desc"];
+                        response["by-request-sn"] = transactionData.SerialNumber;
+                        //response["control"] = CalculateHash(response, merchantControlKey);
+                    }
+                    else
+                    {
+                        TransactionsDataStorage.UpdateTransaction(transactionData.TransactionId, TransactionState.Finished, TransactionStatus.Error);
+                        response["type"] = "validation-error";
+                        response["serial-number"] = Guid.NewGuid().ToString();
+                        response["error-code"] = "1";
+                        response["error-message"] = HttpUtility.UrlEncode($"Unknown 'orderid' [{transactionData.TransactionId}] to find stored transaction data");
+                    }
+                    break;
+                case TransactionState.Finished:
+                    switch (transactionData.Status)
+                    {
+                        case TransactionStatus.Approved:
+                            response["type"] = "status-response";
+                            response["status"] = "approved";
+                            response["amount"] = void_model["amount"];
+                            response["currency"] = void_model["currency"];
+                            response["paynet-order-id"] = transactionData.TransactionId;
+                            response["merchant-order-id"] = transactionData.MerchantTransactionId;
+                            response["phone"] = void_model["phone"];
+                            //response["html"] = "";
+                            response["serial-number"] = Guid.NewGuid().ToString();
+                            response["last-four-digits"] = ControllerHelper.LastFourDigits(void_model["credit_card_number"]);
+                            //response["bin"] = "";
+                            //response["card-type"] = "";
+                            //response["gate-partial-reversal"] = "";
+                            //response["gate-partial-capture"] = "";
+
+                            response["transaction-type"] = "reversal";
+
+                            //response["processor-rrn"] = "";
+                            //response["processor-tx-id"] = "";
+                            //response["receipt-id"] = "";
+                            response["name"] = HttpUtility.UrlEncode(void_model["first_name"] + " " + void_model["last_name"]);
+                            response["cardholder-name"] = HttpUtility.UrlEncode(void_model["card_printed_name"]);
+                            response["card-exp-month"] = void_model["expire_month"];
+                            response["card-exp-year"] = void_model["expire_year"];
+                            //response["card-hash-id"] = "";
+                            response["email"] = void_model["email"];
+                            //response["bank-name"] = "";
+                            //response["terminal-id"] = "";
+                            //response["paynet-processing-date"] = "";
+                            //response["approval-code"] = "";
+
+                            response["order-stage"] = "void_approved";
+
+                            //response["descriptor"] = sale_model["order_desc"];
+                            response["by-request-sn"] = transactionData.SerialNumber;
+                            //response["control"] = CalculateHash(response, merchantControlKey);
+                            break;
+                        case TransactionStatus.Declined:
+                            response["type"] = "status-response";
+                            response["status"] = "declined";
+                            response["amount"] = void_model["amount"];
+                            response["currency"] = void_model["currency"];
+                            response["paynet-order-id"] = transactionData.TransactionId;
+                            response["merchant-order-id"] = transactionData.MerchantTransactionId;
+                            response["phone"] = void_model["phone"];
+                            //response["html"] = "";
+                            response["serial-number"] = Guid.NewGuid().ToString();
+                            response["last-four-digits"] = ControllerHelper.LastFourDigits(void_model["credit_card_number"]);
+                            //response["bin"] = "";
+                            //response["card-type"] = "";
+                            //response["gate-partial-reversal"] = "";
+                            //response["gate-partial-capture"] = "";
+
+                            response["transaction-type"] = "reversal";
+
+                            //response["processor-rrn"] = "";
+                            //response["processor-tx-id"] = "";
+                            //response["receipt-id"] = "";
+                            response["name"] = HttpUtility.UrlEncode(void_model["first_name"] + " " + void_model["last_name"]);
+                            response["cardholder-name"] = HttpUtility.UrlEncode(void_model["card_printed_name"]);
+                            response["card-exp-month"] = void_model["expire_month"];
+                            response["card-exp-year"] = void_model["expire_year"];
+                            //response["card-hash-id"] = "";
+                            response["email"] = void_model["email"];
+                            //response["bank-name"] = "";
+                            //response["terminal-id"] = "";
+                            //response["paynet-processing-date"] = "";
+                            //response["approval-code"] = "";
+
+                            response["order-stage"] = "void_rejected";
+
+                            //response["descriptor"] = sale_model["order_desc"];
+                            response["by-request-sn"] = transactionData.SerialNumber;
+                            //response["control"] = CalculateHash(response, merchantControlKey);
+                            break;
+                        case TransactionStatus.Error:
+                        case TransactionStatus.Undefined:
+                        default:
+                            response["type"] = "validation-error";
+                            response["serial-number"] = Guid.NewGuid().ToString();
+                            response["error-code"] = "1";
+                            response["error-message"] = HttpUtility.UrlEncode($"Transaction [orderid={transactionData.TransactionId}] has State [{transactionData.State}] but its Status is [{transactionData.Status}]");
+                            break;
+                    }
+                    break;
+                case TransactionState.Created:
+                default:
+                    response["type"] = "validation-error";
+                    response["serial-number"] = Guid.NewGuid().ToString();
+                    response["error-code"] = "1";
+                    response["error-message"] = HttpUtility.UrlEncode("Undefined state of transaction");
                     break;
             }
             return response;

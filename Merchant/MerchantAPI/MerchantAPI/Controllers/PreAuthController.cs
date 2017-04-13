@@ -88,22 +88,25 @@ namespace MerchantAPI.Controllers
         [ActionName("success")]
         public HttpResponseMessage SingleSuccessPostback(
             [FromUri] int endpointId,
-            [FromUri] PreAuthSuccessPaymentModel model)
+            [FromUri] PostbackSuccessModel model)
         {
-            if (model.transactionid != null) {
-                TransactionsDataStorage.UpdateTransaction(model.fibonatixID, model.transactionid,
-                    TransactionState.Finished);
-            } else {
-                TransactionsDataStorage.UpdateTransactionState(model.fibonatixID,
-                    TransactionState.Finished);
+            if (!CommDooFrontendFactory.SuccessHashIsValid(endpointId, model))
+            {
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
-            TransactionsDataStorage.UpdateTransactionStatus(model.fibonatixID, TransactionStatus.Approved);
 
-            string redirectHTML = RedirectHelper.CreateRedirectHtml(RedirectHelper.RedirectTemplate,
-                model.customerredirecturl);
-            var result = new ServiceTransitionResult(HttpStatusCode.OK, redirectHTML);
-
-            HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
+            if (model.transactionid != null)
+            {
+                TransactionsDataStorage.UpdateTransaction(model.fibonatixID, model.transactionid,
+                    TransactionState.Finished, TransactionStatus.Approved);
+            }
+            else
+            {
+                TransactionsDataStorage.UpdateTransaction(model.fibonatixID,
+                    TransactionState.Finished, TransactionStatus.Approved);
+            }
+            
+            HttpResponseMessage response = PostbackHelper.CreateRedirectContent(endpointId, model, RedirectStatus.Approved);
             return response;
         }
 
@@ -111,11 +114,17 @@ namespace MerchantAPI.Controllers
         [ActionName("failure")]
         public HttpResponseMessage SingleFailurePostback(
             [FromUri] int endpointId,
-            [FromUri] PreAuthFailurePaymentModel model) {
+            [FromUri] PostbackFailureModel model)
+        {
+            if (!CommDooFrontendFactory.FailureHashIsValid(endpointId, model))
+            {
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+
             TransactionsDataStorage.UpdateTransaction(model.fibonatixID,
                 TransactionState.Finished, TransactionStatus.Declined);
-            var result = new ServiceTransitionResult(HttpStatusCode.Redirect, "", model.customerredirecturl);
-            HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
+
+            HttpResponseMessage response = PostbackHelper.CreateRedirectContent(endpointId, model, RedirectStatus.Declined);
             return response;
         }
 
@@ -123,7 +132,7 @@ namespace MerchantAPI.Controllers
         [ActionName("success")]
         public HttpResponseMessage MultiSuccessPostback(
             [FromUri] int endpointGroupId,
-            [FromUri] PreAuthSuccessPaymentModel model) {
+            [FromUri] PostbackSuccessModel model) {
 
             return SingleSuccessPostback(endpointGroupId, model);
         }
@@ -132,7 +141,7 @@ namespace MerchantAPI.Controllers
         [ActionName("failure")]
         public HttpResponseMessage MultiFailurePostback(
         [FromUri] int endpointGroupId,
-        [FromUri] PreAuthFailurePaymentModel model) {
+        [FromUri] PostbackFailureModel model) {
 
             return SingleFailurePostback(endpointGroupId, model);
         }

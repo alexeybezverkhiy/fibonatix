@@ -101,8 +101,8 @@ namespace MerchantAPI.Controllers
         [ActionName("success")]
         public HttpResponseMessage SingleSuccessPostback(
             [FromUri] int endpointId,
-            [FromUri] PreAuthFormSuccessPaymentModel model) {
-
+            [FromUri] PostbackSuccessModel model)
+        {
             if (!CommDooFrontendFactory.SuccessHashIsValid(endpointId, model)) {
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
@@ -115,13 +115,7 @@ namespace MerchantAPI.Controllers
                     TransactionState.Finished);
             }
 
-            RedirectResponseModel responseData = new RedirectResponseModel(model.referenceid);
-            responseData.merchant_order = model.fibonatixID;
-            responseData.status = "approved";
-            string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
-            responseData.control = HashHelper.SHA1(responseData.AssemblyHashContent(endpointId, controlKey));
-            var result = new ServiceTransitionResult(HttpStatusCode.OK, responseData.ToHttpResponse(model.customerredirecturl));
-            HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
+            HttpResponseMessage response = PostbackHelper.CreateRedirectContent(endpointId, model, RedirectStatus.Approved);
             return response;
         }
 
@@ -129,8 +123,8 @@ namespace MerchantAPI.Controllers
         [ActionName("failure")]
         public HttpResponseMessage SingleFailurePostback(
             [FromUri] int endpointId,
-            [FromUri] PreAuthFormFailurePaymentModel model) {
-
+            [FromUri] PostbackFailureModel model)
+        {
             if (!CommDooFrontendFactory.FailureHashIsValid(endpointId, model)) {
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
@@ -138,14 +132,7 @@ namespace MerchantAPI.Controllers
             TransactionsDataStorage.UpdateTransaction(model.fibonatixID,
                 TransactionState.Finished, TransactionStatus.Declined);
 
-            RedirectResponseModel responseData = new RedirectResponseModel(model.referenceid);
-            responseData.merchant_order = model.fibonatixID;
-            responseData.status = "declined";
-            string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
-            responseData.control = HashHelper.SHA1(responseData.AssemblyHashContent(endpointId, controlKey));
-
-            var result = new ServiceTransitionResult(HttpStatusCode.OK, responseData.ToHttpResponse(model.customerredirecturl));
-            HttpResponseMessage response = MerchantResponseFactory.CreateTextHtmlResponseMessage(result);
+            HttpResponseMessage response = PostbackHelper.CreateRedirectContent(endpointId, model, RedirectStatus.Declined);
             return response;
         }
 
@@ -153,7 +140,7 @@ namespace MerchantAPI.Controllers
         [ActionName("success")]
         public HttpResponseMessage MultiSuccessPostback(
             [FromUri] int endpointGroupId,
-            [FromUri] PreAuthFormSuccessPaymentModel model) {
+            [FromUri] PostbackSuccessModel model) {
 
             return SingleSuccessPostback(endpointGroupId, model);
         }
@@ -162,7 +149,7 @@ namespace MerchantAPI.Controllers
         [ActionName("failure")]
         public HttpResponseMessage MultiFailurePostback(
         [FromUri] int endpointGroupId,
-        [FromUri] PreAuthFormFailurePaymentModel model) {
+        [FromUri] PostbackFailureModel model) {
 
             return SingleFailurePostback(endpointGroupId, model);
         }

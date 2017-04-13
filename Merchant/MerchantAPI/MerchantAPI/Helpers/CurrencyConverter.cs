@@ -413,7 +413,7 @@ namespace MerchantAPI.Helpers
             { Iso4217CurrencyCodes.XPF, new Currency("CFP Franc", "953", "WALLIS AND FUTUNA", 0) },
             { Iso4217CurrencyCodes.XPT, new Currency("Platinum", "962", "ZZ10_Platinum", null) },
             { Iso4217CurrencyCodes.XSU, new Currency("Sucre", "994", "SISTEMA UNI TARIO DE COMPENSACION REGIONAL DE PAGOS \"SUCRE\"", null) },
-            { Iso4217CurrencyCodes.XTS, new Currency("C odes specifically reserved for testing purposes", "963", "ZZ06_Testing_Code", null) },
+            { Iso4217CurrencyCodes.XTS, new Currency("Codes specifically reserved for testing purposes", "963", "ZZ06_Testing_Code", null) },
             { Iso4217CurrencyCodes.XUA, new Currency("ADB Unit of Account", "965", "MEMBER COUNTRIES OF THE AFRICAN DEVELOPMENT BANK GROUP", null) },
             { Iso4217CurrencyCodes.XXX, new Currency("The codes assigned for transactions where no currency is involved", "999", "ZZ07_No_Currency", null) },
             { Iso4217CurrencyCodes.YER, new Currency("Yemeni Rial", "886", "YEMEN", 2) },
@@ -461,7 +461,7 @@ namespace MerchantAPI.Helpers
         }
 
         public static string MajorAmountToMinor(string major, string currencyCode) {
-            return MajorAmountToMinor(Decimal.Parse(major, NumberStyles.Currency, CultureInfo.InvariantCulture), currencyCode).ToString();
+            return MajorAmountToMinor(decimal.Parse(major, NumberStyles.Currency, CultureInfo.InvariantCulture), currencyCode).ToString();
         }
     }
 }

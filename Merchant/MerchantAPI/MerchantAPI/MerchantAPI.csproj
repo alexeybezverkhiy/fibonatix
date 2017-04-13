@@ -204,6 +204,7 @@
     <Compile Include="Helpers\CurrencyConverter.cs" />
     <Compile Include="Data\PersistenceContext.cs" />
     <Compile Include="Data\Transaction.cs" />
+    <Compile Include="Helpers\PostbackHelper.cs" />
     <Compile Include="Helpers\RedirectHelper.cs" />
     <Compile Include="Migrations\201702181556495_Initial.cs" />
     <Compile Include="Migrations\201702181556495_Initial.Designer.cs">
@@ -239,6 +240,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\CallbackModels.cs" />
+    <Compile Include="Models\PostbackModels.cs" />
     <Compile Include="Models\ReturnModels.cs" />
     <Compile Include="Models\NotificationRequestModel.cs" />
     <Compile Include="Controllers\VoidController.cs" />
