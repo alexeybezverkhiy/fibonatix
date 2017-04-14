@@ -78,10 +78,10 @@ namespace MerchantAPI.Models
         [StringLength(50)]
         public string oauth_version { get; set; }
 
-        protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint, string merchantControlKey)
+        protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint)
         {
             return builder
-                .Append(merchantControlKey);
+                ;
         }
     }
 

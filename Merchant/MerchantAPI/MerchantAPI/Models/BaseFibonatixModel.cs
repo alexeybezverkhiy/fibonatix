@@ -19,11 +19,12 @@ namespace MerchantAPI.Models
         [StringLength(40, MinimumLength = 40)]
         public string control { get; set; }
 
-        protected abstract StringBuilder FillHashContent(StringBuilder builder, int endpoint, string merchantControlKey);
+        protected abstract StringBuilder FillHashContent(StringBuilder builder, int endpoint);
 
         public string AssemblyHashContent(int endpoint, string merchantControlKey)
         {
-            return FillHashContent(new StringBuilder(128), endpoint, merchantControlKey)
+            return FillHashContent(new StringBuilder(128), endpoint)
+                .Append(merchantControlKey)
                 .ToString();
         }
 

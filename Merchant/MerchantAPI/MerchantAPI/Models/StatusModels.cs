@@ -22,13 +22,13 @@ namespace MerchantAPI.Models
         [StringLength(128)]
         public string by_request_sn { get; set; }
 
-        protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint, string merchantControlKey)
+        protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint)
         {
             return builder
                 .Append(login)
                 .Append(string.IsNullOrEmpty(client_orderid) ? string.Empty : client_orderid)
                 .Append(string.IsNullOrEmpty(orderid) ? string.Empty : orderid)
-                .Append(merchantControlKey);
+                ;
         }
     }
 

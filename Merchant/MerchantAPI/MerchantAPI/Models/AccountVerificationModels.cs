@@ -90,13 +90,13 @@ namespace MerchantAPI.Models
         [StringLength(128)]
         public string server_callback_url { get; set; } // OPTIONAL
 
-        protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint, string merchantControlKey)
+        protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint)
         {
             return builder
                 .Append(endpoint)
                 .Append(string.IsNullOrEmpty(client_orderid) ? string.Empty : client_orderid)
                 .Append(string.IsNullOrEmpty(email) ? string.Empty : email)
-                .Append(merchantControlKey);
+                ;
         }
     }
 
@@ -164,31 +164,30 @@ namespace MerchantAPI.Models
         }
 
         private string assembleStringForHash(string controlKey) {
-            string acc = "";
-            acc += status;
-            acc += paynet_order_id;
-            acc += merchant_order_id;
-            acc += controlKey;
-            return acc;
+            return new StringBuilder(128)
+                .Append(status)
+                .Append(paynet_order_id)
+                .Append(merchant_order_id)
+                .Append(controlKey)
+                .ToString();
         }
 
         public async void asyncSendPostCallback(string url, int endpointId) {
             try {
-                if (!String.IsNullOrEmpty(url)) {
+                if (!string.IsNullOrEmpty(url)) {
                     Helpers.PostRequest post = new PostRequest();
 
                     string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
                     string hash = HashHelper.SHA1(assembleStringForHash(controlKey));
 
-                    string postData = "";
-                    if (status != null) postData += ("status=" + status + "&");
-                    if (paynet_order_id != null) postData += ("paynet-order-id=" + paynet_order_id + "&");
-                    if (error_code != null) postData += ("error-code=" + error_code + "&");
-                    if (error_message != null) postData += ("error-message=" + error_message + "&");
+                    StringBuilder postData = new StringBuilder(128);
+                    if (!string.IsNullOrEmpty(status)) postData.Append("status=").Append(status).Append('&');
+                    if (!string.IsNullOrEmpty(paynet_order_id)) postData.Append("paynet-order-id=").Append(paynet_order_id).Append('&');
+                    if (!string.IsNullOrEmpty(error_code)) postData.Append("error-code=").Append(error_code).Append('&');
+                    if (!string.IsNullOrEmpty(error_message)) postData.Append("error-message=").Append(error_message).Append('&');
+                    postData.Append("control=").Append(hash);                    
 
-                    postData += ("control=" + hash);
-
-                    await Task.Run(() => post.sendRequest(url, System.Text.Encoding.UTF8.GetBytes(postData)));
+                    await Task.Run(() => post.sendRequest(url, Encoding.UTF8.GetBytes(postData.ToString())));
                 }
             } catch { }
         }

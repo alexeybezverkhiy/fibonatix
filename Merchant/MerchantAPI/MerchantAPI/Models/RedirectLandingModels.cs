@@ -30,12 +30,12 @@ namespace MerchantAPI.Models
         public string error_message { get; set; }
         public string descriptor { get; set; }
 
-        protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint, string merchantControlKey) {
+        protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint) {
             return builder
                 .Append(status.ToString().ToLower())
                 .Append(string.IsNullOrEmpty(orderid) ? string.Empty : orderid)
                 .Append(string.IsNullOrEmpty(merchant_order) ? string.Empty : merchant_order)
-                .Append(merchantControlKey);
+                ;
         }
 
         public bool IsSucc() {

@@ -87,13 +87,13 @@ namespace MerchantAPI.Models
             builder.Append('&').Append(key).Append('=').Append(value);
         }
 
-        protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint, string merchantControlKey)
+        protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint)
         {
             return builder
                 .Append(status)
                 .Append(orderid)
                 .Append(client_orderid)
-                .Append(merchantControlKey);
+                ;
         }
 
         private string CalculateHash()

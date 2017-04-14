@@ -81,14 +81,14 @@ namespace MerchantAPI.Models
         [StringLength(128)]
         public string server_callback_url { get; set; } // OPTIONAL
 
-        protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint, string merchantControlKey)
+        protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint)
         {
             return builder
                 .Append(endpoint)
                 .Append(string.IsNullOrEmpty(client_orderid) ? string.Empty : client_orderid)
                 .Append(CurrencyConverter.MajorAmountToMinor(amount, currency))
                 .Append(string.IsNullOrEmpty(email) ? string.Empty : email)
-                .Append(merchantControlKey);
+                ;
         }
     }
 

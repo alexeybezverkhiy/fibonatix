@@ -28,7 +28,7 @@ namespace MerchantAPI.Models
         [StringLength(3, MinimumLength = 3)]
         public string comment { get; set; }    // OPTIONAL
 
-        protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint, string merchantControlKey)
+        protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint)
         {
             return builder
                 .Append(login)
@@ -36,7 +36,7 @@ namespace MerchantAPI.Models
                 .Append(orderid)
                 .Append(CurrencyConverter.MajorAmountToMinor(amount, currency))
                 .Append(currency)
-                .Append(merchantControlKey);
+                ;
         }
     }
 
