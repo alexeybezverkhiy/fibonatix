@@ -19,6 +19,7 @@ namespace MerchantAPI.Helpers
         {
             RedirectResponseModel responseData = new RedirectResponseModel(model.referenceid);
             responseData.merchant_order = model.fibonatixID;
+            responseData.client_orderid = model.referenceid;
             responseData.status = finalStatus;
             string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
             responseData.control = HashHelper.SHA1(responseData.AssemblyHashContent(endpointId, controlKey));
