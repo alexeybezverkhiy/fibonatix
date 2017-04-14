@@ -103,9 +103,10 @@ namespace MerchantAPI.Controllers
         [ActionName("success")]
         public HttpResponseMessage SingleSuccessPostback(
             [FromUri] int endpointId,
-            [FromUri] SaleSuccessPaymentModel model)
+            [FromUri] PostbackSuccessModel model)
         {
-            if (!CommDooFrontendFactory.SuccessHashIsValid(endpointId, model))
+            string sharedSecret = WebApiConfig.Settings.GetSharedSecret(endpointId);
+            if (!model.IsHashValid(sharedSecret))
             {
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
@@ -133,9 +134,10 @@ namespace MerchantAPI.Controllers
         [ActionName("failure")]
         public HttpResponseMessage SingleFailurePostback(
             [FromUri] int endpointId,
-            [FromUri] SaleFailurePaymentModel model)
+            [FromUri] PostbackFailureModel model)
         {
-            if (!CommDooFrontendFactory.FailureHashIsValid(endpointId, model))
+            string sharedSecret = WebApiConfig.Settings.GetSharedSecret(endpointId);
+            if (!model.IsHashValid(sharedSecret))
             {
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
@@ -151,7 +153,7 @@ namespace MerchantAPI.Controllers
         [ActionName("success")]
         public HttpResponseMessage MultiSuccessPostback(
             [FromUri] int endpointGroupId,
-            [FromUri] SaleSuccessPaymentModel model)
+            [FromUri] PostbackSuccessModel model)
         {
             return SingleSuccessPostback(endpointGroupId, model);
         }
@@ -160,7 +162,7 @@ namespace MerchantAPI.Controllers
         [ActionName("failure")]
         public HttpResponseMessage MultiFailurePostback(
             [FromUri] int endpointGroupId,
-            [FromUri] SaleFailurePaymentModel model)
+            [FromUri] PostbackFailureModel model)
         {
             return SingleFailurePostback(endpointGroupId, model);
         }

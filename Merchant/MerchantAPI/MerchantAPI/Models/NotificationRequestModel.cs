@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Web.Http.ModelBinding;
-using MerchantAPI.App_Start;
 using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Models
@@ -12,6 +11,7 @@ namespace MerchantAPI.Models
     {
         [StringLength(512)]
         public string customernotifyurl { get; set; }
+
         [StringLength(512)]
         public string fibonatixID { get; set; }
     }
@@ -20,6 +20,7 @@ namespace MerchantAPI.Models
     {
         [StringLength(512)]
         public string customernotifyurl { get; set; }
+
         [StringLength(512)]
         public string fibonatixID { get; set; }
 
@@ -86,16 +87,16 @@ namespace MerchantAPI.Models
 
         public bool IsHashValid(string sharedSecret)
         {
-            if (WebApiConfig.Settings.ApplicationMode == ApplicationMode.TESTING) return true;
-            
             string calculatedHash = HashHelper.SHA1(AssemblyHashContent(sharedSecret));
-            return string.Equals(hash, calculatedHash, StringComparison.OrdinalIgnoreCase);
+            return string.Equals(hash.Trim(), calculatedHash.Trim(), 
+                StringComparison.OrdinalIgnoreCase);
         }
 
         public string AssemblyHashContent(string sharedSecret)
         {
-            StringBuilder result = new StringBuilder(128);
-            return FillHashContent(result, sharedSecret).ToString();
+            return FillHashContent(new StringBuilder(128))
+                .Append(sharedSecret)
+                .ToString();
         }
 
         private static string[] NOTIFICATION_HASH_KEY_SEQUENSE =
@@ -156,7 +157,7 @@ namespace MerchantAPI.Models
             "Shared Secret"
         };
 
-        protected StringBuilder FillHashContent(StringBuilder builder, string sharedSecret)
+        protected StringBuilder FillHashContent(StringBuilder builder)
         {
             return builder
                     .Append(clientid)
@@ -169,9 +170,8 @@ namespace MerchantAPI.Models
                     .Append(transactionstatusaddition)
                     .Append(transactiondate)
                     .Append(timestamp)
-                    .Append(customer_country)
-//                    .Append()
-                    .Append(sharedSecret);
+                    .Append(customer_country)                    
+                    ;
         }
     }
 }

@@ -103,7 +103,9 @@ namespace MerchantAPI.Controllers
             [FromUri] int endpointId,
             [FromUri] PostbackSuccessModel model)
         {
-            if (!CommDooFrontendFactory.SuccessHashIsValid(endpointId, model)) {
+            string sharedSecret = WebApiConfig.Settings.GetSharedSecret(endpointId);
+            if (!model.IsHashValid(sharedSecret))
+            { 
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
 
@@ -128,7 +130,9 @@ namespace MerchantAPI.Controllers
             [FromUri] int endpointId,
             [FromUri] PostbackFailureModel model)
         {
-            if (!CommDooFrontendFactory.FailureHashIsValid(endpointId, model)) {
+            string sharedSecret = WebApiConfig.Settings.GetSharedSecret(endpointId);
+            if (!model.IsHashValid(sharedSecret))
+            {
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
 

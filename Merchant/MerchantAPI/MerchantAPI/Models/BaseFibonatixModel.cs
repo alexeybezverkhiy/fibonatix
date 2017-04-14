@@ -23,8 +23,8 @@ namespace MerchantAPI.Models
 
         public string AssemblyHashContent(int endpoint, string merchantControlKey)
         {
-            StringBuilder result = new StringBuilder(128);
-            return FillHashContent(result, endpoint, merchantControlKey).ToString();
+            return FillHashContent(new StringBuilder(128), endpoint, merchantControlKey)
+                .ToString();
         }
 
         public bool IsHashValid(int endpoint, string merchantControlKey)
@@ -32,7 +32,8 @@ namespace MerchantAPI.Models
             if (WebApiConfig.Settings.ApplicationMode == ApplicationMode.TESTING) return true;
 
             string calulatedHash = HashHelper.SHA1(AssemblyHashContent(endpoint, merchantControlKey));
-            return string.Equals(control, calulatedHash, StringComparison.OrdinalIgnoreCase);
+            return string.Equals(control.Trim(), calulatedHash.Trim(), 
+                StringComparison.OrdinalIgnoreCase);
         }
     }
 
