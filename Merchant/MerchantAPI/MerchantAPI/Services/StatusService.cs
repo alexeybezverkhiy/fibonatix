@@ -44,11 +44,9 @@ namespace MerchantAPI.Services
                         response = StatusCaptureSingleCurrency(transactionData, merchantControlKey);
                         break;
                     case TransactionType.Return:
-                        // TODO - Implement a response for Return
                         response = StatusReturnSingleCurrency(transactionData, merchantControlKey);
                         break;
                     case TransactionType.Void:
-                        // TODO - Implement a response for Void
                         response = StatusVoidSingleCurrency(transactionData, merchantControlKey);
                         break;
                     case TransactionType.Verify:

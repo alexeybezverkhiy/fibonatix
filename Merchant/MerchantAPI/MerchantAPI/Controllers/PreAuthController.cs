@@ -30,7 +30,7 @@ namespace MerchantAPI.Controllers
             string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
             if (string.IsNullOrEmpty(controlKey)) {
                 err = new PreAuthResponseModel(model.client_orderid);
-                err.SetValidationError("2", "INVALID_CONTROL_CODE");
+                err.SetValidationError("2", "UNREACHABLE_CONTROL_CODE");
             } else {
                 if (model.IsHashValid(endpointId, controlKey)) {
                     string raw = RawContentReader.Read(Request).Result;
@@ -60,7 +60,7 @@ namespace MerchantAPI.Controllers
             if (string.IsNullOrEmpty(controlKey))
             {
                 err = new PreAuthResponseModel(model.client_orderid);
-                err.SetValidationError("2", "INVALID_CONTROL_CODE");
+                err.SetValidationError("2", "UNREACHABLE_CONTROL_CODE");
             }
             else
             {

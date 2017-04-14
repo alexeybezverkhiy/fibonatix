@@ -12,10 +12,11 @@ namespace MerchantAPI.Services
 
         public ServiceTransitionResult VoidSingleCurrency(
             int endpointId,
-            SaleRequestModel model)
+            ReturnRequestModel model,
+            string rawModel)
         {
             return new ServiceTransitionResult(HttpStatusCode.OK,
-                "Method [VoidService] is not supported yet");
+                "Method [VoidService.VoidSingleCurrency] is not supported yet");
         }
 
     }

@@ -83,6 +83,11 @@ namespace MerchantAPI.Models
             return builder
                 ;
         }
+
+        public new bool IsHashValid(int endpoint, string merchantControlKey)
+        {
+            return true;
+        }
     }
 
     public class PayoutResponseModel : BaseFibonatixResponseModel

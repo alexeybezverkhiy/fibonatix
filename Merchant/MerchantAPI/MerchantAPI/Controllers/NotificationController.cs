@@ -24,12 +24,15 @@ namespace MerchantAPI.Controllers
         public HttpResponseMessage SingleSuccess(
             int endpointId,
             [FromBody] NotificationRequestModel model, 
-            [FromUri] NotificationRequestExtraModel model2)
+            [FromUri] NotificationRequestExtraModel uriModel)
         {
             ServiceTransitionResult result;
-            model.customernotifyurl = model2.customernotifyurl;
-            model.fibonatixID = model2.fibonatixID;
-            if (model.IsHashValid(WebApiConfig.Settings.GetSharedSecret(endpointId)))
+
+            model.customernotifyurl = uriModel.customernotifyurl;
+            model.fibonatixID = uriModel.fibonatixID;
+
+            string sharedSecret = WebApiConfig.Settings.GetSharedSecret(endpointId);
+            if (model.IsHashValid(sharedSecret))
             {
                 result = _service.Notified(endpointId, model);
             }
@@ -47,9 +50,9 @@ namespace MerchantAPI.Controllers
         public HttpResponseMessage MultiSuccess(
             int endpointGroupId,
             [FromBody] NotificationRequestModel model,
-            [FromUri] NotificationRequestExtraModel model2) {
-
-            return SingleSuccess(endpointGroupId, model, model2);
+            [FromUri] NotificationRequestExtraModel uriModel)
+        {
+            return SingleSuccess(endpointGroupId, model, uriModel);
         }
 
     }

@@ -30,12 +30,17 @@ namespace MerchantAPI.Models
 
         protected override StringBuilder FillHashContent(StringBuilder builder, int endpoint)
         {
-            return builder
-                .Append(login)
-                .Append(client_orderid)
-                .Append(orderid)
-                .Append(CurrencyConverter.MajorAmountToMinor(amount, currency))
-                .Append(currency)
+            return string.IsNullOrEmpty(amount)
+                ? builder
+                    .Append(login)
+                    .Append(client_orderid)
+                    .Append(orderid)
+                : builder
+                    .Append(login)
+                    .Append(client_orderid)
+                    .Append(orderid)
+                    .Append(CurrencyConverter.MajorAmountToMinor(amount, currency))
+                    .Append(currency)
                 ;
         }
     }

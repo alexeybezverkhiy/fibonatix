@@ -31,7 +31,7 @@ namespace MerchantAPI.Controllers
             if (string.IsNullOrEmpty(controlKey))
             {
                 err = new SaleResponseModel(model.client_orderid);
-                err.SetValidationError("2", "INVALID_CONTROL_CODE");
+                err.SetValidationError("2", "UNREACHABLE_CONTROL_CODE");
             }
             else
             {
@@ -57,7 +57,8 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage MultiCurrency(
             [FromUri] int endpointGroupId,
-            [FromBody] StatusRequestModel model) {
+            [FromBody] StatusRequestModel model)
+        {
             return SingleCurrency(endpointGroupId, model);
         }
 

@@ -22,20 +22,25 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage SingleCurrency(
             [FromUri] int endpointId,
-            [FromBody] CaptureRequestModel model) {
-
+            [FromBody] CaptureRequestModel model)
+        {
             CaptureResponseModel err = null;
             ServiceTransitionResult result = null;
 
             string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
-            if (string.IsNullOrEmpty(controlKey)) {
+            if (string.IsNullOrEmpty(controlKey))
+            {
                 err = new CaptureResponseModel(model.client_orderid);
-                err.SetValidationError("2", "INVALID_CONTROL_CODE");
-            } else {
+                err.SetValidationError("2", "UNREACHABLE_CONTROL_CODE");
+            }
+            else
+            {
                 if (model.IsHashValid(endpointId, controlKey)) {
                     string raw = RawContentReader.Read(Request).Result;
                     result = _service.CaptureSingleCurrency(endpointId, model, raw);
-                } else {
+                }
+                else
+                {
                     err = new CaptureResponseModel(model.client_orderid);
                     err.SetValidationError("2", "INVALID_CONTROL_CODE");
                 }
@@ -51,8 +56,8 @@ namespace MerchantAPI.Controllers
         [HttpPost]
         public HttpResponseMessage MultiCurrency(
             [FromUri] int endpointGroupId,
-            [FromBody] CaptureRequestModel model) {
-
+            [FromBody] CaptureRequestModel model)
+        {
             return SingleCurrency(endpointGroupId, model);
         }
 

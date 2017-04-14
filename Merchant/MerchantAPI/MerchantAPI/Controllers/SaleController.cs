@@ -35,17 +35,25 @@ namespace MerchantAPI.Controllers
             ServiceTransitionResult result = null;
 
             string controlKey = WebApiConfig.Settings.GetMerchantControlKey(endpointId);
-            if (string.IsNullOrEmpty(controlKey)) {
+            if (string.IsNullOrEmpty(controlKey))
+            {
                 err = new SaleResponseModel(model.client_orderid);
-                err.SetValidationError("2", "INVALID_CONTROL_CODE");
-            } else if (string.IsNullOrEmpty(model.client_orderid)) {
+                err.SetValidationError("2", "UNREACHABLE_CONTROL_CODE");
+            }
+            else if (string.IsNullOrEmpty(model.client_orderid))
+            {
                 err = new SaleResponseModel(null);
                 err.SetValidationError("2", "INVALID_INCOMING_DATA");
-            } else {
-                if (model.IsHashValid(endpointId, controlKey)) {
+            }
+            else
+            {
+                if (model.IsHashValid(endpointId, controlKey))
+                {
                     string raw = RawContentReader.Read(Request).Result;
                     result = _service.SaleSingleCurrency(endpointId, model, raw);
-                } else {
+                }
+                else
+                {
                     err = new SaleResponseModel(model.client_orderid);
                     err.SetValidationError("2", "INVALID_CONTROL_CODE");
                 }
@@ -70,7 +78,7 @@ namespace MerchantAPI.Controllers
             if (string.IsNullOrEmpty(controlKey))
             {
                 err = new SaleResponseModel(model.client_orderid);
-                err.SetValidationError("2", "INVALID_CONTROL_CODE");
+                err.SetValidationError("2", "UNREACHABLE_CONTROL_CODE");
             }
             else if (string.IsNullOrEmpty(model.client_orderid))
             {

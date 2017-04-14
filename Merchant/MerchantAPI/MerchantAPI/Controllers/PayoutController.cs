@@ -39,7 +39,7 @@ namespace MerchantAPI.Controllers
                 if (string.IsNullOrEmpty(controlKey))
                 {
                     err = new PayoutResponseModel(model.client_orderid);
-                    err.SetValidationError("2", "INVALID_CONTROL_CODE");
+                    err.SetValidationError("2", "UNREACHABLE_CONTROL_CODE");
                 }
                 else
                 {
