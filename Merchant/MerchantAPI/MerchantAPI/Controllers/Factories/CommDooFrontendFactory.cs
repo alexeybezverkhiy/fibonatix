@@ -14,8 +14,8 @@ namespace MerchantAPI.Controllers.Factories
 
     public class CommDooFrontendFactory
     {
-        private static readonly string SUCC_EXTRA_PATH = "/success";
-        private static readonly string FAIL_EXTRA_PATH = "/failure";
+        public static readonly string SUCC_EXTRA_PATH = "/success";
+        public static readonly string FAIL_EXTRA_PATH = "/failure";
 
         //
         // Sale operation block

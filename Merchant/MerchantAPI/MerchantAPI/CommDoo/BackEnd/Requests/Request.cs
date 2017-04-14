@@ -270,6 +270,7 @@ namespace MerchantAPI.CommDoo.BackEnd.Requests
         internal string sendRequest(string url) {
             calculateHash();
             string xmlReq = getXml();
+            xmlReq = xmlReq.Replace("<PaymentType>CreditCard</PaymentType>", "<PaymentType><CreditCard /></PaymentType>");
             var ret = ProcessRequest(url, System.Text.Encoding.UTF8.GetBytes("xml=" + HttpUtility.UrlEncode(xmlReq)));
             return System.Text.Encoding.UTF8.GetString(ret.ToArray());
         }
