@@ -199,6 +199,7 @@
     <Compile Include="Controllers\PayoutController.cs" />
     <Compile Include="Controllers\PreAuthFormController.cs" />
     <Compile Include="Controllers\SaleFormController.cs" />
+    <Compile Include="Controllers\RecurrentController.cs" />
     <Compile Include="Data\MerchantCallback.cs" />
     <Compile Include="Helpers\ControllerHelper.cs" />
     <Compile Include="Helpers\CurrencyConverter.cs" />
@@ -241,6 +242,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\CallbackModels.cs" />
+    <Compile Include="Models\RecurrentModels.cs" />
     <Compile Include="Models\PostbackModels.cs" />
     <Compile Include="Models\AccountVerificationModels.cs" />
     <Compile Include="Models\ReturnModels.cs" />

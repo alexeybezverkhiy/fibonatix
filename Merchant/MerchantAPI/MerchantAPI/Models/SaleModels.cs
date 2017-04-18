@@ -112,68 +112,34 @@ namespace MerchantAPI.Models
         }
     }
 
-    public class SaleResponseModel
+    public class SaleResponseModel : AbstractFibonatixResponseModel
     {
-        private static string SUCC_ASYNC_RESPONSE = "async-response";
-        private static string FAIL_ERROR = "error";
-        private static string FAIL_VALIDATION_ERROR = "validation-error";
+        public SaleResponseModel() : base()
+        {
+        }
 
-        public SaleResponseModel(string clientOrderId)
+        public SaleResponseModel(string clientOrderId) : base()
         {
             merchant_order_id = clientOrderId;
         }
 
-        public string type { get; set; }
         public string paynet_order_id { get; set; }
         public string merchant_order_id { get; set; }
-        public string serial_number { get; set; }
-        public string error_message { get; set; }
-        public string error_code { get; set; }
 
-        public bool IsSucc()
+        protected override string CreateSuccResponse()
         {
-            return String.Equals(SUCC_ASYNC_RESPONSE, type);
+            return 
+                base.CreateSuccResponse() +
+                $"&paynet-order-id={paynet_order_id}\n" +
+                $"&merchant-order-id={merchant_order_id}\n";
         }
 
-        public string ToHttpResponse()
+        protected override string CreateFailResponse()
         {
-            if (IsSucc())
-            {
-                return String.Format(
-                    "type={0}\n" +
-                    "&paynet-order-id={1}\n" +
-                    "&merchant-order-id={2}\n" +
-                    "&serial-number={3}\n",
-                    SUCC_ASYNC_RESPONSE, paynet_order_id, merchant_order_id, serial_number);
-            }
-            return String.Format(
-                    "type={0}\n" +
-                    "&paynet-order-id={1}\n" +
-                    "&merchant-order-id={2}\n" +
-                    "&serial-number={3}\n" +
-                    "&error-message={4}\n" +
-                    "&error-code={5}\n",
-                    type, paynet_order_id, merchant_order_id, serial_number,
-                    HttpUtility.UrlEncode(error_message), error_code);
-        }
-
-        public void SetSucc()
-        {
-            type = SUCC_ASYNC_RESPONSE;
-        }
-
-        public void SetValidationError(string code, string message)
-        {
-            type = FAIL_VALIDATION_ERROR;
-            error_code = code;
-            error_message = message;
-        }
-
-        public void SetError(string code, string message)
-        {
-            type = FAIL_ERROR;
-            error_code = code;
-            error_message = message;
+            return
+                base.CreateFailResponse() +
+                $"&paynet-order-id={paynet_order_id}\n" +
+                $"&merchant-order-id={merchant_order_id}\n";
         }
     }
 }

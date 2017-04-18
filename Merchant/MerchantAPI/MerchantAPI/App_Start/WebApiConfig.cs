@@ -45,6 +45,18 @@ namespace MerchantAPI
             // , defaults: new { groupType = "single" }
             );
 
+            config.Routes.MapHttpRoute(
+                name: "SingleCurrencySync",
+                routeTemplate: "paynet/api/v2/sync/{controller}/{endpointId}"
+            // , defaults: new { groupType = "single" }
+            );
+
+            config.Routes.MapHttpRoute(
+                name: "MultiCurrencySync",
+                routeTemplate: "paynet/api/v2/sync/{controller}/group/{endpointGroupId}"
+            // , defaults: new { groupType = "single" }
+            );
+
             // Performing 'successurl' & 'failureurl' as {action}
             config.Routes.MapHttpRoute(
                 name: "SingleCurrencyCallbacks",

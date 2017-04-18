@@ -9,12 +9,8 @@ using MerchantAPI.Helpers;
 
 namespace MerchantAPI.Models
 {
-    public abstract class BaseFibonatixModel
+    public abstract class AbstractFibonatixModel
     {
-        [Required]
-        [StringLength(128)]
-        public string client_orderid { get; set; }
-
         [Required]
         [StringLength(40, MinimumLength = 40)]
         public string control { get; set; }
@@ -33,63 +29,92 @@ namespace MerchantAPI.Models
             if (WebApiConfig.Settings.ApplicationMode == ApplicationMode.TESTING) return true;
 
             string calulatedHash = HashHelper.SHA1(AssemblyHashContent(endpoint, merchantControlKey));
-            return string.Equals(control.Trim(), calulatedHash.Trim(), 
+            return string.Equals(control.Trim(), calulatedHash.Trim(),
                 StringComparison.OrdinalIgnoreCase);
         }
     }
 
-    public abstract class BaseFibonatixResponseModel
+    public abstract class BaseFibonatixModel : AbstractFibonatixModel
     {
-        private static string SUCC_ASYNC_RESPONSE = "async-response";
-        private static string FAIL_ERROR = "error";
-        private static string FAIL_VALIDATION_ERROR = "validation-error";
+        [Required]
+        [StringLength(128)]
+        public string client_orderid { get; set; }
+    }
 
-        public BaseFibonatixResponseModel(string clientOrderId)
+    public enum FibonatixTransactionStatus
+    {
+        Approved,
+        Declined,
+        Error,
+        Filtered,
+        Processing,
+        Unknown,
+    }
+
+    public enum FibonatixResponseType
+    {
+        Success,
+        Error,
+        ValidationError,
+    }
+
+    public abstract class AbstractFibonatixResponseModel
+    {
+        protected static string SUCC_ASYNC_RESPONSE = "async-response";
+
+        protected static string FAIL_ERROR = "error";
+        protected static string FAIL_VALIDATION_ERROR = "validation-error";
+
+        public AbstractFibonatixResponseModel()
         {
-            merchant_order_id = clientOrderId;
         }
 
+        protected FibonatixResponseType responseType;
+
         public string type { get; set; }
-        public string paynet_order_id { get; set; }
-        public string merchant_order_id { get; set; }
         public string serial_number { get; set; }
         public string error_message { get; set; }
         public string error_code { get; set; }
 
         public bool IsSucc()
         {
-            return string.Equals(SUCC_ASYNC_RESPONSE, type);
+            return responseType == FibonatixResponseType.Success;
         }
 
         public string ToHttpResponse()
         {
-            if (IsSucc())
-            {
-                return String.Format(
-                    "type={0}" +
-                    "&paynet-order-id={1}" +
-                    "&merchant-order-id={2}" +
-                    "&serial-number={3}",
-                    SUCC_ASYNC_RESPONSE, paynet_order_id, merchant_order_id, serial_number);
-            }
-            return String.Format(
-                    "type={0}" +
-                    "&paynet-order-id={1}" +
-                    "&merchant-order-id={2}" +
-                    "&serial-number={3}" +
-                    "&error-message={4}" +
-                    "&error-code={5}",
-                    type, paynet_order_id, merchant_order_id, serial_number,
-                    HttpUtility.UrlEncode(error_message), error_code);
+            return IsSucc() ? CreateSuccResponse() : CreateFailResponse();
+        }
+
+        protected string CreateSuccResponse(string aType)
+        {
+            return
+                $"type={aType}\n" +
+                $"&serial-number={serial_number}\n";
+        }
+
+        protected virtual string CreateSuccResponse()
+        {
+            return CreateSuccResponse(SUCC_ASYNC_RESPONSE);
+        }
+
+        protected virtual string CreateFailResponse()
+        {
+            return
+                $"type={type}\n" +
+                $"&serial-number={serial_number}\n" +
+                $"&error-message={HttpUtility.HtmlEncode(error_message)}\n" +
+                $"&error-code={error_code}\n";
         }
 
         public void SetSucc()
         {
-            type = SUCC_ASYNC_RESPONSE;
+            responseType = FibonatixResponseType.Success;
         }
 
         public void SetValidationError(string code, string message)
         {
+            responseType = FibonatixResponseType.ValidationError;
             type = FAIL_VALIDATION_ERROR;
             error_code = code;
             error_message = message;
@@ -97,9 +122,37 @@ namespace MerchantAPI.Models
 
         public void SetError(string code, string message)
         {
+            responseType = FibonatixResponseType.Error;
             type = FAIL_ERROR;
             error_code = code;
             error_message = message;
+        }
+    }
+
+    public abstract class BaseFibonatixResponseModel : AbstractFibonatixResponseModel
+    {
+        public BaseFibonatixResponseModel(string clientOrderId) : base()
+        {
+            merchant_order_id = clientOrderId;
+        }
+
+        public string paynet_order_id { get; set; }
+        public string merchant_order_id { get; set; }
+
+        protected override string CreateSuccResponse()
+        {
+            return
+                base.CreateSuccResponse() +
+                $"&paynet-order-id={paynet_order_id}\n" +
+                $"&merchant-order-id={merchant_order_id}\n";
+        }
+
+        protected override string CreateFailResponse()
+        { 
+            return 
+                base.CreateFailResponse() +
+                $"&paynet-order-id={paynet_order_id}\n" +
+                $"&merchant-order-id={merchant_order_id}\n";
         }
     }
 

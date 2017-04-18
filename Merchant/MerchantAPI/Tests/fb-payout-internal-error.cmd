@@ -2,7 +2,7 @@
 @call setenv.cmd %* skip2nd
 
 @set fileTraceLog=%~n0.trace.log
-@set url=http://%targetHost%:52380/paynet/api/v2/payout/250
+@set url=http://%targetHost%/paynet/api/v2/payout/250
 @set accountNumber=1987654321
 
 @set headerData=Authorization: OAuth realm="",oauth_version="1.0",oauth_consumer_key="merchantlogin",oauth_timestamp="1490718302",oauth_nonce="1eK7t1kIhTx",oauth_signature_method="HMAC-SHA1",oauth_signature="DDhwSEj2e7nZ2a07S5p%2Fizfe3Rg%3D"
